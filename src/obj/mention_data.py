@@ -1,9 +1,11 @@
+import logging
 import sys
 from typing import List
 
 from src.utils.io_utils import load_json_file
 from src.utils.string_utils import StringUtils
 
+logger = logging.getLogger(__name__)
 
 class MentionDataLight(object):
     def __init__(self, tokens_str: str, mention_context: str = None, mention_head: str = None,
@@ -197,3 +199,48 @@ class MentionData(MentionDataLight):
     @staticmethod
     def static_gen_token_unique_id(doc_id: int, sent_id: int, token_id: int) -> str:
         return '_'.join([str(doc_id), str(sent_id), str(token_id)])
+
+    @staticmethod
+    def load_mentions_vocab_from_files(mentions_files, filter_stop_words=False):
+        logger.info('Loading mentions files...')
+        mentions = []
+        for _file in mentions_files:
+            mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_file))
+
+        return MentionData.load_mentions_vocab(mentions, filter_stop_words)
+
+    @staticmethod
+    def load_mentions_vocab(mentions, filter_stop_words=False):
+        vocab = MentionData.extract_vocab(mentions, filter_stop_words)
+        logger.info('Done loading mentions files...')
+        return vocab
+
+    @staticmethod
+    def extract_vocab(mentions, filter_stop_words: bool) -> List[str]:
+        """
+        Extract Head, Lemma and mention string from all mentions to create a list of string vocabulary
+        Args:
+            mentions:
+            filter_stop_words:
+
+        Returns:
+
+        """
+        vocab = set()
+        for mention in mentions:
+            head = mention.mention_head
+            head_lemma = mention.mention_head_lemma
+            tokens_str = mention.tokens_str
+            if not filter_stop_words:
+                vocab.add(head)
+                vocab.add(head_lemma)
+                vocab.add(tokens_str)
+            else:
+                if not StringUtils.is_stop(head):
+                    vocab.add(head)
+                if not StringUtils.is_stop(head_lemma):
+                    vocab.add(head_lemma)
+                if not StringUtils.is_stop(tokens_str):
+                    vocab.add(tokens_str)
+        vocab_set = list(vocab)
+        return vocab_set

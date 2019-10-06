@@ -17,9 +17,9 @@ DETERMINERS_FILE = os.path.join(CURRENT_DIR, 'resources/determiners_en.json')
 DISAMBIGUATION_CATEGORY = ['disambig', 'disambiguation']
 
 
-class StringUtils:
-    spacy_no_parser = spacy.load('en', disable=['parser'])
-    spacy_parser = spacy.load('en', disable=None)
+class StringUtils(object):
+    spacy_parser = spacy.load('en_core_web_sm')
+    spacy_no_parser = spacy.load('en_core_web_sm', disable=['parser'])
     stop_words = []
     pronouns = []
     preposition = []
@@ -44,8 +44,7 @@ class StringUtils:
         if isinstance(str_clean, str):
             str_clean = str(str_clean)
 
-        parser = StringUtils.spacy_no_parser.parser
-        doc = parser(str_clean)
+        doc = StringUtils.spacy_no_parser(str_clean)
         ret_clean = []
         for token in doc:
             lemma = token.lemma_.strip()
@@ -109,7 +108,7 @@ class StringUtils:
         ner = "UNK"
 
         # pylint: disable=not-callable
-        doc = StringUtils.spacy_parser.parser(x)
+        doc = StringUtils.spacy_parser(x)
         for tok in doc:
             if tok.head == tok:
                 head = tok.text

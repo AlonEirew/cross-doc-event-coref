@@ -4,15 +4,13 @@ import logging
 import os
 from typing import Set, List
 
-from nlp_architect.common.cdc.mention_data import MentionDataLight
-from nlp_architect.data.cdc_resources.data_types.wiki.wikipedia_pages import WikipediaPages
-from nlp_architect.data.cdc_resources.relations.relation_extraction import RelationExtraction
-from nlp_architect.data.cdc_resources.relations.relation_types_enums import RelationType, \
-    WikipediaSearchMethod
-from nlp_architect.data.cdc_resources.wikipedia.wiki_elastic import WikiElastic
-from nlp_architect.data.cdc_resources.wikipedia.wiki_offline import WikiOffline
-from nlp_architect.data.cdc_resources.wikipedia.wiki_online import WikiOnline
-from nlp_architect.utils.string_utils import StringUtils
+from src.cdc_resources.data_types.wiki.wikipedia_pages import WikipediaPages
+from src.cdc_resources.relations.relation_extraction import RelationExtraction
+from src.cdc_resources.relations.relation_types_enums import WikipediaSearchMethod, RelationType
+from src.cdc_resources.wikipedia.wiki_elastic import WikiElastic
+from src.cdc_resources.wikipedia.wiki_offline import WikiOffline
+from src.obj.mention_data import MentionDataLight
+from src.utils.string_utils import StringUtils
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +36,7 @@ class WikipediaRelationExtraction(RelationExtraction):
         self.filter_time_data = filter_time_data
         connectivity = method
         if connectivity == WikipediaSearchMethod.ONLINE:
-            self.pywiki_impl = WikiOnline()
+            self.pywiki_impl = None
         elif connectivity == WikipediaSearchMethod.OFFLINE:
             if wiki_file is not None and os.path.isdir(wiki_file):
                 self.pywiki_impl = WikiOffline(wiki_file)

@@ -3,11 +3,9 @@ import traceback
 import requests
 from elasticsearch import Elasticsearch
 
-from nlp_architect.data.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
-from nlp_architect.data.cdc_resources.data_types.wiki.wikipedia_page_extracted_relations import \
-    WikipediaPageExtractedRelations
-from nlp_architect.data.cdc_resources.wikipedia.wiki_search_page_result import \
-    WikipediaSearchPageResult
+from src.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
+from src.cdc_resources.data_types.wiki.wikipedia_page_extracted_relations import WikipediaPageExtractedRelations
+from src.cdc_resources.wikipedia.wiki_search_page_result import WikipediaSearchPageResult
 
 
 class WikiElastic(object):

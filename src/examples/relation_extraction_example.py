@@ -14,10 +14,9 @@ from src.obj.mention_data import MentionDataLight
 def run_example():
     logger.info('Running relation extraction example......')
     computed = ComputedRelationExtraction()
-    ref_dict = ReferentDictRelationExtraction(ref_dict=str(LIBRARY_ROOT / 'datasets'
-                                                           / 'coref.dict1.tsv'))
+    ref_dict = ReferentDictRelationExtraction(ref_dict=str(LIBRARY_ROOT / 'resources' / 'coref.dict1.tsv'))
     vo = VerboceanRelationExtraction(
-        vo_file=str(LIBRARY_ROOT / 'datasets' / 'verbocean.unrefined.2004-05-20.txt'))
+        vo_file=str(LIBRARY_ROOT / 'resources' / 'verbocean.unrefined.2004-05-20.txt'))
     wiki = WikipediaRelationExtraction()
     wn = WordnetRelationExtraction()
     embed = WordEmbeddingRelationExtraction(method=EmbeddingMethod.ELMO)

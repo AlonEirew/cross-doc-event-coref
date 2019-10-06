@@ -2,8 +2,9 @@ import logging
 from typing import List
 
 from src import LIBRARY_ROOT
+from src.cdc_resources.relations.computed_relation_extraction import ComputedRelationExtraction
 from src.cdc_resources.relations.referent_dict_relation_extraction import ReferentDictRelationExtraction
-from src.cdc_resources.relations.relation_types_enums import RelationType
+from src.cdc_resources.relations.relation_types_enums import RelationType, WikipediaSearchMethod
 from src.cdc_resources.relations.wikipedia_relation_extraction import WikipediaRelationExtraction
 from src.cdc_resources.relations.word_embedding_relation_extraction import WordEmbeddingRelationExtraction
 from src.cross_doc_sieves import run_event_coref, run_entity_coref
@@ -16,7 +17,7 @@ from src.sieves_container_init import SievesContainerInitialization
 
 def run_example(cdc_settings):
     event_mentions_topics = Topics()
-    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'datasets' / 'ecb'
+    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb'
                                                / 'ecb_all_event_mentions.json'))
 
     event_clusters = None
@@ -25,7 +26,7 @@ def run_example(cdc_settings):
         event_clusters = run_event_coref(event_mentions_topics, cdc_settings)
 
     entity_mentions_topics = Topics()
-    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'datasets' / 'ecb'
+    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb'
                                                 / 'ecb_all_entity_mentions.json'))
     entity_clusters = None
     if cdc_settings.entity_config.run_evaluation:
@@ -48,24 +49,19 @@ def load_modules(cdc_resources):
                                                   cos_accepted_dist=0.75))
     models.append(ReferentDictRelationExtraction(cdc_resources.referent_dict_method,
                                                  cdc_resources.referent_dict_file))
+    models.append(ComputedRelationExtraction())
     return models
 
 
 def create_example_settings():
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        (RelationType.SAME_HEAD_LEMMA, 1.0),
-        (RelationType.WIKIPEDIA_DISAMBIGUATION, 0.1),
-        (RelationType.WORD_EMBEDDING_MATCH, 0.7),
+        (RelationType.SAME_HEAD_LEMMA, 1.0)
     ]
 
     entity_config = EntitySievesConfiguration()
     entity_config.sieves_order = [
-        (RelationType.SAME_HEAD_LEMMA, 1.0),
-        (RelationType.WIKIPEDIA_REDIRECT_LINK, 0.1),
-        (RelationType.WIKIPEDIA_DISAMBIGUATION, 0.1),
-        (RelationType.WORD_EMBEDDING_MATCH, 0.7),
-        (RelationType.REFERENT_DICT, 0.5)
+        (RelationType.SAME_HEAD_LEMMA, 1.0)
     ]
 
     # CDCResources hold default attribute values that might need to be change,
@@ -73,6 +69,7 @@ def create_example_settings():
     # such as resources files location, output directory, resources init methods and other.
     # check in class and see if any attributes require change in your set-up
     resource_location = SievesResources()
+    resource_location.wiki_search_method = WikipediaSearchMethod.ELASTIC
     return SievesContainerInitialization(event_config, entity_config,
                                          load_modules(resource_location))
 

@@ -4,10 +4,10 @@ from typing import Set, List
 
 from num2words import num2words
 
-from nlp_architect.common.cdc.mention_data import MentionDataLight
-from nlp_architect.data.cdc_resources.relations.relation_extraction import RelationExtraction
-from nlp_architect.data.cdc_resources.relations.relation_types_enums import RelationType
-from nlp_architect.utils.string_utils import StringUtils
+from src.cdc_resources.relations.relation_extraction import RelationExtraction
+from src.cdc_resources.relations.relation_types_enums import RelationType
+from src.obj.mention_data import MentionDataLight
+from src.utils.string_utils import StringUtils
 
 logger = logging.getLogger(__name__)
 

@@ -1,18 +1,23 @@
 import logging
 import pickle
 from typing import List
+from allennlp.commands.elmo import ElmoEmbedder
 
 import numpy as np
 
+from src import LIBRARY_ROOT
 from src.obj.mention_data import MentionDataLight
 
 logger = logging.getLogger(__name__)
+
+elmo_options_file = str(LIBRARY_ROOT) + '/resources/elmo_2x4096_512_2048cnn_2xhighway_options.json'
+elmo_weight_file = str(LIBRARY_ROOT) + '/resources/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5'
 
 
 class ElmoEmbedding(object):
     def __init__(self):
         logger.info('Loading Elmo Embedding module')
-        self.embeder = ELMoEmbedderTFHUB()
+        self.embeder = ElmoEmbedder(elmo_options_file, elmo_weight_file)
         self.cache = dict()
         logger.info('Elmo Embedding module lead successfully')
 

@@ -1,4 +1,4 @@
-from nlp_architect.data.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
+from src.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
 
 
 class WikipediaSearchPageResult(object):

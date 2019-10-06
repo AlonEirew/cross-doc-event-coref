@@ -2,12 +2,10 @@ import logging
 from os import listdir
 from os.path import join, isfile
 
-from nlp_architect.data.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
-from nlp_architect.data.cdc_resources.data_types.wiki.wikipedia_page_extracted_relations import \
-    WikipediaPageExtractedRelations
-from nlp_architect.data.cdc_resources.wikipedia.wiki_search_page_result import \
-    WikipediaSearchPageResult
-from nlp_architect.utils.io import load_json_file
+from src.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
+from src.cdc_resources.data_types.wiki.wikipedia_page_extracted_relations import WikipediaPageExtractedRelations
+from src.cdc_resources.wikipedia.wiki_search_page_result import WikipediaSearchPageResult
+from src.utils.io_utils import load_json_file
 
 logger = logging.getLogger(__name__)
 

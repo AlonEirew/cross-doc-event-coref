@@ -4,15 +4,12 @@ from typing import List, Set
 
 from scipy.spatial.distance import cosine as cos
 
-from nlp_architect.common.cdc.mention_data import MentionDataLight
-from nlp_architect.data.cdc_resources.embedding.embed_elmo import ElmoEmbedding, \
-    ElmoEmbeddingOffline
-from nlp_architect.data.cdc_resources.embedding.embed_glove import GloveEmbedding, \
-    GloveEmbeddingOffline
-from nlp_architect.data.cdc_resources.relations.relation_extraction import RelationExtraction
-from nlp_architect.data.cdc_resources.relations.relation_types_enums import EmbeddingMethod, \
-    RelationType
-from nlp_architect.utils.string_utils import StringUtils
+from src.cdc_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
+from src.cdc_resources.embedding.embed_glove import GloveEmbedding, GloveEmbeddingOffline
+from src.cdc_resources.relations.relation_extraction import RelationExtraction
+from src.cdc_resources.relations.relation_types_enums import EmbeddingMethod, RelationType
+from src.obj.mention_data import MentionDataLight
+from src.utils.string_utils import StringUtils
 
 logger = logging.getLogger(__name__)
 
