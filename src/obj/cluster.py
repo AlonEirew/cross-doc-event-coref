@@ -1,8 +1,3 @@
-from typing import List
-
-from src.obj.mention_data import MentionData
-
-
 class Cluster(object):
     def __init__(self, coref_chain: int = -1) -> None:
         """
@@ -20,7 +15,7 @@ class Cluster(object):
     def get_mentions(self):
         return self.mentions
 
-    def add_mention(self, mention: MentionData) -> None:
+    def add_mention(self, mention) -> None:
         if mention is not None:
             mention.predicted_coref_chain = self.coref_chain
             self.mentions.append(mention)
@@ -50,7 +45,7 @@ class Cluster(object):
 class Clusters(object):
     cluster_coref_chain = 1000
 
-    def __init__(self, topic_id: str, mentions: List[MentionData] = None) -> None:
+    def __init__(self, topic_id: str, mentions = None) -> None:
         """
 
         Args:
@@ -61,7 +56,7 @@ class Clusters(object):
         self.topic_id = topic_id
         self.set_initial_clusters(mentions)
 
-    def set_initial_clusters(self, mentions: List[MentionData]) -> None:
+    def set_initial_clusters(self, mentions) -> None:
         """
 
         Args:
@@ -98,3 +93,41 @@ class Clusters(object):
     def add_clusters(self, clusters) -> None:
         for cluster in clusters.clusters_list:
             self.clusters_list.append(cluster)
+
+    @staticmethod
+    def from_clusters_to_mentions_list(clusters_list):
+        """
+        Args:
+            clusters_list : List[Clusters]
+        Returns:
+            List[MentionData]
+        """
+        all_mentions = list()
+        for clusters in clusters_list:
+            for cluster in clusters.clusters_list:
+                all_mentions.extend(cluster.mentions)
+
+        all_mentions.sort(key=lambda mention: mention.mention_index)
+
+        return all_mentions
+
+    @staticmethod
+    def print_cluster_results(clusters, eval_type: str):
+        """
+        :param clusters: List[Clusters]
+        :param eval_type: type of evaluation (eg. Event/Entity)
+        :return:
+        """
+        print('-=' + eval_type + ' Clusters=-')
+        for topic_cluster in clusters:
+            print('\n\tTopic=' + topic_cluster.topic_id)
+            for cluster in topic_cluster.clusters_list:
+                cluster_mentions = list()
+                for mention in cluster.mentions:
+                    mentions_dict = dict()
+                    mentions_dict['id'] = mention.mention_id
+                    mentions_dict['text'] = mention.tokens_str
+                    cluster_mentions.append(mentions_dict)
+
+                print('\t\tCluster(' + str(cluster.coref_chain) + ') Mentions='
+                      + str(cluster_mentions))

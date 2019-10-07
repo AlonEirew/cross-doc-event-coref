@@ -8,6 +8,8 @@ from nlp_architect.common.cdc.mention_data import MentionData
 from nlp_architect.data.cdc_resources.embedding.embed_elmo import ElmoEmbedding
 from nlp_architect.utils import io
 
+from src.utils.io_utils import read_mentions_json_to_mentions_data_list
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,7 @@ def elmo_dump():
 
     mentions = []
     for _file in mention_files:
-        mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_file))
+        mentions.extend(read_mentions_json_to_mentions_data_list(_file))
 
     elmo_ecb_embeddings = load_elmo_for_vocab(mentions)
 

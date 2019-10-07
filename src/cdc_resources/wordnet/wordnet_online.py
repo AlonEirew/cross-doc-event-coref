@@ -1,8 +1,8 @@
 import nltk
 from nltk.corpus import wordnet as wn
 
-from nlp_architect.data.cdc_resources.data_types.wn.wordnet_page import WordnetPage
-from nlp_architect.utils.string_utils import StringUtils
+from src.cdc_resources.data_types.wn.wordnet_page import WordnetPage
+from src.utils.string_utils import StringUtils
 
 
 class WordnetOnline(object):

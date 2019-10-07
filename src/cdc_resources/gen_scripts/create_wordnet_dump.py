@@ -7,6 +7,8 @@ from nlp_architect.data.cdc_resources.wordnet.wordnet_online import WordnetOnlin
 from nlp_architect.utils import io
 from nlp_architect.utils.io import json_dumper
 
+from src.utils.io_utils import read_mentions_json_to_mentions_data_list
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -23,7 +25,7 @@ def wordnet_dump():
     out_file = args.output
     mentions_file = args.mentions
     logger.info('Loading mentions files...')
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(mentions_file)
+    mentions = read_mentions_json_to_mentions_data_list(mentions_file)
     logger.info('Done loading mentions files, starting local dump creation...')
     result_dump = dict()
     wordnet = WordnetOnline()

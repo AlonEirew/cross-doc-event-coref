@@ -17,3 +17,17 @@ def load_json_file(file_path):
                 if not block:  # Reached EOF
                     break
             return json.loads(json_string)
+
+
+def write_coref_scorer_results(mentions, output_file: str):
+    """
+    :param mentions: List[MentionData]
+    :param output_file: str
+    :return:
+    """
+    output = open(output_file, 'w')
+    output.write('#begin document (ECB+/ecbplus_all); part 000\n')
+    for mention in mentions:
+        output.write('ECB+/ecbplus_all\t' + '(' + str(mention.predicted_coref_chain) + ')\n')
+    output.write('#end document')
+    output.close()

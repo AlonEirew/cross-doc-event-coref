@@ -2,8 +2,8 @@ import logging
 from os import listdir
 from os.path import join, isfile
 
-from nlp_architect.data.cdc_resources.data_types.wn.wordnet_page import WordnetPage
-from nlp_architect.utils.io import load_json_file
+from src.cdc_resources.data_types.wn.wordnet_page import WordnetPage
+from src.utils.io_utils import load_json_file
 
 logger = logging.getLogger(__name__)
 

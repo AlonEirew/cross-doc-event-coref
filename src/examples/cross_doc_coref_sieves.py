@@ -13,12 +13,13 @@ from src.obj.sieves_config import EventSievesConfiguration, EntitySievesConfigur
 from src.obj.sieves_resource import SievesResources
 from src.obj.topics import Topics
 from src.sieves_container_init import SievesContainerInitialization
+from src.utils.io_utils import write_coref_scorer_results
 
 
 def run_example(cdc_settings):
     event_mentions_topics = Topics()
-    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb'
-                                               / 'ecb_all_event_mentions.json'))
+    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb' / 'gold_processed' / 'kian'
+                                               / 'ECB_Test_Event_gold_mentions.json'))
 
     event_clusters = None
     if cdc_settings.event_config.run_evaluation:
@@ -26,8 +27,8 @@ def run_example(cdc_settings):
         event_clusters = run_event_coref(event_mentions_topics, cdc_settings)
 
     entity_mentions_topics = Topics()
-    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb'
-                                                / 'ecb_all_entity_mentions.json'))
+    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb' / 'gold_processed' / 'kian'
+                                                / 'ECB_Test_Entity_gold_mentions.json'))
     entity_clusters = None
     if cdc_settings.entity_config.run_evaluation:
         logger.info('Running entity coreference resolution')
@@ -38,17 +39,17 @@ def run_example(cdc_settings):
 
 def load_modules(cdc_resources):
     models = list()
-    models.append(WikipediaRelationExtraction(cdc_resources.wiki_search_method,
-                                              wiki_file=cdc_resources.wiki_folder,
-                                              host=cdc_resources.elastic_host,
-                                              port=cdc_resources.elastic_port,
-                                              index=cdc_resources.elastic_index))
-    models.append(WordEmbeddingRelationExtraction(cdc_resources.embed_search_method,
-                                                  glove_file=cdc_resources.glove_file,
-                                                  elmo_file=cdc_resources.elmo_file,
-                                                  cos_accepted_dist=0.75))
-    models.append(ReferentDictRelationExtraction(cdc_resources.referent_dict_method,
-                                                 cdc_resources.referent_dict_file))
+    # models.append(WikipediaRelationExtraction(cdc_resources.wiki_search_method,
+    #                                           wiki_file=cdc_resources.wiki_folder,
+    #                                           host=cdc_resources.elastic_host,
+    #                                           port=cdc_resources.elastic_port,
+    #                                           index=cdc_resources.elastic_index))
+    # models.append(WordEmbeddingRelationExtraction(cdc_resources.embed_search_method,
+    #                                               glove_file=cdc_resources.glove_file,
+    #                                               elmo_file=cdc_resources.elmo_file,
+    #                                               cos_accepted_dist=0.75))
+    # models.append(ReferentDictRelationExtraction(cdc_resources.referent_dict_method,
+    #                                              cdc_resources.referent_dict_file))
     models.append(ComputedRelationExtraction())
     return models
 
@@ -74,34 +75,31 @@ def create_example_settings():
                                          load_modules(resource_location))
 
 
-def print_results(clusters: List[Clusters], type: str):
-    print('-=' + type + ' Clusters=-')
-    for topic_cluster in clusters:
-        print('\n\tTopic=' + topic_cluster.topic_id)
-        for cluster in topic_cluster.clusters_list:
-            cluster_mentions = list()
-            for mention in cluster.mentions:
-                mentions_dict = dict()
-                mentions_dict['id'] = mention.mention_id
-                mentions_dict['text'] = mention.tokens_str
-                cluster_mentions.append(mentions_dict)
-
-            print('\t\tCluster(' + str(cluster.coref_chain) + ') Mentions='
-                  + str(cluster_mentions))
-
-
-def run_cdc_pipeline():
+def run_cdc_pipeline(print_method):
     cdc_settings = create_example_settings()
     event_clusters, entity_clusters = run_example(cdc_settings)
 
     print('-=Cross Document Coref Results=-')
-    print_results(event_clusters, 'Event')
+    print_method(event_clusters, 'Event')
     print('################################')
-    print_results(entity_clusters, 'Entity')
+    print_method(entity_clusters, 'Entity')
+
+
+def print_scorer_results(all_clusters, eval_type):
+    if eval_type == 'Event':
+        out_file = str(LIBRARY_ROOT / 'output' / 'event_scorer_results.txt')
+    else:
+        out_file = str(LIBRARY_ROOT / 'output' / 'entity_scorer_results.txt')
+
+    all_mentions = Clusters.from_clusters_to_mentions_list(all_clusters)
+    write_coref_scorer_results(all_mentions, out_file)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    run_cdc_pipeline()
+    # print_method = print_cluster_results
+    print_methods = print_scorer_results
+
+    run_cdc_pipeline(print_methods)

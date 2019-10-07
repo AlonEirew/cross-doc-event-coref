@@ -88,7 +88,7 @@ def visualize_clusters(all_mentions):
     colors = {
         '1_ENTITY': 'red', '1_EVENT': 'steelblue',
         '2_ENTITY': 'firebrick', '2_EVENT': 'violet',
-        '3_ENTITY': 'wheat', '3_EVENT': 'gold',
+        '3_ENTITY': 'wheat', '3_EVENT': 'gold_processed',
         '4_ENTITY': 'coral', '4_EVENT': 'plum',
         '5_ENTITY': 'peru', '5_EVENT': 'deepskyblue',
         '6_ENTITY': 'silver', '6_EVENT': 'deeppink',

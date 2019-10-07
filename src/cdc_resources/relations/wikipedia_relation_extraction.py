@@ -41,8 +41,8 @@ class WikipediaRelationExtraction(RelationExtraction):
             if wiki_file is not None and os.path.isdir(wiki_file):
                 self.pywiki_impl = WikiOffline(wiki_file)
             else:
-                raise FileNotFoundError('Wikipedia resource file not found or not in path, '
-                                        'create it or change the initialization method')
+                raise FileNotFoundError('Wikipedia resource folder=' + wiki_file + ', not found or not in path, '
+                                        'create it or change the search method')
         elif connectivity == WikipediaSearchMethod.ELASTIC:
             self.pywiki_impl = WikiElastic(host, port, index)
 

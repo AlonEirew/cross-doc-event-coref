@@ -7,6 +7,7 @@ from src.utils.string_utils import StringUtils
 
 logger = logging.getLogger(__name__)
 
+
 class MentionDataLight(object):
     def __init__(self, tokens_str: str, mention_context: str = None, mention_head: str = None,
                  mention_head_lemma: str = None, mention_pos: str = None,
@@ -161,25 +162,6 @@ class MentionData(MentionDataLight):
 
         return mention_data
 
-    @staticmethod
-    def read_mentions_json_to_mentions_data_list(mentions_json_file: str):
-        """
-
-        Args:
-            mentions_json_file: the path of the mentions json file to read
-
-        Returns:
-            List[MentionData]
-        """
-        all_mentions_only = load_json_file(mentions_json_file)
-
-        mentions = []
-        for mention_line in all_mentions_only:
-            mention_data = MentionData.read_json_mention_data_line(mention_line)
-            mentions.append(mention_data)
-
-        return mentions
-
     def get_tokens(self):
         return self.tokens_number
 
@@ -244,3 +226,22 @@ class MentionData(MentionDataLight):
                     vocab.add(tokens_str)
         vocab_set = list(vocab)
         return vocab_set
+
+    @staticmethod
+    def read_mentions_json_to_mentions_data_list(mentions_json_file: str):
+        """
+
+        Args:
+            mentions_json_file: the path of the mentions json file to read
+
+        Returns:
+            List[MentionData]
+        """
+        all_mentions_only = load_json_file(mentions_json_file)
+
+        mentions = []
+        for mention_line in all_mentions_only:
+            mention_data = MentionData.read_json_mention_data_line(mention_line)
+            mentions.append(mention_data)
+
+        return mentions
