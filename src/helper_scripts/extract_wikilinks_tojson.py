@@ -11,16 +11,21 @@ def main():
     # test_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json'
 
     connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v8_single_sent.db")
-    if connection is not None:
-        validation_clusters = select_all_from_validation(connection, 'VALIDATION')
-        # test_clusters = select_all_from_validation(connection, 'TEST')
-        # train_clusters = select_all_from_validation(connection, 'TRAIN')
-        validation_mentions = gen_mentions(validation_clusters)
-        validation_mentions.sort(key=lambda mention: mention.coref_chain)
-        print('Validation mentions=' + str(len(validation_mentions)))
 
-        with open(validation_out, 'w+') as output:
-            json.dump(validation_mentions, output, default=default, indent=4, sort_keys=True, ensure_ascii=False)
+    extract_and_create_json(connection, validation_out, 'VALIDATION')
+    # extract_and_create_json(connection, train_out, 'TRAIN')
+    # extract_and_create_json(connection, test_out, 'TEST')
+
+
+def extract_and_create_json(connection, out_file, split):
+    if connection is not None:
+        clusters = select_all_from_validation(connection, split)
+        mentions = gen_mentions(clusters)
+        mentions.sort(key=lambda mention: mention.coref_chain)
+        print(split + ' mentions=' + str(len(mentions)))
+
+        with open(out_file, 'w+') as output:
+            json.dump(mentions, output, default=default, indent=4, sort_keys=True, ensure_ascii=False)
 
 
 def default(o):

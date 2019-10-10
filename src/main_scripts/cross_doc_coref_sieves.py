@@ -18,7 +18,7 @@ from src.utils.io_utils import write_coref_scorer_results
 
 def run_example(cdc_settings):
     event_mentions_topics = Topics()
-    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'corpora' / 'ecb' / 'gold_json' / 'ECB_Test_Event_gold_mentions.json'), True)
+    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'corpora' / 'wiki' / 'gold_json' / 'WIKI_DEV_Event_gold_mentions.json'), True)
 
     event_clusters = None
     if cdc_settings.event_config.run_evaluation:
@@ -59,11 +59,15 @@ def create_example_settings():
         (RelationType.SAME_HEAD_LEMMA, 1.0)
     ]
 
+    event_config.run_evaluation = True
+
     entity_config = EntitySievesConfiguration()
     entity_config.sieves_order = [
         (RelationType.EXACT_STRING, 1.0),
         (RelationType.SAME_HEAD_LEMMA, 1.0)
     ]
+
+    entity_config.run_evaluation = False
 
     # CDCResources hold default attribute values that might need to be change,
     # (using the defaults values in this example), use to configure attributes
@@ -80,9 +84,12 @@ def run_cdc_pipeline(print_method):
     event_clusters, entity_clusters = run_example(cdc_settings)
 
     print('-=Cross Document Coref Results=-')
-    print_method(event_clusters, 'Event')
+    if cdc_settings.event_config.run_evaluation:
+        print_method(event_clusters, 'Event')
+
     print('################################')
-    print_method(entity_clusters, 'Entity')
+    if cdc_settings.entity_config.run_evaluation:
+        print_method(entity_clusters, 'Entity')
 
 
 def print_results(clusters: List[Clusters], type: str):
