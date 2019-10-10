@@ -207,8 +207,8 @@ def load_modules(cdc_resources):
     models.append(WordnetRelationExtraction(cdc_resources.wn_search_method,
                                                  cdc_resources.wn_folder))
 
-    # models.append(MLPRelationExtraction(str(LIBRARY_ROOT) + '/resources/preprocessed/mlp/joint_mlp_test_model',
-    #                                     ElmoEmbeddingOffline(str(LIBRARY_ROOT) + '/resources/preprocessed/embedded/'
+    # models.append(MLPRelationExtraction(str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/mlp/joint_mlp_test_model',
+    #                                     ElmoEmbeddingOffline(str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/'
     #                                                                              'ecb_all_embed_bert_all_layers.pickle')))
 
     return models
@@ -218,13 +218,13 @@ def create_example_settings(event_config, entity_config):
     resource_location = SievesResources()
 
     resource_location.wiki_search_method = WikipediaSearchMethod.OFFLINE
-    resource_location.wiki_folder = str(LIBRARY_ROOT) + '/resources/preprocessed/wikipedia'
+    resource_location.wiki_folder = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/wikipedia'
 
     resource_location.wn_search_method = OnlineOROfflineMethod.OFFLINE
-    resource_location.wn_folder = str(LIBRARY_ROOT) + '/resources/preprocessed/wordnet'
+    resource_location.wn_folder = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/wordnet'
 
     resource_location.embed_search_method = EmbeddingMethod.ELMO_OFFLINE
-    resource_location.elmo_file = str(LIBRARY_ROOT) + '/resources/preprocessed/embedded/ecb_all_embed_bert_all_layers.pickle'
+    resource_location.elmo_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/ecb_all_embed_bert_all_layers.pickle'
 
     return SievesContainerInitialization(event_config, entity_config, load_modules(resource_location))
 
@@ -285,8 +285,8 @@ def load_mentions():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    event_mention_json = str(LIBRARY_ROOT) + '/resources/ecb/gold_processed/kian/ECB_Train_Dev_Event_gold_mentions.json'
-    entity_mention_json = str(LIBRARY_ROOT) + '/resources/ecb/gold_processed/kian/ECB_Train_Dev_Entity_gold_mentions.json'
+    event_mention_json = str(LIBRARY_ROOT) + '/resources/ecb/gold_json/kian/ECB_Train_Dev_Event_gold_mentions.json'
+    entity_mention_json = str(LIBRARY_ROOT) + '/resources/ecb/gold_json/kian/ECB_Train_Dev_Entity_gold_mentions.json'
 
     event_report_out = 'data/event_result_no_computed.txt'
     entity_report_out = 'data/entity_result_no_computed.txt'

@@ -43,7 +43,7 @@ class Cluster(object):
 
 
 class Clusters(object):
-    cluster_coref_chain = 1000
+    cluster_coref_chain = 1
 
     def __init__(self, topic_id: str, mentions = None) -> None:
         """

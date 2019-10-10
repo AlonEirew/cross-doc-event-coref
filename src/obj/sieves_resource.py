@@ -12,11 +12,11 @@ class SievesResources(object):
         self.__elastic_index = 'enwiki_v3'
         self.__elastic_host = 'localhost'
         self.__elastic_port = 9200
-        self.__wiki_folder = str(LIBRARY_ROOT / 'resources' / 'preprocessed' / 'wikipedia')
-        self.__wd_file = str(LIBRARY_ROOT / 'resources' / 'preprocessed' / 'within_doc_core' / 'ecb_wd_coref_proc.json')
-        self.__wn_folder = str(LIBRARY_ROOT / 'resources' / 'preprocessed' / 'wordnet')
-        self.__elmo_file = str(LIBRARY_ROOT / 'resources' / 'preprocessed' / 'embedde' / 'ecb_all_with_stop_elmo.pickle')
-        self.__glove_file = str(LIBRARY_ROOT / 'resources' / 'preprocessed' / 'embedde' / 'ecb_all_embed_glove.pickle')
+        self.__wiki_folder = str(LIBRARY_ROOT / 'resources' / 'preprocessed_external_features' / 'wikipedia')
+        self.__wd_file = str(LIBRARY_ROOT / 'resources' / 'preprocessed_external_features' / 'within_doc_core' / 'ecb_wd_coref_proc.json')
+        self.__wn_folder = str(LIBRARY_ROOT / 'resources' / 'preprocessed_external_features' / 'wordnet')
+        self.__elmo_file = str(LIBRARY_ROOT / 'resources' / 'preprocessed_external_features' / 'embedde' / 'ecb_all_with_stop_elmo.pickle')
+        self.__glove_file = str(LIBRARY_ROOT / 'resources' / 'preprocessed_external_features' / 'embedde' / 'ecb_all_embed_glove.pickle')
         self.__referent_dict_file = str(LIBRARY_ROOT / 'resources' / 'coref.dict1.tsv')
         self.__vo_dict_file = str(LIBRARY_ROOT / 'resources' / 'verbocean.unrefined.2004-05-20.txt')
 

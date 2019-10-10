@@ -44,7 +44,7 @@ def fscore(p_val, r_val, beta=1.0):
 
 def bcubed(gold_lst, predicted_lst):
     """
-    Takes gold_processed, predicted.
+    Takes gold_json, predicted.
     Returns recall, precision, f1score
     """
     gold = {i:{cluster} for i,cluster in enumerate(gold_lst)}

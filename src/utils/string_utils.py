@@ -120,3 +120,15 @@ class StringUtils(object):
                 ner = ent.label_
 
         return head, lemma, pos, ner
+
+    @staticmethod
+    def get_tokenized_string(not_tokenized_str):
+        tokenized_str = list()
+        doc = StringUtils.spacy_parser(not_tokenized_str)
+        for sentence in doc.sents:
+            sent_toks = list()
+            for token in sentence:
+                sent_toks.append((token.text, token.i))
+            tokenized_str.append(sent_toks)
+
+        return tokenized_str

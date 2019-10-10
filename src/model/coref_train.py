@@ -200,7 +200,7 @@ if __name__ == '__main__':
     # parser.add_argument('--trainFile', type=str, help='train file', required=True)
     # parser.add_argument('--testFile', type=str, help='test file', required=True)
     # parser.add_argument('--modelFile', type=str, help='model output location', required=False)
-    # parser.add_argument('--bertFile', type=str, help='preprocessed glove file', required=False)
+    # parser.add_argument('--bertFile', type=str, help='preprocessed_external_features glove file', required=False)
     # parser.add_argument('--lr', type=str, help='learning rate', required=True)
     # parser.add_argument('--iter', type=str, help='num of iterations', required=True)
     # parser.add_argument('--cuda', type=str, help='use cuda device', required=True)

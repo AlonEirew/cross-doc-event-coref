@@ -1,5 +1,10 @@
 import json
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 def load_json_file(file_path):
     """load a file into a json object"""

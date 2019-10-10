@@ -18,8 +18,7 @@ from src.utils.io_utils import write_coref_scorer_results
 
 def run_example(cdc_settings):
     event_mentions_topics = Topics()
-    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb' / 'gold_processed' / 'kian'
-                                               / 'ECB_Test_Event_gold_mentions.json'))
+    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'corpora' / 'ecb' / 'gold_json' / 'ECB_Test_Event_gold_mentions.json'), True)
 
     event_clusters = None
     if cdc_settings.event_config.run_evaluation:
@@ -27,8 +26,7 @@ def run_example(cdc_settings):
         event_clusters = run_event_coref(event_mentions_topics, cdc_settings)
 
     entity_mentions_topics = Topics()
-    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'ecb' / 'gold_processed' / 'kian'
-                                                / 'ECB_Test_Entity_gold_mentions.json'))
+    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'corpora' / 'ecb' / 'gold_json' / 'ECB_Test_Entity_gold_mentions.json'), True)
     entity_clusters = None
     if cdc_settings.entity_config.run_evaluation:
         logger.info('Running entity coreference resolution')
@@ -57,11 +55,13 @@ def load_modules(cdc_resources):
 def create_example_settings():
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
+        (RelationType.EXACT_STRING, 1.0),
         (RelationType.SAME_HEAD_LEMMA, 1.0)
     ]
 
     entity_config = EntitySievesConfiguration()
     entity_config.sieves_order = [
+        (RelationType.EXACT_STRING, 1.0),
         (RelationType.SAME_HEAD_LEMMA, 1.0)
     ]
 
@@ -85,6 +85,22 @@ def run_cdc_pipeline(print_method):
     print_method(entity_clusters, 'Entity')
 
 
+def print_results(clusters: List[Clusters], type: str):
+    print('-=' + type + ' Clusters=-')
+    for topic_cluster in clusters:
+        print('\n\tTopic=' + topic_cluster.topic_id)
+        for cluster in topic_cluster.clusters_list:
+            cluster_mentions = list()
+            for mention in cluster.mentions:
+                mentions_dict = dict()
+                mentions_dict['id'] = mention.mention_id
+                mentions_dict['text'] = mention.tokens_str
+                cluster_mentions.append(mentions_dict)
+
+            print('\t\tCluster(' + str(cluster.coref_chain) + ') Mentions='
+                  + str(cluster_mentions))
+
+
 def print_scorer_results(all_clusters, eval_type):
     if eval_type == 'Event':
         out_file = str(LIBRARY_ROOT / 'output' / 'event_scorer_results.txt')
@@ -99,7 +115,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    # print_method = print_cluster_results
-    print_methods = print_scorer_results
+    # print_method = print_results
+    print_method = print_scorer_results
 
-    run_cdc_pipeline(print_methods)
+    run_cdc_pipeline(print_method)

@@ -1,9 +1,8 @@
 import logging
-import time
 from typing import List
 
 from src.obj.mention_data import MentionData
-from src.utils.io_utils import load_json_file
+from src.utils.json_utils import load_mentions_from_json_file
 
 logger = logging.getLogger(__name__)
 
@@ -27,17 +26,8 @@ class Topics(object):
             mentions_file_path: this topic mentions json file
         """
         self.keep_order = keep_order
-        self.topics_list = self.load_mentions_from_file(mentions_file_path)
-
-    def load_mentions_from_file(self, mentions_file_path: str) -> List[Topic]:
-        start_data_load = time.time()
-        logger.info('Loading mentions from-%s', mentions_file_path)
-        mentions = load_json_file(mentions_file_path)
-        topics = self.order_mentions_by_topics(mentions)
-        end_data_load = time.time()
-        took_load = end_data_load - start_data_load
-        logger.info('Mentions file-%s, took:%.4f sec to load', mentions_file_path, took_load)
-        return topics
+        mentions = load_mentions_from_json_file(mentions_file_path)
+        self.topics_list = self.order_mentions_by_topics(mentions)
 
     def order_mentions_by_topics(self, mentions: str) -> List[Topic]:
         """

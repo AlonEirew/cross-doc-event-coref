@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class MentionDataLight(object):
-    def __init__(self, tokens_str: str, mention_context: str = None, mention_head: str = None,
+    def __init__(self, tokens_str: str, mention_context: List[str] = None, mention_head: str = None,
                  mention_head_lemma: str = None, mention_pos: str = None,
-                 mention_ner: str = None):
+                 mention_ner: str = None, gen_lemma: bool = False):
         """
         Object represent a mention with only text values
         Args:
@@ -22,8 +22,9 @@ class MentionDataLight(object):
         self.tokens_str = tokens_str
         self.mention_context = mention_context
         if not mention_head and not mention_head_lemma:
-            self.mention_head, self.mention_head_lemma, self.mention_head_pos, \
-                self.mention_ner = StringUtils.find_head_lemma_pos_ner(str(tokens_str))
+            if gen_lemma:
+                self.mention_head, self.mention_head_lemma, self.mention_head_pos, \
+                    self.mention_ner = StringUtils.find_head_lemma_pos_ner(str(tokens_str))
         else:
             self.mention_head = mention_head
             self.mention_head_lemma = mention_head_lemma
@@ -37,7 +38,7 @@ class MentionData(MentionDataLight):
                  mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA',
                  is_continuous: bool = True, is_singleton: bool = False, score: float = float(-1),
                  predicted_coref_chain: str = None, mention_pos: str = None,
-                 mention_ner: str = None, mention_index: int = -1) -> None:
+                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False) -> None:
         """
         Object represent a mention
 
@@ -59,7 +60,7 @@ class MentionData(MentionDataLight):
         """
         super(MentionData, self).__init__(tokens_str, mention_context, mention_head,
                                           mention_head_lemma, mention_pos,
-                                          mention_ner)
+                                          mention_ner, gen_lemma)
         self.topic_id = topic_id
         self.doc_id = doc_id
         self.sent_id = sent_id
@@ -160,6 +161,45 @@ class MentionData(MentionDataLight):
             print('Unexpected error:', sys.exc_info()[0])
             raise Exception('failed reading json line-' + str(mention_line))
 
+        return mention_data
+
+    @staticmethod
+    def read_sqlite_mention_data_line_v8(mention_line, gen_lemma=True, extract_valid_sent=False):
+        coref_chain = mention_line[0]
+        mention_text = mention_line[1]
+        token_start = mention_line[2]
+        token_end = mention_line[3]
+        doc_id = mention_line[4]
+        mention_context = mention_line[5]
+        mention_type = mention_line[9]
+        mention_id = mention_line[10]
+
+        if extract_valid_sent:
+            accum_sent_start = 0
+            # if mention_text == 'following year':
+            tokenized_context = StringUtils.get_tokenized_string(mention_context)
+            # split_sentences = mention_context.split('.')
+            for sentence in tokenized_context:
+                # split_sentence = sentence.strip().split(' ')
+                sent_start = accum_sent_start
+                sent_end = sent_start + len(sentence)
+                if sent_start <= token_start <= sent_end:
+                    token_start = token_start - sent_start
+                    token_end = token_end - sent_start
+                    mention_context = ' '.join([tup[0] for tup in sentence])
+                    break
+                else:
+                    accum_sent_start = sent_end
+
+        tokens_numbers = list()
+        for i in range(token_start, token_end):
+            tokens_numbers.append(i)
+        tokens_numbers.append(token_end)
+
+        mention_data = MentionData(-1, doc_id, -1, tokens_numbers, mention_text,
+                                   mention_context.split(' '), None, None, coref_chain, mention_type, gen_lemma=gen_lemma)
+
+        mention_data.mention_id = mention_id
         return mention_data
 
     def get_tokens(self):

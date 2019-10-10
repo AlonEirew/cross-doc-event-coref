@@ -1,33 +1,7 @@
-import sqlite3
-
 import spacy
 
-
-def select_all(conn):
-    """
-    Query all rows in the tasks table
-    :param conn: the Connection object
-    :return:
-    """
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM Validation WHERE split=\"VALIDATION\"")
-
-    rows = cur.fetchall()
-
-    clusters = dict()
-    for mention in rows:
-        cluster_id = mention[2]
-        cur2 = conn.cursor()
-        cur2.execute("select corefValue from CorefChains where corefId=" + str(cluster_id))
-        corefVal = cur2.fetchone()
-        if corefVal is not None:
-            mention = mention + (corefVal[0],)
-        if cluster_id not in clusters:
-            clusters[cluster_id] = list()
-
-        clusters[cluster_id].append(mention)
-
-    return clusters
+from src.obj.mention_data import MentionData
+from src.utils.sqlite_utils import select_all_from_validation, create_connection, select_all_from_mentions
 
 
 def visualize_clusters(clusters):
@@ -35,25 +9,24 @@ def visualize_clusters(clusters):
     for cluster_ments in clusters.values():
         ents = list()
         cluster_context = ''
+        cluster_title = ''
+        cluster_id = ''
         for mention in cluster_ments:
-            # mention_id = mention[0]
-            cluster_id = mention[2]
-            mention_text = mention[3]
-            token_start = mention[4]
-            token_end = mention[5]
-            context = mention[7]
-            cluster_title = mention[9]
-            context_spl = context.split(' ')
+            mention_data = MentionData.read_sqlite_mention_data_line_v8(mention, gen_lemma=False, extract_valid_sent=False)
+            cluster_title = mention[7]
+            cluster_id = mention_data.coref_chain
+            context_spl = mention_data.mention_context
             real_tok_start = len(cluster_context) + 1
-            for i in range(token_start):
+            for i in range(mention_data.tokens_number[0]):
                 real_tok_start += len(context_spl[i]) + 1
 
             real_tok_end = real_tok_start
-            for i in range(token_start, token_end + 1):
-                real_tok_end += len(context_spl[i]) + 1
+            for i in range(mention_data.tokens_number[0], mention_data.tokens_number[-1] + 1):
+                if i < len(context_spl):
+                    real_tok_end += len(context_spl[i]) + 1
 
             ents.append({'start': real_tok_start, 'end': real_tok_end, 'label': str(cluster_id)})
-            cluster_context = cluster_context + '\n\n' + context
+            cluster_context = cluster_context + '\n\n' + ' '.join(mention_data.mention_context)
 
         clust_title = cluster_title + ' (' + str(cluster_id) + '); Mentions:' + str(len(cluster_ments))
 
@@ -66,25 +39,11 @@ def visualize_clusters(clusters):
     spacy.displacy.serve(dispacy_obj, style='ent', manual=True)
 
 
-def create_connection(db_file):
-    """ create a database connection to the SQLite database
-        specified by the db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except sqlite3.Error as e:
-        print(e)
-
-    return None
-
-
 def run_process():
-    connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v8.db")
+    connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v8_single_sent.db")
     if connection is not None:
-        clusters = select_all(connection)
+        clusters = select_all_from_validation(connection, 'VALIDATION')
+        # clusters = select_all_from_mentions(connection, limit=-1)
         visualize_clusters(clusters)
 
 
