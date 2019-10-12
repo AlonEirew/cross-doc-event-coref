@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 from typing import List
@@ -200,6 +201,44 @@ class MentionData(MentionDataLight):
                                    mention_context.split(' '), None, None, coref_chain, mention_type, gen_lemma=gen_lemma)
 
         mention_data.mention_id = mention_id
+        return mention_data
+
+    @staticmethod
+    def read_sqlite_mention_data_line_v9(mention_line, gen_lemma=True, extract_valid_sent=True):
+        mention_data = MentionData.read_sqlite_mention_data_line_v8(mention_line, gen_lemma, False)
+        token_start = mention_line[2]
+        token_end = mention_line[3]
+        mention_context = mention_line[5]
+        mention_data.tokens_number = list()
+
+        context_json = json.loads(mention_context)
+        final_context = list()
+        if context_json:
+            sent_id = 0
+            for sentence in context_json:
+                for token_dict in sentence:
+                    token_str, token_index = list(token_dict.items())[0]
+                    final_context.append(token_str)
+                    if token_start <= token_index <= token_end:
+                        mention_data.tokens_number.append(token_index)
+                        mention_data.sent_id = sent_id
+
+                sent_id += 1
+
+        if extract_valid_sent:
+            tmp_context = context_json[mention_data.sent_id]
+            sentence_start_token = tmp_context[0]
+            sentence_start_token_str, sentence_start_token_index = list(sentence_start_token.items())[0]
+            for i in range(len(mention_data.tokens_number)):
+                mention_data.tokens_number[i] = mention_data.tokens_number[i] - sentence_start_token_index
+
+            final_context = list()
+            for sentence_tokens in tmp_context:
+                token_str, token_index = list(sentence_tokens.items())[0]
+                final_context.append(token_str)
+
+        mention_data.mention_context = final_context
+
         return mention_data
 
     def get_tokens(self):

@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from torch import optim
 
+from src import LIBRARY_ROOT
 from src.cdc_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
 from src.model.coref_model import CorefModel
 from src.obj.topics import Topics
@@ -209,10 +210,10 @@ if __name__ == '__main__':
     EMBED_SIZE = 1024
     MODEL_SIZE = 1024
 
-    _event_train_file = 'data/interim/kian/gold_mentions_with_context/ECB_Train_Event_gold_mentions.json'
-    _event_dev_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Event_gold_mentions.json'
-    _entity_train_file = 'data/interim/kian/gold_mentions_with_context/ECB_Train_Entity_gold_mentions.json'
-    _entity_dev_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
+    _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
+    # _entity_train_file = 'data/interim/kian/gold_mentions_with_context/ECB_Train_Entity_gold_mentions.json'
+    # _entity_dev_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'
     _bert_file = 'dumps/embedded/ecb_all_embed_bert_all_layers.pickle'
     _model_out = 'models/mlp_test_model'
 

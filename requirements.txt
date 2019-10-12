@@ -3,3 +3,5 @@ elasticsearch
 scipy
 allennlp
 num2words
+numpy
+torch

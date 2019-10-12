@@ -1,10 +1,10 @@
 import spacy
 
 from src.obj.mention_data import MentionData
-from src.utils.sqlite_utils import select_all_from_validation, create_connection, select_all_from_mentions
+from src.utils.sqlite_utils import select_split_from_validation, create_connection, select_all_from_mentions
 
 
-def visualize_clusters(clusters):
+def visualize_clusters(clusters, read_mention_line_method):
     dispacy_obj = list()
     for cluster_ments in clusters.values():
         ents = list()
@@ -12,7 +12,7 @@ def visualize_clusters(clusters):
         cluster_title = ''
         cluster_id = ''
         for mention in cluster_ments:
-            mention_data = MentionData.read_sqlite_mention_data_line_v8(mention, gen_lemma=False, extract_valid_sent=False)
+            mention_data = read_mention_line_method(mention, gen_lemma=False, extract_valid_sent=False)
             cluster_title = mention[7]
             cluster_id = mention_data.coref_chain
             context_spl = mention_data.mention_context
@@ -40,11 +40,11 @@ def visualize_clusters(clusters):
 
 
 def run_process():
-    connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v8_single_sent.db")
+    connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v9.db")
+    read_mention_line_menthon = MentionData.read_sqlite_mention_data_line_v9
     if connection is not None:
-        clusters = select_all_from_validation(connection, 'VALIDATION')
-        # clusters = select_all_from_mentions(connection, limit=-1)
-        visualize_clusters(clusters)
+        clusters = select_split_from_validation(connection, 'VALIDATION')
+        visualize_clusters(clusters, read_mention_line_menthon)
 
 
 if __name__ == '__main__':

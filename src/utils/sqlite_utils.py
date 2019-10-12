@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def select_all_from_validation(conn, split, limit=-1):
+def select_split_from_validation(conn, split, limit=-1):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
