@@ -3,8 +3,8 @@ import time
 
 from src.obj.cluster import Clusters
 from src.obj.topics import Topic
-from src.sieves import SieveClusterMerger
-from src.sieves_container_init import SievesContainerInitialization
+from src.rb_model.sieves import SieveClusterMerger
+from src.rb_model.sieves_container_init import SievesContainerInitialization
 
 logger = logging.getLogger(__name__)
 

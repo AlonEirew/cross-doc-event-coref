@@ -1,8 +1,8 @@
 import logging
 from typing import Tuple
 
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
-from src.cdc_resources.relations.relation_types_enums import RelationType
+from src.ext_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_types_enums import RelationType
 from src.obj.cluster import Cluster
 
 logger = logging.getLogger(__name__)

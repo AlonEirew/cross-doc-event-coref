@@ -1,7 +1,7 @@
 import nltk
 from nltk.corpus import wordnet as wn
 
-from src.cdc_resources.data_types.wn.wordnet_page import WordnetPage
+from src.ext_resources.data_types.wn.wordnet_page import WordnetPage
 from src.utils.string_utils import StringUtils
 
 

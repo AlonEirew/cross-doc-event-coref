@@ -2,7 +2,7 @@ import logging
 from os import listdir
 from os.path import join, isfile
 
-from src.cdc_resources.data_types.wn.wordnet_page import WordnetPage
+from src.ext_resources.data_types.wn.wordnet_page import WordnetPage
 from src.utils.io_utils import load_json_file
 
 logger = logging.getLogger(__name__)

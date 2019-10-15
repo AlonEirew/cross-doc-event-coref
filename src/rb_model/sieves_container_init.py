@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_extraction import RelationExtraction
 from src.obj.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
 
 logger = logging.getLogger(__name__)
@@ -20,4 +20,4 @@ class SievesContainerInitialization(object):
             if relation_type in model.get_supported_relations():
                 return model
 
-        raise Exception('No model found that Support RelationType-' + str(relation_type))
+        raise Exception('No dl_model found that Support RelationType-' + str(relation_type))

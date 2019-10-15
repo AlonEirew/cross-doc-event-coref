@@ -3,9 +3,9 @@ from typing import List, Set
 
 import torch
 
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
-from src.cdc_resources.relations.relation_types_enums import RelationType
-from src.model.coref_train import feat_to_vec
+from src.ext_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_types_enums import RelationType
+from src.dl_model.coref_train import feat_to_vec
 from src.obj.mention_data import MentionDataLight
 
 sys.path.insert(0, 'src/systems/models/mlp_new')

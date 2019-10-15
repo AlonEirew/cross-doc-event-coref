@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from src.cdc_resources.relations.relation_types_enums import RelationType
+from src.ext_resources.relations.relation_types_enums import RelationType
 
 
 class SievesConfiguration(object):

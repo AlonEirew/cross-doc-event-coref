@@ -3,8 +3,8 @@ from typing import List
 
 from src.obj.cluster import Clusters
 from src.obj.topics import Topics
-from src.run_sieve_system import get_run_system
-from src.sieves_container_init import SievesContainerInitialization
+from src.rb_model.run_sieve_system import get_run_system
+from src.rb_model.sieves_container_init import SievesContainerInitialization
 
 logger = logging.getLogger(__name__)
 

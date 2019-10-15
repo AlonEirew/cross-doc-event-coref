@@ -3,21 +3,19 @@ import logging
 import numpy
 
 from src import LIBRARY_ROOT
-from src.cdc_resources.embedding.embed_elmo import ElmoEmbeddingOffline
-from src.cdc_resources.relations.computed_relation_extraction import ComputedRelationExtraction
-from src.cdc_resources.relations.mlp_relation_extraction import MLPRelationExtraction
-from src.cdc_resources.relations.referent_dict_relation_extraction import ReferentDictRelationExtraction
-from src.cdc_resources.relations.relation_types_enums import RelationType, WikipediaSearchMethod, OnlineOROfflineMethod, \
+from src.ext_resources.relations.computed_relation_extraction import ComputedRelationExtraction
+from src.ext_resources.relations.referent_dict_relation_extraction import ReferentDictRelationExtraction
+from src.ext_resources.relations.relation_types_enums import RelationType, WikipediaSearchMethod, OnlineOROfflineMethod, \
     EmbeddingMethod
-from src.cdc_resources.relations.verbocean_relation_extraction import VerboceanRelationExtraction
-from src.cdc_resources.relations.wikipedia_relation_extraction import WikipediaRelationExtraction
-from src.cdc_resources.relations.word_embedding_relation_extraction import WordEmbeddingRelationExtraction
-from src.cdc_resources.relations.wordnet_relation_extraction import WordnetRelationExtraction
-from src.cross_doc_sieves import _run_coref
+from src.ext_resources.relations.verbocean_relation_extraction import VerboceanRelationExtraction
+from src.ext_resources.relations.wikipedia_relation_extraction import WikipediaRelationExtraction
+from src.ext_resources.relations.word_embedding_relation_extraction import WordEmbeddingRelationExtraction
+from src.ext_resources.relations.wordnet_relation_extraction import WordnetRelationExtraction
+from src.rb_model.cross_doc_sieves import _run_coref
 from src.obj.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
 from src.obj.sieves_resource import SievesResources
 from src.obj.topics import Topics
-from src.sieves_container_init import SievesContainerInitialization
+from src.rb_model.sieves_container_init import SievesContainerInitialization
 from src.utils.bcubed_scorer import bcubed
 
 logger = logging.getLogger(__name__)

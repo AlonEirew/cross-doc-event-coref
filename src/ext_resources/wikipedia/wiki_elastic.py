@@ -3,9 +3,9 @@ import traceback
 import requests
 from elasticsearch import Elasticsearch
 
-from src.cdc_resources.data_types.wiki.wikipedia_page import WikipediaPage
-from src.cdc_resources.data_types.wiki.wikipedia_page_extracted_relations import WikipediaPageExtractedRelations
-from src.cdc_resources.wikipedia.wiki_search_page_result import WikipediaSearchPageResult
+from src.ext_resources.data_types.wiki.wikipedia_page import WikipediaPage
+from src.ext_resources.data_types.wiki.wikipedia_page_extracted_relations import WikipediaPageExtractedRelations
+from src.ext_resources.wikipedia.wiki_search_page_result import WikipediaSearchPageResult
 
 
 class WikiElastic(object):

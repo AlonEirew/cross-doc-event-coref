@@ -1,6 +1,6 @@
 from typing import List
 
-from src.cdc_resources.relations.relation_types_enums import RelationType
+from src.ext_resources.relations.relation_types_enums import RelationType
 from src.obj.mention_data import MentionDataLight
 
 

@@ -4,10 +4,10 @@ from typing import List, Set
 
 from scipy.spatial.distance import cosine as cos
 
-from src.cdc_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
-from src.cdc_resources.embedding.embed_glove import GloveEmbedding, GloveEmbeddingOffline
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
-from src.cdc_resources.relations.relation_types_enums import EmbeddingMethod, RelationType
+from src.ext_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
+from src.ext_resources.embedding.embed_glove import GloveEmbedding, GloveEmbeddingOffline
+from src.ext_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_types_enums import EmbeddingMethod, RelationType
 from src.obj.mention_data import MentionDataLight
 from src.utils.string_utils import StringUtils
 

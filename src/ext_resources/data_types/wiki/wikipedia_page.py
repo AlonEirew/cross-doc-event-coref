@@ -1,7 +1,7 @@
 import re
 from typing import Dict
 
-from src.cdc_resources.data_types.wiki.wikipedia_page_extracted_relations import WikipediaPageExtractedRelations, \
+from src.ext_resources.data_types.wiki.wikipedia_page_extracted_relations import WikipediaPageExtractedRelations, \
     DISAMBIGUATION_TITLE
 from src.utils.string_utils import StringUtils
 

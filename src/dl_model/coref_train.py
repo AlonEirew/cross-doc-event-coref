@@ -6,14 +6,14 @@ import torch
 from torch import optim
 
 from src import LIBRARY_ROOT
-from src.cdc_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
-from src.model.coref_model import CorefModel
+from src.ext_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
+from src.dl_model.coref_model import CorefModel
 from src.obj.topics import Topics
 
 
 def train_classifier(model, train_feats, dev_feats, learning_rate, iterations, embed, use_cuda):
     optimizer = optim.Adagrad(model.parameters(), lr=learning_rate, weight_decay=0.05)
-    # optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    # optimizer = optim.SGD(dl_model.parameters(), lr=learning_rate)
 
     total_count = 0
     for epoch in range(iterations):
@@ -156,23 +156,10 @@ def get_feat(train_file, dev_file):
     return train_feats, dev_feats
 
 
-def joint_feats(event_feat, entity_feat):
-    print('Create Joint features:')
-    joint_feat = list()
-    joint_feat.extend(event_feat)
-    joint_feat.extend(entity_feat)
-    random.shuffle(joint_feat)
-    print('Joint features size-' + str(len(joint_feat)))
-    return joint_feat
+def run_train(train_file, dev_file, bert_file, learning_rate, iterations, model_out, use_cuda):
 
-
-def run_train(event_train_file, event_dev_file, entity_train_file, entity_dev_file,
-              bert_file, learning_rate, iterations, model_out, run_type, joint, use_cuda):
-
-    print('Create Events Features:')
-    event_train_feat, event_dev_feat = get_feat(event_train_file, event_dev_file)
-    print('Create Entity Features:')
-    entity_train_feat, entity_dev_feat = get_feat(entity_train_file, entity_dev_file)
+    print('Create Features:')
+    train_feat, dev_feat = get_feat(train_file, dev_file)
 
     bert = ElmoEmbeddingOffline(bert_file)
     model = CorefModel(MODEL_SIZE, MODEL_SIZE, MODEL_SIZE)
@@ -180,17 +167,7 @@ def run_train(event_train_file, event_dev_file, entity_train_file, entity_dev_fi
     if use_cuda and torch.cuda.is_available():
         model.cuda()
 
-    if joint:
-        joint_train_feat = joint_feats(event_train_feat, entity_train_feat)
-        joint_dev_feat = joint_feats(event_dev_feat, entity_dev_feat)
-        train_classifier(model, joint_train_feat, joint_dev_feat, learning_rate, iterations, bert, use_cuda)
-    else:
-        if run_type == 'event':
-            train_classifier(model, event_train_feat, event_dev_feat, learning_rate, iterations, bert, use_cuda)
-        elif run_type == 'entity':
-            train_classifier(model, entity_train_feat, entity_dev_feat, learning_rate, iterations, bert, use_cuda)
-        else:
-            raise TypeError('No such run_type=' + run_type)
+    train_classifier(model, train_feat, dev_feat, learning_rate, iterations, bert, use_cuda)
 
     if model_out:
         torch.save(model, model_out)
@@ -200,7 +177,7 @@ if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
     # parser.add_argument('--trainFile', type=str, help='train file', required=True)
     # parser.add_argument('--testFile', type=str, help='test file', required=True)
-    # parser.add_argument('--modelFile', type=str, help='model output location', required=False)
+    # parser.add_argument('--modelFile', type=str, help='dl_model output location', required=False)
     # parser.add_argument('--bertFile', type=str, help='preprocessed_external_features glove file', required=False)
     # parser.add_argument('--lr', type=str, help='learning rate', required=True)
     # parser.add_argument('--iter', type=str, help='num of iterations', required=True)
@@ -214,13 +191,13 @@ if __name__ == '__main__':
     _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
     # _entity_train_file = 'data/interim/kian/gold_mentions_with_context/ECB_Train_Entity_gold_mentions.json'
     # _entity_dev_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'
-    _bert_file = 'dumps/embedded/ecb_all_embed_bert_all_layers.pickle'
-    _model_out = 'models/mlp_test_model'
+    _bert_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
+    _model_out = str(LIBRARY_ROOT) + '/saved_models/wiki_trained_model'
 
     _learning_rate = 0.01
     _iterations = 1
-    _joint = True
-    _type = 'entity'
+    _joint = False
+    _type = 'event'
 
     _use_cuda = False  # args.cuda in ['True', 'true', 'yes', 'Yes']
     if _use_cuda:
@@ -230,5 +207,4 @@ if __name__ == '__main__':
     random.seed(1)
     np.random.seed(1)
 
-    run_train(_event_train_file, _event_dev_file, _entity_train_file, _entity_dev_file,
-              _bert_file, _learning_rate, _iterations, _model_out, _type, _joint, _use_cuda)
+    run_train(_event_train_file, _event_dev_file, _bert_file, _learning_rate, _iterations, _model_out, _use_cuda)

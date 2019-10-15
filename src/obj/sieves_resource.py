@@ -1,5 +1,5 @@
 from src import LIBRARY_ROOT
-from src.cdc_resources.relations.relation_types_enums import WikipediaSearchMethod, OnlineOROfflineMethod, \
+from src.ext_resources.relations.relation_types_enums import WikipediaSearchMethod, OnlineOROfflineMethod, \
     EmbeddingMethod
 
 

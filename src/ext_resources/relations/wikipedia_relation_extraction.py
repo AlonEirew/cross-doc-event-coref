@@ -4,11 +4,11 @@ import logging
 import os
 from typing import Set, List
 
-from src.cdc_resources.data_types.wiki.wikipedia_pages import WikipediaPages
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
-from src.cdc_resources.relations.relation_types_enums import WikipediaSearchMethod, RelationType
-from src.cdc_resources.wikipedia.wiki_elastic import WikiElastic
-from src.cdc_resources.wikipedia.wiki_offline import WikiOffline
+from src.ext_resources.data_types.wiki.wikipedia_pages import WikipediaPages
+from src.ext_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_types_enums import WikipediaSearchMethod, RelationType
+from src.ext_resources.wikipedia.wiki_elastic import WikiElastic
+from src.ext_resources.wikipedia.wiki_offline import WikiOffline
 from src.obj.mention_data import MentionDataLight
 from src.utils.string_utils import StringUtils
 

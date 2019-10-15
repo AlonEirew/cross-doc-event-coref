@@ -132,3 +132,7 @@ class StringUtils(object):
             tokenized_str.append(sent_toks)
 
         return tokenized_str
+
+    @staticmethod
+    def get_tokens_from_list(in_token: List[str]):
+        return StringUtils.spacy_parser.tokenizer.tokens_from_list(in_token)

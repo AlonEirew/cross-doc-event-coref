@@ -2,17 +2,14 @@ import logging
 from typing import List
 
 from src import LIBRARY_ROOT
-from src.cdc_resources.relations.computed_relation_extraction import ComputedRelationExtraction
-from src.cdc_resources.relations.referent_dict_relation_extraction import ReferentDictRelationExtraction
-from src.cdc_resources.relations.relation_types_enums import RelationType, WikipediaSearchMethod
-from src.cdc_resources.relations.wikipedia_relation_extraction import WikipediaRelationExtraction
-from src.cdc_resources.relations.word_embedding_relation_extraction import WordEmbeddingRelationExtraction
-from src.cross_doc_sieves import run_event_coref, run_entity_coref
+from src.ext_resources.relations.computed_relation_extraction import ComputedRelationExtraction
+from src.ext_resources.relations.relation_types_enums import RelationType, WikipediaSearchMethod
+from src.rb_model.cross_doc_sieves import run_event_coref, run_entity_coref
 from src.obj.cluster import Clusters
 from src.obj.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
 from src.obj.sieves_resource import SievesResources
 from src.obj.topics import Topics
-from src.sieves_container_init import SievesContainerInitialization
+from src.rb_model.sieves_container_init import SievesContainerInitialization
 from src.utils.io_utils import write_coref_scorer_results
 
 
@@ -37,17 +34,17 @@ def run_example(cdc_settings):
 
 def load_modules(cdc_resources):
     models = list()
-    # models.append(WikipediaRelationExtraction(cdc_resources.wiki_search_method,
-    #                                           wiki_file=cdc_resources.wiki_folder,
-    #                                           host=cdc_resources.elastic_host,
-    #                                           port=cdc_resources.elastic_port,
-    #                                           index=cdc_resources.elastic_index))
-    # models.append(WordEmbeddingRelationExtraction(cdc_resources.embed_search_method,
-    #                                               glove_file=cdc_resources.glove_file,
-    #                                               elmo_file=cdc_resources.elmo_file,
+    # models.append(WikipediaRelationExtraction(ext_resources.wiki_search_method,
+    #                                           wiki_file=ext_resources.wiki_folder,
+    #                                           host=ext_resources.elastic_host,
+    #                                           port=ext_resources.elastic_port,
+    #                                           index=ext_resources.elastic_index))
+    # models.append(WordEmbeddingRelationExtraction(ext_resources.embed_search_method,
+    #                                               glove_file=ext_resources.glove_file,
+    #                                               elmo_file=ext_resources.elmo_file,
     #                                               cos_accepted_dist=0.75))
-    # models.append(ReferentDictRelationExtraction(cdc_resources.referent_dict_method,
-    #                                              cdc_resources.referent_dict_file))
+    # models.append(ReferentDictRelationExtraction(ext_resources.referent_dict_method,
+    #                                              ext_resources.referent_dict_file))
     models.append(ComputedRelationExtraction())
     return models
 

@@ -2,11 +2,11 @@ import logging
 import os
 from typing import Set, List
 
-from src.cdc_resources.data_types.wn.wordnet_page import WordnetPage
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
-from src.cdc_resources.relations.relation_types_enums import OnlineOROfflineMethod, RelationType
-from src.cdc_resources.wordnet.wordnet_offline import WordnetOffline
-from src.cdc_resources.wordnet.wordnet_online import WordnetOnline
+from src.ext_resources.data_types.wn.wordnet_page import WordnetPage
+from src.ext_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_types_enums import OnlineOROfflineMethod, RelationType
+from src.ext_resources.wordnet.wordnet_offline import WordnetOffline
+from src.ext_resources.wordnet.wordnet_online import WordnetOnline
 from src.obj.mention_data import MentionDataLight
 from src.utils.string_utils import StringUtils
 

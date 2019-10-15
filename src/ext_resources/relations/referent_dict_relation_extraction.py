@@ -2,8 +2,8 @@ import logging
 import os
 from typing import Dict, List, Set
 
-from src.cdc_resources.relations.relation_extraction import RelationExtraction
-from src.cdc_resources.relations.relation_types_enums import OnlineOROfflineMethod, RelationType
+from src.ext_resources.relations.relation_extraction import RelationExtraction
+from src.ext_resources.relations.relation_types_enums import OnlineOROfflineMethod, RelationType
 from src.obj.mention_data import MentionDataLight
 from src.utils.io_utils import load_json_file
 from src.utils.string_utils import StringUtils

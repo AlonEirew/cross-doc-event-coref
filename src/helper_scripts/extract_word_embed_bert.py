@@ -1,25 +1,9 @@
-# ******************************************************************************
-# Copyright 2017-2018 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ******************************************************************************
 import logging
 import time
 
 import numpy as np
 import pickle
 
-import spacy
 from allennlp.data.dataset import Batch
 from allennlp.data.fields import TextField
 from allennlp.data.instance import Instance
@@ -31,6 +15,7 @@ from allennlp.modules.token_embedders.bert_token_embedder import PretrainedBertE
 
 from src import LIBRARY_ROOT
 from src.obj.mention_data import MentionData
+from src.utils.string_utils import StringUtils
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -52,15 +37,23 @@ def load_bert_for_vocab(mentions):
 
     """
     cache = dict()
+    total_mentions = len(mentions)
+    logger.info('Prepare to extract Bert vector from-' + str(total_mentions))
     for mention in mentions:
+        total_mentions -= 1
         if mention.mention_context is not None and mention.mention_context:
             sent = ' '.join(mention.mention_context)
             if sent not in cache:
                 s_t = time.time()
                 bert_full_vec = get_bert_representation(mention.mention_context)
-                cache[sent] = bert_full_vec
-                e_t = time.time()
-                print('added ' + mention.tokens_str + ', took-' + str(e_t - s_t))
+                if bert_full_vec is not None:
+                    cache[sent] = bert_full_vec
+                    e_t = time.time()
+                    logger.info('added ' + mention.tokens_str + ', took-' + str(e_t - s_t))
+                else:
+                    logger.info(mention.tokens_str + ' Could not be added')
+
+        logger.info(str(total_mentions) + ' mentions to go...')
 
     logger.info('Total words/contexts in vocabulary %d', len(cache))
     return cache
@@ -72,7 +65,7 @@ def get_bert_representation(in_tokens):
     """
     vocab = Vocabulary()
 
-    tokens = nlp.tokenizer.tokens_from_list(in_tokens)
+    tokens = StringUtils.get_tokens_from_list(in_tokens)
     instance = Instance({"tokens": TextField(tokens, {"bert": token_indexer})})
     batch = Batch([instance])
     batch.index_instances(vocab)
@@ -86,17 +79,21 @@ def get_bert_representation(in_tokens):
     outputs = bert_vectors.squeeze().data.numpy()
 
     # Matrix -> list of vectors
-    if len(tokens) == 1:
-        outputs = [outputs]
-    else:
-        outputs = [vec.squeeze() for vec in np.vsplit(outputs, len(tokens))]
+    try:
+        if len(tokens) == 1:
+            outputs = [outputs]
+        else:
+            outputs = [vec.squeeze() for vec in np.vsplit(outputs, len(tokens))]
+    except:
+        outputs = None
+        logger.error('Failed to get bert vector')
 
     return outputs
 
 
 def bert_dump():
-    out_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
     mention_files = [str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_All_Event_gold_mentions.json']
+    out_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
 
     mentions = []
     for _file in mention_files:
@@ -111,6 +108,5 @@ def bert_dump():
 
 
 if __name__ == '__main__':
-    nlp = spacy.load('en')
     bert_dump()
     print('Done!')
