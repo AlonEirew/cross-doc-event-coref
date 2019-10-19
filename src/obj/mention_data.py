@@ -34,7 +34,7 @@ class MentionDataLight(object):
 
 
 class MentionData(MentionDataLight):
-    def __init__(self, topic_id: str, doc_id: str, sent_id: int, tokens_numbers: List[int],
+    def __init__(self, mention_id, topic_id: str, doc_id: str, sent_id: int, tokens_numbers: List[int],
                  tokens_str: str, mention_context: List[str], mention_head: str,
                  mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA',
                  is_continuous: bool = True, is_singleton: bool = False, score: float = float(-1),
@@ -72,11 +72,15 @@ class MentionData(MentionDataLight):
         self.is_singleton = is_singleton
         self.score = score
         self.predicted_coref_chain = predicted_coref_chain
-        self.mention_id = self.gen_mention_id()
+        self.mention_id = mention_id
+
+        if self.mention_id is None:
+            self.mention_id = self.gen_mention_id()
+
         self.mention_index = mention_index
 
     @staticmethod
-    def read_json_mention_data_line(mention_line: str):
+    def read_json_mention_data_line(mention_line):
         """
         Args:
             mention_line: a Json representation of a single mention
@@ -104,6 +108,9 @@ class MentionData(MentionDataLight):
 
             mention_text = mention_line['tokens_str']
 
+            if 'mention_id' in mention_line:
+                mention_id = mention_line['mention_id']
+
             if 'topic_id' in mention_line:
                 topic_id = mention_line['topic_id']
 
@@ -112,8 +119,8 @@ class MentionData(MentionDataLight):
 
             if 'doc_id' in mention_line:
                 doc_id = mention_line['doc_id']
-                if '.xml' not in doc_id:
-                    doc_id = doc_id + '.xml'
+                # if '.xml' not in doc_id:
+                #     doc_id = doc_id + '.xml'
 
             if 'sent_id' in mention_line:
                 sent_id = mention_line['sent_id']
@@ -152,7 +159,7 @@ class MentionData(MentionDataLight):
             if 'mention_index' in mention_line:
                 mention_index = mention_line['mention_index']
 
-            mention_data = MentionData(topic_id, doc_id, sent_id, tokens_numbers, mention_text,
+            mention_data = MentionData(mention_id, topic_id, doc_id, sent_id, tokens_numbers, mention_text,
                                        mention_context,
                                        mention_head, mention_head_lemma,
                                        coref_chain, mention_type, is_continue, is_singleton, score,
@@ -197,7 +204,7 @@ class MentionData(MentionDataLight):
             tokens_numbers.append(i)
         tokens_numbers.append(token_end)
 
-        mention_data = MentionData(-1, doc_id, -1, tokens_numbers, mention_text,
+        mention_data = MentionData(None, -1, doc_id, -1, tokens_numbers, mention_text,
                                    mention_context.split(' '), None, None, coref_chain, mention_type, gen_lemma=gen_lemma)
 
         mention_data.mention_id = mention_id

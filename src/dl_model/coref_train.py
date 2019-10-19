@@ -21,8 +21,6 @@ def train_classifier(model, train_feats, dev_feats, learning_rate, iterations, e
         # start = int(round(time.time() * 1000))
         pair_count = 0
         for mention1, mention2 in train_feats:
-            if pair_count == 5:
-                break
             optimizer.zero_grad()
             pair_count += 1
             batch1_start = int(round(time.time() * 1000))
@@ -48,37 +46,11 @@ def train_classifier(model, train_feats, dev_feats, learning_rate, iterations, e
         log(epoch, total_count, pair_count, cum_loss, 1.0, accuracy_train)
 
 
-def create_pos_neg_pairs(topics):
-    mentions_pairs = set()
-    positive_pairs = list()
-    negative_pairs = list()
-    for topic in topics.topics_list:
-        for mention1 in topic.mentions:
-            for mention2 in topic.mentions:
-                if mention1.mention_id == mention2.mention_id:
-                    continue
-
-                key = mention1.mention_id + '&' + mention2.mention_id
-                key_reverse = mention2.mention_id + '&' + mention1.mention_id
-
-                if key in mentions_pairs or key_reverse in mentions_pairs:
-                    continue
-
-                mentions_pairs.add(key)
-                gold_label = mention1.coref_chain == mention2.coref_chain
-                if gold_label:
-                    positive_pairs.append((mention1, mention2))
-                else:
-                    negative_pairs.append((mention1, mention2))
-
-    print('pos-' + str(len(positive_pairs)))
-    print('neg-' + str(len(negative_pairs)))
-    return positive_pairs, negative_pairs
-
-
 def feat_to_vec(mention1, mention2, embed, use_cuda):
     sentence1_words = ' '.join(mention1.mention_context)
     sentence2_words = ' '.join(mention2.mention_context)
+    context1_full_vec = None
+    context2_full_vec = None
     if sentence1_words in embed.embeder:
         context1_full_vec = embed.embeder[sentence1_words]
         mention1_vec = ElmoEmbedding.get_mention_vec_from_sent(context1_full_vec, mention1.tokens_number)
@@ -132,9 +104,45 @@ def accuracy_on_dataset(model, features, embedd, use_cuda):
 def create_features_from_pos_neg(positive_exps, negative_exps):
     feats = list()
     feats.extend(positive_exps)
-    feats.extend(random.sample(negative_exps, len(positive_exps) * 2))
+    feats.extend(negative_exps)
+    # feats.extend(random.sample(negative_exps, len(positive_exps) * 2))
     random.shuffle(feats)
     return feats
+
+
+def create_pos_neg_pairs(topics):
+    clusters = dict()
+    positive_pairs = list()
+    negative_pairs = list()
+    topic = topics.topics_list[0]
+    for mention in topic.mentions:
+        if mention.coref_chain not in clusters:
+            clusters[mention.coref_chain] = list()
+        clusters[mention.coref_chain].append(mention)
+
+    # create positive examples
+    for coref, mentions_list in clusters.items():
+        for mention1 in mentions_list:
+            for mention2 in mentions_list:
+                if mention1.mention_id != mention2.mention_id:
+                    if len(mention1.mention_context) > 100 or len(mention2.mention_context) > 100:
+                        continue
+
+                    positive_pairs.append((mention1, mention2))
+
+    # create negative examples
+    for coref1, mentions_list1 in clusters.items():
+        for coref2, mentions_list2 in clusters.items():
+            index1 = random.randint(0, len(mentions_list1) - 1)
+            index2 = random.randint(0, len(mentions_list2) - 1)
+            if mentions_list1[index1].coref_chain != mentions_list2[index2].coref_chain:
+                negative_pairs.append((mentions_list1[index1], mentions_list2[index2]))
+        if len(negative_pairs) > len(positive_pairs):
+            break
+
+    print('pos-' + str(len(positive_pairs)))
+    print('neg-' + str(len(negative_pairs)))
+    return positive_pairs, negative_pairs
 
 
 def get_feat(train_file, dev_file):
@@ -146,12 +154,12 @@ def get_feat(train_file, dev_file):
     print('Create Train pos/neg examples')
     positive_train, negative_train = create_pos_neg_pairs(topics_train)
     train_feats = create_features_from_pos_neg(positive_train, negative_train)
-    print('Total Train examples-' + str(len(train_feats)))
+    # print('Total Train examples-' + str(len(train_feats)))
 
     print('Create Test pos/neg examples')
     positive_dev, negative_dev = create_pos_neg_pairs(topics_dev)
     dev_feats = create_features_from_pos_neg(positive_dev, negative_dev)
-    print('Total Dev examples-' + str(len(dev_feats)))
+    # print('Total Dev examples-' + str(len(dev_feats)))
 
     return train_feats, dev_feats
 
@@ -187,7 +195,8 @@ if __name__ == '__main__':
     EMBED_SIZE = 1024
     MODEL_SIZE = 1024
 
-    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
+    # _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
     _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
     # _entity_train_file = 'data/interim/kian/gold_mentions_with_context/ECB_Train_Entity_gold_mentions.json'
     # _entity_dev_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'

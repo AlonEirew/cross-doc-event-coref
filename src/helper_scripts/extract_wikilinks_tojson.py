@@ -1,5 +1,3 @@
-import json
-
 from src import LIBRARY_ROOT
 from src.obj.mention_data import MentionData
 from src.utils.json_utils import write_mention_to_json
@@ -7,12 +5,12 @@ from src.utils.sqlite_utils import create_connection, select_split_from_validati
 
 
 def main():
-    # validation_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
+    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
+    validation_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
     train_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
     test_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json'
-    connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v9.db")
 
-    # extract_and_create_json(connection, validation_out, 'VALIDATION')
+    extract_and_create_json(connection, validation_out, 'VALIDATION')
     extract_and_create_json(connection, train_out, 'TRAIN')
     extract_and_create_json(connection, test_out, 'TEST')
 
