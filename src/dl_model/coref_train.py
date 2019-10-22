@@ -18,87 +18,141 @@ def train_classifier(model, train_feats, dev_feats, learning_rate, iterations, e
     total_count = 0
     for epoch in range(iterations):
         cum_loss = 0.0
-        # start = int(round(time.time() * 1000))
+        start = int(round(time.time() * 1000))
         pair_count = 0
-        for mention1, mention2 in train_feats:
-            optimizer.zero_grad()
+        dataset_size = len(train_feats)
+        batch_size = 50
+        end_index = batch_size
+        for start_index in range(0, dataset_size, batch_size):
+            if end_index > dataset_size:
+                end_index = dataset_size
+
+            batch_features = train_feats[start_index:end_index].copy()
             pair_count += 1
             batch1_start = int(round(time.time() * 1000))
-            sent1_feat, mention1_feat, sent2_feat, mention2_feat, true_label = feat_to_vec(mention1, mention2, embed, use_cuda)
+            sent1_feat, mention1_feat, sent2_feat, mention2_feat, true_label = feat_to_vec(batch_features, embed, use_cuda)
+
+            optimizer.zero_grad()
             output = model(sent1_feat, mention1_feat, sent2_feat, mention2_feat)
-            loss = model.loss_fun(output.view(1, -1), true_label)
+            loss = model.loss_fun(output, true_label)
             loss.backward()
             optimizer.step()
             cum_loss += loss.item()
-            total_count += 1
+            total_count += batch_size
+            end_index += batch_size
 
-            if total_count % 100 == 0:
+            if total_count % 500 == 0:
                 batch1_end = int(round(time.time() * 1000))
                 batch1_took = batch1_end - batch1_start
                 log(epoch, total_count, pair_count, cum_loss, batch1_took, 0.0)
 
         accuracy_dev = accuracy_on_dataset(model, dev_feats, embed, use_cuda)
+        end = int(round(time.time() * 1000))
+        took = end - start
         print('DEV Accuracy at END:')
-        log(epoch, total_count, pair_count, cum_loss, 1.0, accuracy_dev)
+        log(epoch, total_count, pair_count, cum_loss, took, accuracy_dev)
 
         accuracy_train = accuracy_on_dataset(model, train_feats, embed, use_cuda)
+        end = int(round(time.time() * 1000))
+        took = end - start
         print('TRAIN Accuracy at END:')
-        log(epoch, total_count, pair_count, cum_loss, 1.0, accuracy_train)
+        log(epoch, total_count, pair_count, cum_loss, took, accuracy_train)
 
 
-def feat_to_vec(mention1, mention2, embed, use_cuda):
-    sentence1_words = ' '.join(mention1.mention_context)
-    sentence2_words = ' '.join(mention2.mention_context)
-    context1_full_vec = None
-    context2_full_vec = None
-    if sentence1_words in embed.embeder:
-        context1_full_vec = embed.embeder[sentence1_words]
-        mention1_vec = ElmoEmbedding.get_mention_vec_from_sent(context1_full_vec, mention1.tokens_number)
-        # mention1_feat = np.vstack((context1_full_vec, mention1_vec))
+def feat_to_vec(batch_features, embed, use_cuda):
+    ret_sents1 = list()
+    ret_ments1 = list()
+    ret_sents2 = list()
+    ret_ments2 = list()
+    ret_golds = list()
+    longest_array_context = 0
+    for mention1, mention2 in batch_features:
+        sentence1_words = ' '.join(mention1.mention_context)
+        sentence2_words = ' '.join(mention2.mention_context)
+        context1_full_vec = None
+        context2_full_vec = None
+        if sentence1_words in embed.embeder:
+            context1_full_vec = embed.embeder[sentence1_words]
+            mention1_vec = ElmoEmbedding.get_mention_vec_from_sent(context1_full_vec, mention1.tokens_number)
+            # mention1_feat = np.vstack((context1_full_vec, mention1_vec))
 
-    if sentence2_words in embed.embeder:
-        context2_full_vec = embed.embeder[sentence2_words]
-        mention2_vec = ElmoEmbedding.get_mention_vec_from_sent(context2_full_vec, mention2.tokens_number)
-        # mention2_feat = np.vstack((context2_full_vec, mention2_vec))
+        if sentence2_words in embed.embeder:
+            context2_full_vec = embed.embeder[sentence2_words]
+            mention2_vec = ElmoEmbedding.get_mention_vec_from_sent(context2_full_vec, mention2.tokens_number)
+            # mention2_feat = np.vstack((context2_full_vec, mention2_vec))
 
-    gold_label = 1 if mention1.coref_chain == mention2.coref_chain else 0
-    ret_gold = torch.tensor([gold_label])
-    ret_sent1 = torch.from_numpy(np.vstack(context1_full_vec))
-    ret_sent2 = torch.from_numpy(np.vstack(context2_full_vec))
-    ret_ment1 = torch.from_numpy(mention1_vec)
-    ret_ment2 = torch.from_numpy(mention2_vec)
+        gold_label = 1 if mention1.coref_chain == mention2.coref_chain else 0
+
+        if context1_full_vec is None or context2_full_vec is None:
+            continue
+
+        if len(context2_full_vec) < len(context1_full_vec):
+            max_context = len(context1_full_vec)
+        else:
+            max_context = len(context2_full_vec)
+
+        if max_context > longest_array_context:
+            longest_array_context = max_context
+
+        ret_golds.append(gold_label)
+        ret_sents1.append(np.vstack(context1_full_vec))
+        ret_sents2.append(np.vstack(context2_full_vec))
+        ret_ments1.append(mention1_vec)
+        ret_ments2.append(mention2_vec)
+
+    for i in range(len(ret_sents1)):
+        if len(ret_sents1[i]) < longest_array_context:
+            ret_sents1[i] = np.pad(ret_sents1[i], ((0, longest_array_context - len(ret_sents1[i])), (0, 0)), 'constant')
+
+    for i in range(len(ret_sents2)):
+        if len(ret_sents2[i]) < longest_array_context:
+            ret_sents2[i] = np.pad(ret_sents2[i], ((0, longest_array_context - len(ret_sents2[i])), (0, 0)), 'constant')
+
+    ret_golds = torch.tensor(ret_golds)
+    ret_sents1 = torch.from_numpy(np.vstack((ret_sents1, )))
+    ret_sents2 = torch.from_numpy(np.vstack((ret_sents2, )))
+    ret_ments1 = torch.from_numpy(np.vstack(ret_ments1))
+    ret_ments2 = torch.from_numpy(np.vstack(ret_ments2))
 
     if use_cuda:
-        ret_sent1 = ret_sent1.cuda()
-        ret_sent2 = ret_sent2.cuda()
-        ret_ment1 = ret_ment1.cuda()
-        ret_ment2 = ret_ment2.cuda()
-        ret_gold = ret_gold.cuda()
+        ret_sents1 = ret_sents1.cuda()
+        ret_sents2 = ret_sents2.cuda()
+        ret_ments1 = ret_ments1.cuda()
+        ret_ments2 = ret_ments2.cuda()
+        ret_golds = ret_golds.cuda()
 
-    return ret_sent1, ret_ment1, ret_sent2, ret_ment2, ret_gold
+    return ret_sents1, ret_ments1, ret_sents2, ret_ments2, ret_golds
 
 
 def log(epoch, total_count, pair_count, cum_loss, took, accuracy):
     if accuracy != 0.0:
-        print('%d: %d: loss: %.3f: Accuracy: %.5f: epoch-took: %dmilli' %
+        print('%d: %d: loss: %.10f: Accuracy: %.10f: epoch-took: %dmilli' %
               (epoch + 1, total_count, cum_loss / pair_count, accuracy, took))
     else:
-        print('%d: %d: loss: %.3f: epoch-took: %dmilli' %
+        print('%d: %d: loss: %.10f: batch-took: %dmilli' %
               (epoch + 1, total_count, cum_loss / pair_count, took))
 
 
 def accuracy_on_dataset(model, features, embedd, use_cuda):
-    good = bad = 0.0
-    for mention1, mention2 in features:
-        sent1_feat, mention1_feat, sent2_feat, mention2_feat, true_label = feat_to_vec(mention1, mention2, embedd, use_cuda)
-        predictions = model.predict(sent1_feat, mention1_feat, sent2_feat, mention2_feat)
+    dataset_size = len(features)
+    batch_size = 1000
+    end_index = batch_size
+    labels = list()
+    predictions = list()
+    for start_index in range(0, dataset_size, batch_size):
+        if end_index > dataset_size:
+            end_index = dataset_size
 
-        if predictions == true_label.item():
-            good += 1
-        else:
-            bad += 1
+        batch_features = features[start_index:end_index].copy()
+        sent1_feat, mention1_feat, sent2_feat, mention2_feat, batch_label = feat_to_vec(batch_features, embedd, use_cuda)
+        batch_predictions = model.predict(sent1_feat, mention1_feat, sent2_feat, mention2_feat)
+        predictions.append(batch_predictions)
+        labels.append(batch_label)
+        end_index += batch_size
 
-    return good / (good + bad)
+    labels = torch.cat(labels)
+    predictions = torch.cat(predictions)
+    return torch.mean((labels == predictions).float())
 
 
 def create_features_from_pos_neg(positive_exps, negative_exps):
@@ -195,11 +249,9 @@ if __name__ == '__main__':
     EMBED_SIZE = 1024
     MODEL_SIZE = 1024
 
-    # _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
-    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
     _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
-    # _entity_train_file = 'data/interim/kian/gold_mentions_with_context/ECB_Train_Entity_gold_mentions.json'
-    # _entity_dev_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'
+
     _bert_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
     _model_out = str(LIBRARY_ROOT) + '/saved_models/wiki_trained_model'
 
