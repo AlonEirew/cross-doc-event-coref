@@ -2,7 +2,19 @@ from heapq import heappush, heappop
 
 import spacy
 
-from src.systems.data.data_utils import read_mentions_json_to_mentions_data_list
+# from src.systems.data.data_utils import read_mentions_json_to_mentions_data_list
+
+from src.utils.json_utils import load_mentions_from_json_file
+
+
+# def longest_mention():
+#     mentions = load_mentions_from_json_file('/Users/aeirew/workspace/cross-doc-coref/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json')
+#     max = 0
+#     for mention in mentions:
+#         if len(mention['tokens_number']) > max:
+#             max = len(mention['tokens_number'])
+
+#     print(max)
 
 
 def clean_singletons(mentions):
@@ -67,7 +79,7 @@ def visualize_clusters(all_mentions):
         cluster_context = ""
         ents = list()
         for context, mentions_heap in context_mentions.items():
-            for i in range(len(mentions_heap)):
+            for _ in range(len(mentions_heap)):
                 ment_pair = heappop(mentions_heap)
                 real_start = len(cluster_context) + 1 + ment_pair[0]
                 real_end = len(cluster_context) + 1 + ment_pair[1]

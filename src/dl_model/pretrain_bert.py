@@ -79,48 +79,24 @@ def finetune_bert(bert, tokenizer, train, validation, batch_size, use_cuda):
         print("Train loss: {}".format(tr_loss / nb_tr_steps))
 
         # Validation
-
-        # Put model in evaluation mode to evaluate loss on the validation set
         bert.eval()
-
-        # Tracking variables
-        eval_loss, eval_accuracy = 0, 0
-        nb_eval_steps, nb_eval_examples = 0, 0
-
-        # Evaluate data for one epoch
-        # for batch in validation_dataloader:
-        #     # Add batch to GPU
-        #     batch = tuple(t.to(device) for t in batch)
-        #     # Unpack the inputs from our dataloader
-        #     b_input_ids, b_input_mask, b_labels = batch
-        #     # Telling the model not to compute or store gradients, saving memory and speeding up validation
-        #     with torch.no_grad():
-        #         # Forward pass, calculate logit predictions
-        #         logits = bert(b_input_ids, token_type_ids=None, attention_mask=b_input_mask)
-        #
-        #     # Move logits and labels to CPU
-        #     logits = logits.detach().cpu().numpy()
-        #     label_ids = b_labels.to('cpu').numpy()
-        #
-        #     tmp_eval_accuracy = flat_accuracy(logits, label_ids)
-        #
-        #     eval_accuracy += tmp_eval_accuracy
-        #     nb_eval_steps += 1
-
-        print("Validation Accuracy: {}".format(eval_accuracy / nb_eval_steps))
+        accuracy_on_dataset(bert, tokenizer, validation, use_cuda)
 
 
 def feat_to_vec(tokenizer, batch_features, use_cuda):
-    MAX_LEN = 256
+    MAX_LEN = 90
+    MAX_SURROUNDING_CONTX = 10
     ret_golds = list()
     input_ids_list = list()
     att_mask_list = list()
     for mention1, mention2 in batch_features:
-        sentence1_words = '[CLS] ' + ' '.join(mention1.mention_context)
+        ment1_context = extract_mention_surrounding_context(mention1, MAX_SURROUNDING_CONTX)
+        ment2_context = extract_mention_surrounding_context(mention2, MAX_SURROUNDING_CONTX)
+        sentence1_words = '[CLS] ' + ' '.join(ment1_context)
         sent1_tokens = tokenizer.tokenize(sentence1_words)
         att_mask = [1] * len(sent1_tokens)
 
-        sentence2_words = ' [SEP]' + ' '.join(mention2.mention_context) + ' [SEP]'
+        sentence2_words = ' [SEP]' + ' '.join(ment2_context) + ' [SEP]'
         sent2_tokens = tokenizer.tokenize(sentence2_words)
         att_mask.extend([1] * len(sent2_tokens))
 
@@ -147,6 +123,59 @@ def feat_to_vec(tokenizer, batch_features, use_cuda):
     return ret_input_ids_list, ret_att_mask_list, ret_golds
 
 
+def extract_mention_surrounding_context(mention, history_size):
+    tokens_inds = mention.tokens_number
+    context = mention.mention_context
+    if len(tokens_inds) == 1:
+        start_id = tokens_inds[0]
+        end_id = start_id
+    else:
+        start_id = tokens_inds[0]
+        end_id = tokens_inds[1]
+
+    start_context = start_id - history_size
+    end_context = end_id + history_size
+    if start_context < 0:
+        start_context = 0
+    if end_context > len(context):
+        end_context = len(context)
+
+    return context[start_context:end_context]
+
+
+def accuracy_on_dataset(bert, tokenizer, features, use_cuda):
+    dataset_size = len(features)
+    batch_size = 200
+    end_index = batch_size
+    eval_loss, eval_accuracy = 0, 0
+    nb_eval_steps, nb_eval_examples = 0, 0
+
+    for start_index in range(0, dataset_size, batch_size):
+        if end_index > dataset_size:
+            end_index = dataset_size
+
+        batch_features = features[start_index:end_index].copy()
+        batch, att_mask, true_label = feat_to_vec(tokenizer, batch_features, use_cuda)
+        logits = bert.predict(batch, attention_mask=att_mask)
+        # Move logits and labels to CPU
+        logits = logits[0].detach().cpu().numpy()
+        label_ids = true_label.to('cpu').numpy()
+
+        tmp_eval_accuracy = flat_accuracy(logits, label_ids)
+
+        eval_accuracy += tmp_eval_accuracy
+        nb_eval_steps += 1
+
+    print("Validation Accuracy: {}".format(eval_accuracy / nb_eval_steps))
+
+
+# Function to calculate the accuracy of our predictions vs labels
+def flat_accuracy(preds, labels):
+    pred_flat = np.argmax(preds, axis=1).flatten()
+    labels_flat = labels.flatten()
+    return np.sum(pred_flat == labels_flat) / len(labels_flat)
+
+
 def create_dataloader(train_file, validation_file):
     logger.info('Create Features:')
     train_feat = get_feat(train_file)
@@ -162,13 +191,13 @@ if __name__ == '__main__':
 
     _learning_rate = 0.01
     _iterations = 1
-    _batch_size = 1
+    _batch_size = 16
     _joint = False
     _type = 'event'
-    _use_cuda = False  # args.cuda in ['True', 'true', 'yes', 'Yes']
+    _use_cuda = True  # args.cuda in ['True', 'true', 'yes', 'Yes']
 
-    _bert = BertForSequenceClassification.from_pretrained('bert-large-cased')
-    _tokenizer = BertTokenizer.from_pretrained('bert-large-cased')
+    _bert = BertForSequenceClassification.from_pretrained('bert-base-cased')
+    _tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
     if _use_cuda:
         logger.info(torch.cuda.get_device_name(0))

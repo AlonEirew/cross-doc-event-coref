@@ -2,3 +2,4 @@
 *.pyc
 output
 saved_models
+.vscode
