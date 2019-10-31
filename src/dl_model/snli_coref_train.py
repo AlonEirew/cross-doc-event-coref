@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 
@@ -6,9 +7,12 @@ import torch
 from torch import optim
 
 from src import LIBRARY_ROOT
+from src.dl_model.snli_coref_model import SnliCorefModel
 from src.ext_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
-from src.dl_model.coref_model import CorefModel
-from src.obj.topics import Topics
+from src.utils.dl_utils import get_feat
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def train_classifier(model, train_feats, dev_feats, learning_rate, iterations, embed, use_cuda):
@@ -41,21 +45,21 @@ def train_classifier(model, train_feats, dev_feats, learning_rate, iterations, e
             total_count += batch_size
             end_index += batch_size
 
-            if total_count % 500 == 0:
+            if total_count % 100 == 0:
                 batch1_end = int(round(time.time() * 1000))
                 batch1_took = batch1_end - batch1_start
                 log(epoch, total_count, pair_count, cum_loss, batch1_took, 0.0)
 
-        accuracy_dev = accuracy_on_dataset(model, dev_feats, embed, use_cuda)
-        end = int(round(time.time() * 1000))
-        took = end - start
-        print('DEV Accuracy at END:')
-        log(epoch, total_count, pair_count, cum_loss, took, accuracy_dev)
+                accuracy_dev = accuracy_on_dataset(model, dev_feats, embed, use_cuda)
+                end = int(round(time.time() * 1000))
+                took = end - start
+                logger.info('DEV Accuracy at END:')
+                log(epoch, total_count, pair_count, cum_loss, took, accuracy_dev)
 
         accuracy_train = accuracy_on_dataset(model, train_feats, embed, use_cuda)
         end = int(round(time.time() * 1000))
         took = end - start
-        print('TRAIN Accuracy at END:')
+        logger.info('TRAIN Accuracy at END:')
         log(epoch, total_count, pair_count, cum_loss, took, accuracy_train)
 
 
@@ -65,12 +69,15 @@ def feat_to_vec(batch_features, embed, use_cuda):
     ret_sents2 = list()
     ret_ments2 = list()
     ret_golds = list()
-    longest_array_context = 0
+    longest_context = 0
+    longest_mention = 0
     for mention1, mention2 in batch_features:
         sentence1_words = ' '.join(mention1.mention_context)
         sentence2_words = ' '.join(mention2.mention_context)
         context1_full_vec = None
         context2_full_vec = None
+        mention1_vec = None
+        mention2_vec = None
         if sentence1_words in embed.embeder:
             context1_full_vec = embed.embeder[sentence1_words]
             mention1_vec = ElmoEmbedding.get_mention_vec_from_sent(context1_full_vec, mention1.tokens_number)
@@ -86,33 +93,38 @@ def feat_to_vec(batch_features, embed, use_cuda):
         if context1_full_vec is None or context2_full_vec is None:
             continue
 
+        ret_golds.append(gold_label)
+        ret_sents1.append(np.vstack(context1_full_vec))
+        ret_sents2.append(np.vstack(context2_full_vec))
+        ret_ments1.append(np.vstack(mention1_vec))
+        ret_ments2.append(np.vstack(mention2_vec))
+
         if len(context2_full_vec) < len(context1_full_vec):
             max_context = len(context1_full_vec)
         else:
             max_context = len(context2_full_vec)
 
-        if max_context > longest_array_context:
-            longest_array_context = max_context
+        if len(mention2_vec) < len(mention1_vec):
+            max_mention = len(mention1_vec)
+        else:
+            max_mention = len(mention2_vec)
 
-        ret_golds.append(gold_label)
-        ret_sents1.append(np.vstack(context1_full_vec))
-        ret_sents2.append(np.vstack(context2_full_vec))
-        ret_ments1.append(mention1_vec)
-        ret_ments2.append(mention2_vec)
+        if max_context > longest_context:
+            longest_context = max_context
 
-    for i in range(len(ret_sents1)):
-        if len(ret_sents1[i]) < longest_array_context:
-            ret_sents1[i] = np.pad(ret_sents1[i], ((0, longest_array_context - len(ret_sents1[i])), (0, 0)), 'constant')
+        if max_mention > longest_mention:
+            longest_mention = max_mention
 
-    for i in range(len(ret_sents2)):
-        if len(ret_sents2[i]) < longest_array_context:
-            ret_sents2[i] = np.pad(ret_sents2[i], ((0, longest_array_context - len(ret_sents2[i])), (0, 0)), 'constant')
+    padding_vector_list(ret_sents1, longest_context)
+    padding_vector_list(ret_sents2, longest_context)
+    padding_vector_list(ret_ments1, longest_mention)
+    padding_vector_list(ret_ments2, longest_mention)
 
     ret_golds = torch.tensor(ret_golds)
     ret_sents1 = torch.from_numpy(np.vstack((ret_sents1, )))
     ret_sents2 = torch.from_numpy(np.vstack((ret_sents2, )))
-    ret_ments1 = torch.from_numpy(np.vstack(ret_ments1))
-    ret_ments2 = torch.from_numpy(np.vstack(ret_ments2))
+    ret_ments1 = torch.from_numpy(np.vstack((ret_ments1, )))
+    ret_ments2 = torch.from_numpy(np.vstack((ret_ments2, )))
 
     if use_cuda:
         ret_sents1 = ret_sents1.cuda()
@@ -124,18 +136,24 @@ def feat_to_vec(batch_features, embed, use_cuda):
     return ret_sents1, ret_ments1, ret_sents2, ret_ments2, ret_golds
 
 
+def padding_vector_list(vector_list, vector_length):
+    for i in range(len(vector_list)):
+        if len(vector_list[i]) < vector_length:
+            vector_list[i] = np.pad(vector_list[i], ((0, vector_length - len(vector_list[i])), (0, 0)), 'constant')
+
+
 def log(epoch, total_count, pair_count, cum_loss, took, accuracy):
     if accuracy != 0.0:
-        print('%d: %d: loss: %.10f: Accuracy: %.10f: epoch-took: %dmilli' %
+        logger.info('%d: %d: loss: %.10f: Accuracy: %.10f: epoch-took: %dmilli' %
               (epoch + 1, total_count, cum_loss / pair_count, accuracy, took))
     else:
-        print('%d: %d: loss: %.10f: batch-took: %dmilli' %
+        logger.info('%d: %d: loss: %.10f: batch-took: %dmilli' %
               (epoch + 1, total_count, cum_loss / pair_count, took))
 
 
 def accuracy_on_dataset(model, features, embedd, use_cuda):
     dataset_size = len(features)
-    batch_size = 1000
+    batch_size = 200
     end_index = batch_size
     labels = list()
     predictions = list()
@@ -150,81 +168,16 @@ def accuracy_on_dataset(model, features, embedd, use_cuda):
         labels.append(batch_label)
         end_index += batch_size
 
-    labels = torch.cat(labels)
-    predictions = torch.cat(predictions)
-    return torch.mean((labels == predictions).float())
-
-
-def create_features_from_pos_neg(positive_exps, negative_exps):
-    feats = list()
-    feats.extend(positive_exps)
-    feats.extend(negative_exps)
-    # feats.extend(random.sample(negative_exps, len(positive_exps) * 2))
-    random.shuffle(feats)
-    return feats
-
-
-def create_pos_neg_pairs(topics):
-    clusters = dict()
-    positive_pairs = list()
-    negative_pairs = list()
-    topic = topics.topics_list[0]
-    for mention in topic.mentions:
-        if mention.coref_chain not in clusters:
-            clusters[mention.coref_chain] = list()
-        clusters[mention.coref_chain].append(mention)
-
-    # create positive examples
-    for coref, mentions_list in clusters.items():
-        for mention1 in mentions_list:
-            for mention2 in mentions_list:
-                if mention1.mention_id != mention2.mention_id:
-                    if len(mention1.mention_context) > 100 or len(mention2.mention_context) > 100:
-                        continue
-
-                    positive_pairs.append((mention1, mention2))
-
-    # create negative examples
-    for coref1, mentions_list1 in clusters.items():
-        for coref2, mentions_list2 in clusters.items():
-            index1 = random.randint(0, len(mentions_list1) - 1)
-            index2 = random.randint(0, len(mentions_list2) - 1)
-            if mentions_list1[index1].coref_chain != mentions_list2[index2].coref_chain:
-                negative_pairs.append((mentions_list1[index1], mentions_list2[index2]))
-        if len(negative_pairs) > len(positive_pairs):
-            break
-
-    print('pos-' + str(len(positive_pairs)))
-    print('neg-' + str(len(negative_pairs)))
-    return positive_pairs, negative_pairs
-
-
-def get_feat(train_file, dev_file):
-    topics_train = Topics()
-    topics_train.create_from_file(train_file, keep_order=True)
-    topics_dev = Topics()
-    topics_dev.create_from_file(dev_file, keep_order=True)
-
-    print('Create Train pos/neg examples')
-    positive_train, negative_train = create_pos_neg_pairs(topics_train)
-    train_feats = create_features_from_pos_neg(positive_train, negative_train)
-    # print('Total Train examples-' + str(len(train_feats)))
-
-    print('Create Test pos/neg examples')
-    positive_dev, negative_dev = create_pos_neg_pairs(topics_dev)
-    dev_feats = create_features_from_pos_neg(positive_dev, negative_dev)
-    # print('Total Dev examples-' + str(len(dev_feats)))
-
-    return train_feats, dev_feats
+    return torch.mean((torch.cat(labels) == torch.cat(predictions)).float())
 
 
 def run_train(train_file, dev_file, bert_file, learning_rate, iterations, model_out, use_cuda):
-
-    print('Create Features:')
-    train_feat, dev_feat = get_feat(train_file, dev_file)
+    logger.info('Create Features:')
+    train_feat = get_feat(train_file)
+    dev_feat = get_feat(dev_file)
 
     bert = ElmoEmbeddingOffline(bert_file)
-    model = CorefModel(MODEL_SIZE, MODEL_SIZE, MODEL_SIZE)
+    model = SnliCorefModel(MODEL_SIZE)
 
     if use_cuda and torch.cuda.is_available():
         model.cuda()
@@ -249,7 +202,7 @@ if __name__ == '__main__':
     EMBED_SIZE = 1024
     MODEL_SIZE = 1024
 
-    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
     _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
 
     _bert_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
@@ -262,7 +215,7 @@ if __name__ == '__main__':
 
     _use_cuda = False  # args.cuda in ['True', 'true', 'yes', 'Yes']
     if _use_cuda:
-        print(torch.cuda.get_device_name(0))
+        logger.info(torch.cuda.get_device_name(0))
         torch.cuda.manual_seed(1)
 
     random.seed(1)

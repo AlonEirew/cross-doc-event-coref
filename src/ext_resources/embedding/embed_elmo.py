@@ -59,9 +59,9 @@ class ElmoEmbedding(object):
     @staticmethod
     def get_mention_vec_from_sent(sent_vec, indexs):
         if len(indexs) > 1:
-            elmo_ret_vec = np.mean(sent_vec[indexs[0]: indexs[-1] + 1], axis=0)
+            elmo_ret_vec = sent_vec[indexs[0]: indexs[-1] + 1]
         else:
-            elmo_ret_vec = sent_vec[indexs[0]]
+            elmo_ret_vec = [sent_vec[indexs[0]]]
 
         return elmo_ret_vec
 

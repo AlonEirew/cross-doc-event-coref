@@ -5,3 +5,6 @@ allennlp
 num2words
 numpy
 torch
+transformers
+keras
+tensorflow

@@ -1,7 +1,7 @@
 import spacy
 
 from src.obj.mention_data import MentionData
-from src.utils.sqlite_utils import select_split_from_validation, create_connection, select_all_from_mentions
+from src.utils.sqlite_utils import select_from_validation, create_connection, select_all_from_mentions
 
 
 def visualize_clusters(clusters, read_mention_line_method):
@@ -40,10 +40,10 @@ def visualize_clusters(clusters, read_mention_line_method):
 
 
 def run_process():
-    connection = create_connection("/Users/aeirew/workspace/DataBase/WikiLinksPersonEventFull_v9.db")
+    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
     read_mention_line_menthon = MentionData.read_sqlite_mention_data_line_v9
     if connection is not None:
-        clusters = select_split_from_validation(connection, 'VALIDATION')
+        clusters = select_from_validation(connection, 'VALIDATION', coref_type=["2"])
         visualize_clusters(clusters, read_mention_line_menthon)
 
 

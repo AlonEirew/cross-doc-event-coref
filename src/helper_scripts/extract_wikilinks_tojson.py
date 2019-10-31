@@ -1,7 +1,7 @@
 from src import LIBRARY_ROOT
 from src.obj.mention_data import MentionData
 from src.utils.json_utils import write_mention_to_json
-from src.utils.sqlite_utils import create_connection, select_split_from_validation
+from src.utils.sqlite_utils import create_connection, select_from_validation
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
 
 def extract_and_create_json(connection, out_file, split):
     if connection is not None:
-        clusters = select_split_from_validation(connection, split)
+        clusters = select_from_validation(connection, split)
         mentions = gen_mentions(clusters)
         mentions.sort(key=lambda mention: mention.coref_chain)
         print(split + ' mentions=' + str(len(mentions)))

@@ -1,27 +1,33 @@
+import logging
 import sqlite3
+from typing import List
 
 
-def select_split_from_validation(conn, split, limit=-1):
+logger = logging.getLogger(__name__)
+
+
+def select_from_validation(conn, split: str, coref_type: List[str] = None, limit: int = -1):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
     :param split: the validation table split
+    :param coref_type: list of types to extract (default is None)
     :param limit: limit the number for rows to extract
     :return:
     """
     fields = 'coreChainId, mentionText, tokenStart, tokenEnd, extractedFromPage, ' \
              'context, PartOfSpeech, corefValue, mentionsCount, corefType, mentionId, split'
 
-    cur = conn.cursor()
-    if limit == -1:
-        cur.execute(
-            "SELECT " + fields + " from Validation INNER JOIN CorefChains ON"
-            " Validation.coreChainId=CorefChains.corefId WHERE split=\"" + split + "\";")
-    else:
-        cur.execute(
-            "SELECT " + fields + " from Validation INNER JOIN CorefChains"
-            " ON Validation.coreChainId=CorefChains.corefId WHERE split=\"" + split + "\" limit " + str(limit) + ";")
+    query = "SELECT " + fields + " from Validation INNER JOIN CorefChains ON " \
+                                 "Validation.coreChainId=CorefChains.corefId WHERE split=\"" + split + "\""
+    if coref_type is not None:
+        coref_types = ','.join(coref_type)
+        query += " and corefType in (" + coref_types + ")"
+    if limit != -1:
+        query += " limit " + str(limit)
 
+    cur = conn.cursor()
+    cur.execute(query)
     rows = cur.fetchall()
 
     return extract_clusters(rows)
@@ -73,6 +79,6 @@ def create_connection(db_file):
         conn = sqlite3.connect(db_file)
         return conn
     except sqlite3.Error as e:
-        print(e)
+        logger.error(e)
 
     return None

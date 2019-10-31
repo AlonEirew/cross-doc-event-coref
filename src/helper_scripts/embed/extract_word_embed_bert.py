@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 word_tokenizer = WordTokenizer()
 bert_tokenizer = WordTokenizer(word_splitter=BertBasicWordSplitter())
 token_indexer = PretrainedBertIndexer("bert-large-cased", do_lowercase=False)
-token_embedder = PretrainedBertEmbedder("bert-large-cased", top_layer_only=False)
+token_embedder = PretrainedBertEmbedder("bert-large-cased", top_layer_only=False, )
 
 
 def load_bert_for_vocab(mentions):
