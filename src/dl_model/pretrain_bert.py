@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def finetune_bert(bert, tokenizer, train, validation, batch_size, use_cuda):
+def finetune_bert(bert, tokenizer, train, validation, batch_size, epochs=4, use_cuda=True):
     linear = nn.Linear(100, 2)
 
     loss_fun = nn.CrossEntropyLoss()
@@ -33,13 +33,9 @@ def finetune_bert(bert, tokenizer, train, validation, batch_size, use_cuda):
 
     train_loss_set = []
 
-    # Number of training epochs (authors recommend between 2 and 4)
-    epochs = 4
-
     # trange is a tqdm wrapper around the normal python range
-    for _ in trange(epochs, desc="Epoch"):
+    for epoch in trange(epochs, desc="Epoch"):
         # Training
-
         # Set our model to training mode (as opposed to evaluation mode)
         bert.train()
 
@@ -49,13 +45,13 @@ def finetune_bert(bert, tokenizer, train, validation, batch_size, use_cuda):
 
         dataset_size = len(train)
         end_index = batch_size
+        random.shuffle(train)
         # Train the data for one epoch
-        for start_index in range(0, dataset_size, batch_size):
+        for start_index in trange(0, dataset_size, batch_size, desc="Batches"):
             if end_index > dataset_size:
                 end_index = dataset_size
 
             batch_features = train[start_index:end_index].copy()
-
             batch, att_mask, true_label = feat_to_vec(tokenizer, batch_features, use_cuda)
             # Clear out the gradients (by default they accumulate)
             optimizer.zero_grad()
@@ -76,15 +72,34 @@ def finetune_bert(bert, tokenizer, train, validation, batch_size, use_cuda):
             nb_tr_steps += 1
             end_index += batch_size
 
-        print("Train loss: {}".format(tr_loss / nb_tr_steps))
+            # bert.eval()
+            # snipt_accuracy = accuracy_on_dataset(bert, tokenizer, validation[0:100], use_cuda)
+            # log('Batch-Snpt', epoch, end_index, end_index, tr_loss, 0, snipt_accuracy)
+            # bert.train()
+
+        # print("Train loss: {}".format(tr_loss / nb_tr_steps))
 
         # Validation
         bert.eval()
-        accuracy_on_dataset(bert, tokenizer, validation, use_cuda)
+        # print("ACCURACY Train:")
+        # train_accuracy = accuracy_on_dataset(bert, tokenizer, train, use_cuda)
+        # log('Train', epoch, end_index, end_index, tr_loss, 0, train_accuracy)
+        # print("ACCURACY Validation:")
+        dev_accuracy = accuracy_on_dataset(bert, tokenizer, validation, use_cuda)
+        log('Dev-Acc', epoch, end_index, end_index, tr_loss, 0, dev_accuracy)
+
+
+def log(message, epoch, total_count, pair_count, cum_loss, took, accuracy):
+    if accuracy != 0.0:
+        logger.info('%s: %d: %d: loss: %.10f: Accuracy: %.10f: epoch-took: %dmilli' %
+              (message, epoch + 1, total_count, cum_loss / pair_count, accuracy, took))
+    else:
+        logger.info('%s: %d: %d: loss: %.10f: batch-took: %dmilli' %
+              (message, epoch + 1, total_count, cum_loss / pair_count, took))
 
 
 def feat_to_vec(tokenizer, batch_features, use_cuda):
-    MAX_LEN = 90
+    MAX_LEN = 128
     MAX_SURROUNDING_CONTX = 10
     ret_golds = list()
     input_ids_list = list()
@@ -104,8 +119,10 @@ def feat_to_vec(tokenizer, batch_features, use_cuda):
         att_mask.extend([0] * (MAX_LEN - len(pair_tokens)))
         input_ids = tokenizer.convert_tokens_to_ids(pair_tokens)
 
+        if len(input_ids) > MAX_LEN or len(att_mask) > MAX_LEN:
+            continue
+        
         gold_label = 1 if mention1.coref_chain == mention2.coref_chain else 0
-
         ret_golds.append(gold_label)
         input_ids_list.append(input_ids)
         att_mask_list.append(att_mask)
@@ -145,7 +162,7 @@ def extract_mention_surrounding_context(mention, history_size):
 
 def accuracy_on_dataset(bert, tokenizer, features, use_cuda):
     dataset_size = len(features)
-    batch_size = 200
+    batch_size = 50
     end_index = batch_size
     eval_loss, eval_accuracy = 0, 0
     nb_eval_steps, nb_eval_examples = 0, 0
@@ -156,7 +173,7 @@ def accuracy_on_dataset(bert, tokenizer, features, use_cuda):
 
         batch_features = features[start_index:end_index].copy()
         batch, att_mask, true_label = feat_to_vec(tokenizer, batch_features, use_cuda)
-        logits = bert.predict(batch, attention_mask=att_mask)
+        logits = bert(batch, attention_mask=att_mask)
         # Move logits and labels to CPU
         logits = logits[0].detach().cpu().numpy()
         label_ids = true_label.to('cpu').numpy()
@@ -165,8 +182,9 @@ def accuracy_on_dataset(bert, tokenizer, features, use_cuda):
 
         eval_accuracy += tmp_eval_accuracy
         nb_eval_steps += 1
+        end_index += batch_size
 
-    print("Validation Accuracy: {}".format(eval_accuracy / nb_eval_steps))
+    return eval_accuracy / nb_eval_steps
 
 
 # Function to calculate the accuracy of our predictions vs labels
@@ -176,24 +194,28 @@ def flat_accuracy(preds, labels):
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
 
 
-def create_dataloader(train_file, validation_file):
+def create_dataloader(train_file, validation_file, alpha):
     logger.info('Create Features:')
-    train_feat = get_feat(train_file)
-    validation_feat = get_feat(validation_file)
+    train_feat = get_feat(train_file, alpha)
+    validation_feat = get_feat(validation_file, alpha)
     return train_feat, validation_feat
 
 
 if __name__ == '__main__':
-    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Small_Event_gold_mentions.json'
-    _event_validation_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Small_Event_gold_mentions.json'
+    # _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Train_Event_gold_mentions.json'
+    # _event_validation_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Dev_Event_gold_mentions.json'
+
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Train_Event_gold_mentions.json'
+    _event_validation_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Dev_Event_gold_mentions.json'
 
     _model_out = str(LIBRARY_ROOT) + '/saved_models/wiki_trained_model'
 
     _learning_rate = 0.01
-    _iterations = 1
-    _batch_size = 16
+    _iterations = 4
+    _batch_size = 32
     _joint = False
     _type = 'event'
+    _alpha = 3
     _use_cuda = True  # args.cuda in ['True', 'true', 'yes', 'Yes']
 
     _bert = BertForSequenceClassification.from_pretrained('bert-base-cased')
@@ -207,5 +229,5 @@ if __name__ == '__main__':
     random.seed(1)
     np.random.seed(1)
 
-    _train, _validation = create_dataloader(_event_train_file, _event_validation_file)
-    finetune_bert(_bert, _tokenizer, _train, _validation, _batch_size, _use_cuda)
+    _train, _validation = create_dataloader(_event_train_file, _event_validation_file, _alpha)
+    finetune_bert(_bert, _tokenizer, _train, _validation, _batch_size, _iterations, _use_cuda)

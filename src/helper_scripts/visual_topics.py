@@ -7,14 +7,14 @@ import spacy
 from src.utils.json_utils import load_mentions_from_json_file
 
 
-# def longest_mention():
-#     mentions = load_mentions_from_json_file('/Users/aeirew/workspace/cross-doc-coref/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json')
-#     max = 0
-#     for mention in mentions:
-#         if len(mention['tokens_number']) > max:
-#             max = len(mention['tokens_number'])
+def longest_mention():
+    mentions = load_mentions_from_json_file('/Users/aeirew/workspace/cross-doc-coref/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json')
+    max = 0
+    for mention in mentions:
+        if len(mention['tokens_number']) > max:
+            max = len(mention['tokens_number'])
 
-#     print(max)
+    print(max)
 
 
 def clean_singletons(mentions):
