@@ -22,7 +22,7 @@ def train_pairwise(bert, tokenizer, pairwize_model, train, validation, batch_siz
         end_index = batch_size
         random.shuffle(train)
 
-        tr_loss, cum_loss = (0, 0)
+        cum_loss = 0.0
         for start_index in range(0, dataset_size, batch_size): #, desc="Batches"
             if end_index > dataset_size:
                 end_index = dataset_size
@@ -71,7 +71,6 @@ def accuracy_on_dataset(bert, tokenizer, pairwize_model, features, use_cuda):
 
 
 def get_bert_rep(bert, tokenizer, batch_features, use_cuda):
-    MAX_LEN = 10
     MAX_SURROUNDING_CONTX = 10
     batch_result = list()
     batch_labels = list()
@@ -80,8 +79,12 @@ def get_bert_rep(bert, tokenizer, batch_features, use_cuda):
         ment2_ids, ment2_inx_start, ment2_inx_end = mention_feat_to_vec(tokenizer, mention2, MAX_SURROUNDING_CONTX)
 
         with torch.no_grad():
-            all_hidden_states1, all_attentions1 = bert(ment1_ids)[-2:]
-            all_hidden_states2, all_attentions2 = bert(ment2_ids)[-2:]
+            if use_cuda:
+                ment1_ids = ment1_ids.cuda()
+                ment2_ids = ment2_ids.cuda()
+
+            all_hidden_states1, _ = bert(ment1_ids)[-2:]
+            all_hidden_states2, _ = bert(ment2_ids)[-2:]
 
         # last_attend2 = all_attentions2[0]
         last_hidden1_span = all_hidden_states1[0].view(all_hidden_states1[0].shape[1], -1)[ment1_inx_start:ment1_inx_end]
@@ -103,8 +106,10 @@ def get_bert_rep(bert, tokenizer, batch_features, use_cuda):
 
     ret_result = torch.cat(batch_result)
     ret_golds = torch.tensor(batch_labels)
+    
     if use_cuda:
         ret_result = ret_result.cuda()
+        ret_golds = ret_golds.cuda()
 
     return ret_result, ret_golds
 
@@ -129,7 +134,7 @@ if __name__ == '__main__':
     # _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Train_Event_gold_mentions.json'
     # _event_validation_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Dev_Event_gold_mentions.json'
 
-    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Test_Event_gold_mentions.json'
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Train_Event_gold_mentions.json'
     _event_validation_file = str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Dev_Event_gold_mentions.json'
 
     _model_out = str(LIBRARY_ROOT) + '/saved_models/wiki_trained_model'
@@ -140,7 +145,7 @@ if __name__ == '__main__':
     _joint = False
     _type = 'event'
     _alpha = 3
-    _use_cuda = False  # args.cuda in ['True', 'true', 'yes', 'Yes']
+    _use_cuda = True  # args.cuda in ['True', 'true', 'yes', 'Yes']
 
     _tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
     _bert = BertForSequenceClassification.from_pretrained('bert-base-cased',
@@ -153,6 +158,7 @@ if __name__ == '__main__':
         logger.info(torch.cuda.get_device_name(0))
         torch.cuda.manual_seed(1)
         _bert.cuda()
+        _pairwize_model.cuda()
 
     random.seed(1)
     np.random.seed(1)

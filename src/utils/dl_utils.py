@@ -30,7 +30,7 @@ def create_pos_neg_pairs(topics, alpha):
             if mention.coref_chain not in clusters:
                 clusters[mention.coref_chain] = list()
             clusters[mention.coref_chain].append(mention)
-        break
+        # break
 
     # create positive examples
     for _, mentions_list in clusters.items():

@@ -29,6 +29,6 @@ class PairWiseModel(nn.Module):
 
     def predict(self, features):
         output = self.__call__(features)
-        output = F.softmax(output)
+        output = F.softmax(output, dim=1)
         _, prediction = torch.max(output, 1)
         return prediction
