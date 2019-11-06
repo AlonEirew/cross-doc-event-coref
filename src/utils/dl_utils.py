@@ -19,6 +19,8 @@ def get_feat(data_file, alpha):
 
 
 def create_pos_neg_pairs(topics, alpha):
+    positives_map = dict()
+    negative_map = dict()
     clusters = dict()
     positive_pairs = list()
     negative_pairs = list()
@@ -35,10 +37,14 @@ def create_pos_neg_pairs(topics, alpha):
         for mention1 in mentions_list:
             for mention2 in mentions_list:
                 if mention1.mention_id != mention2.mention_id:
-                    if len(mention1.mention_context) > 100 or len(mention2.mention_context) > 100:
-                        continue
-
-                    positive_pairs.append((mention1, mention2))
+                    # if len(mention1.mention_context) > 100 or len(mention2.mention_context) > 100:
+                    #     continue
+                    mentions_key1 = mention1.mention_id + '_' + mention2.mention_id
+                    mentions_key2 = mention2.mention_id + '_' + mention1.mention_id
+                    if mentions_key1 not in positives_map and mentions_key2 not in positives_map:
+                        positive_pairs.append((mention1, mention2))
+                        positives_map[mentions_key1] = True
+                        positives_map[mentions_key2] = True
 
     # create negative examples
     for _, mentions_list1 in clusters.items():
@@ -46,7 +52,13 @@ def create_pos_neg_pairs(topics, alpha):
             index1 = random.randint(0, len(mentions_list1) - 1)
             index2 = random.randint(0, len(mentions_list2) - 1)
             if mentions_list1[index1].coref_chain != mentions_list2[index2].coref_chain:
-                negative_pairs.append((mentions_list1[index1], mentions_list2[index2]))
+                mentions_key1 = mentions_list1[index1].mention_id + '_' + mentions_list2[index2].mention_id
+                mentions_key2 = mentions_list2[index2].mention_id + '_' + mentions_list1[index1].mention_id
+                if mentions_key1 not in negative_map and mentions_key2 not in negative_map:
+                    negative_pairs.append((mentions_list1[index1], mentions_list2[index2]))
+                    negative_map[mentions_key1] = True
+                    negative_map[mentions_key2] = True
+
         if len(negative_pairs) > (len(positive_pairs) * alpha):
             break
 

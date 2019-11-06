@@ -7,7 +7,7 @@ import torch
 from torch import optim
 
 from src import LIBRARY_ROOT
-from src.dl_model.snli_coref_model import SnliCorefModel
+from src.dl_experiments.snli_coref_model import SnliCorefModel
 from src.ext_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
 from src.utils.dl_utils import get_feat
 

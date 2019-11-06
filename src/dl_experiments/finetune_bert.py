@@ -4,9 +4,8 @@ import random
 import numpy as np
 import torch
 from keras.preprocessing.sequence import pad_sequences
-from torch import nn
-from transformers import BertForSequenceClassification, AdamW, BertTokenizer
 from tqdm import trange
+from transformers import BertForSequenceClassification, AdamW, BertTokenizer
 
 from src import LIBRARY_ROOT
 from src.utils.dl_utils import get_feat
@@ -26,7 +25,6 @@ def finetune_bert(bert, tokenizer, train, validation, batch_size, epochs=4, use_
     ]
 
     optimizer = AdamW(optimizer_grouped_parameters, lr=2e-5)
-    train_loss_set = []
     for epoch in trange(epochs, desc="Epoch"):
         bert.train()
 
@@ -47,7 +45,6 @@ def finetune_bert(bert, tokenizer, train, validation, batch_size, epochs=4, use_
             batch, att_mask, true_label = feat_to_vec(tokenizer, batch_features, use_cuda)
             
             loss = bert(batch, attention_mask=att_mask, labels=true_label)[0]
-            train_loss_set.append(loss.item())
             loss.backward()
             optimizer.step()
 
@@ -94,7 +91,7 @@ def feat_to_vec(tokenizer, batch_features, use_cuda):
 
         if len(input_ids) > MAX_LEN or len(att_mask) > MAX_LEN:
             continue
-        
+
         gold_label = 1 if mention1.coref_chain == mention2.coref_chain else 0
         ret_golds.append(gold_label)
         input_ids_list.append(input_ids)
@@ -117,7 +114,7 @@ def extract_mention_surrounding_context(mention, history_size):
     tokens_inds = mention.tokens_number
     context = mention.mention_context
     start_mention_id = tokens_inds[0]
-    end_mention_id = tokens_inds[-1]
+    end_mention_id = tokens_inds[-1] + 1
 
     context_before = start_mention_id - history_size
     context_after = end_mention_id + history_size
@@ -126,7 +123,8 @@ def extract_mention_surrounding_context(mention, history_size):
     if context_after > len(context):
         context_after = len(context)
 
-    return context[context_before:context_after]
+    return context[context_before:start_mention_id], context[start_mention_id:end_mention_id], \
+           context[end_mention_id:context_after]
 
 
 def accuracy_on_dataset(bert, tokenizer, features, use_cuda):
@@ -163,7 +161,7 @@ def flat_accuracy(preds, labels):
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
 
 
-def create_dataloader(train_file, validation_file, alpha):
+def load_datasets(train_file, validation_file, alpha):
     logger.info('Create Features:')
     train_feat = get_feat(train_file, alpha)
     validation_feat = get_feat(validation_file, alpha)
@@ -185,7 +183,7 @@ if __name__ == '__main__':
     _joint = False
     _type = 'event'
     _alpha = 3
-    _use_cuda = True  # args.cuda in ['True', 'true', 'yes', 'Yes']
+    _use_cuda = False  # args.cuda in ['True', 'true', 'yes', 'Yes']
 
     _bert = BertForSequenceClassification.from_pretrained('bert-base-cased')
     _tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
@@ -198,5 +196,5 @@ if __name__ == '__main__':
     random.seed(1)
     np.random.seed(1)
 
-    _train, _validation = create_dataloader(_event_train_file, _event_validation_file, _alpha)
+    _train, _validation = load_datasets(_event_train_file, _event_validation_file, _alpha)
     finetune_bert(_bert, _tokenizer, _train, _validation, _batch_size, _iterations, _use_cuda)
