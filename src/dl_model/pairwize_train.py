@@ -12,7 +12,7 @@ from src.dl_model.pairwize_model import PairWiseModel
 logger = logging.getLogger(__name__)
 
 
-def train_pairwise(bert, tokenizer, pairwize_model, train, validation, batch_size, epochs=4, use_cuda=True):
+def train_pairwise(bert, tokenizer, pairwize_model, train, validation, batch_size, epochs=4, lr=2e-5, use_cuda=True):
 
     for epoch in range(epochs): #, desc="Epoch"
         loss_func = torch.nn.CrossEntropyLoss()
@@ -51,7 +51,7 @@ def train_pairwise(bert, tokenizer, pairwize_model, train, validation, batch_siz
 
 def accuracy_on_dataset(bert, tokenizer, pairwize_model, features, use_cuda):
     dataset_size = len(features)
-    batch_size = 50
+    batch_size = 1000
     end_index = batch_size
     labels = list()
     predictions = list()
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     _model_out = str(LIBRARY_ROOT) + '/saved_models/wiki_trained_model'
 
-    _learning_rate = 0.01
+    _lr = 2e-5
     _iterations = 4
     _batch_size = 32
     _joint = False
@@ -164,4 +164,4 @@ if __name__ == '__main__':
     np.random.seed(1)
 
     _train, _validation = load_datasets(_event_train_file, _event_validation_file, _alpha)
-    train_pairwise(_bert, _tokenizer, _pairwize_model, _train, _validation, _batch_size, _iterations, _use_cuda)
+    train_pairwise(_bert, _tokenizer, _pairwize_model, _train, _validation, _batch_size, _iterations, _lr, _use_cuda)
