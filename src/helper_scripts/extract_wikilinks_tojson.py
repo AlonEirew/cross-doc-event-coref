@@ -6,6 +6,7 @@ from src.utils.sqlite_utils import create_connection, select_from_validation
 
 def main():
     connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
+
     validation_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
     train_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
     test_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json'
@@ -32,7 +33,7 @@ def gen_mentions(set_clusters):
             is_singleton = True
         for mention in cluster_ments:
             # gen_mention = MentionData.read_sqlite_mention_data_line_v8(mention, gen_lemma=True, extract_valid_sent=False)
-            gen_mention = MentionData.read_sqlite_mention_data_line_v9(mention, gen_lemma=True, extract_valid_sent=True)
+            gen_mention = MentionData.read_sqlite_mention_data_line_v9(mention, gen_lemma=True, extract_valid_sent=False)
             gen_mention.is_singleton = is_singleton
             ret_mentions.append(gen_mention)
 

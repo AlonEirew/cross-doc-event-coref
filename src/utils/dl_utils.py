@@ -1,3 +1,4 @@
+import enum
 import logging
 import random
 
@@ -7,18 +8,25 @@ from src.obj.topics import Topics
 logger = logging.getLogger(__name__)
 
 
-def get_feat(data_file, alpha):
+# creating enumerations using class
+class SPLIT(enum.Enum):
+    TEST = 1
+    VALIDATION = 2
+    TRAIN = 3
+
+
+def get_feat(data_file, alpha, split):
     topics_ = Topics()
     topics_.create_from_file(data_file, keep_order=True)
 
     logger.info('Create pos/neg examples')
-    positive_, negative_ = create_pos_neg_pairs(topics_, alpha)
+    positive_, negative_ = create_pos_neg_pairs(topics_, alpha, split)
     features = create_features_from_pos_neg(positive_, negative_)
 
     return features
 
 
-def create_pos_neg_pairs(topics, alpha):
+def create_pos_neg_pairs(topics, alpha, split_type):
     positives_map = dict()
     negative_map = dict()
     clusters = dict()
@@ -59,8 +67,9 @@ def create_pos_neg_pairs(topics, alpha):
                     negative_map[mentions_key1] = True
                     negative_map[mentions_key2] = True
 
-        if len(negative_pairs) > (len(positive_pairs) * alpha):
-            break
+        if split_type == SPLIT.TRAIN:
+            if len(negative_pairs) > (len(positive_pairs) * alpha):
+                break
 
     logger.info('pos-' + str(len(positive_pairs)))
     logger.info('neg-' + str(len(negative_pairs)))

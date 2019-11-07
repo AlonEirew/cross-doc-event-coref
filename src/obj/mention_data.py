@@ -72,7 +72,7 @@ class MentionData(MentionDataLight):
         self.is_singleton = is_singleton
         self.score = score
         self.predicted_coref_chain = predicted_coref_chain
-        self.mention_id = mention_id
+        self.mention_id = str(mention_id)
 
         if self.mention_id is None:
             self.mention_id = self.gen_mention_id()
@@ -91,6 +91,7 @@ class MentionData(MentionDataLight):
         # pylint: disable=too-many-branches
 
         try:
+            mention_id = None
             topic_id = None
             coref_chain = None
             doc_id = None
@@ -204,7 +205,7 @@ class MentionData(MentionDataLight):
             tokens_numbers.append(i)
         tokens_numbers.append(token_end)
 
-        mention_data = MentionData(None, -1, doc_id, -1, tokens_numbers, mention_text,
+        mention_data = MentionData(mention_id, -1, doc_id, -1, tokens_numbers, mention_text,
                                    mention_context.split(' '), None, None, coref_chain, mention_type, gen_lemma=gen_lemma)
 
         mention_data.mention_id = mention_id

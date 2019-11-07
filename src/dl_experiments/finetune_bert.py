@@ -8,7 +8,7 @@ from tqdm import trange
 from transformers import BertForSequenceClassification, AdamW, BertTokenizer
 
 from src import LIBRARY_ROOT
-from src.utils.dl_utils import get_feat
+from src.utils.dl_utils import get_feat, SPLIT
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -163,8 +163,8 @@ def flat_accuracy(preds, labels):
 
 def load_datasets(train_file, validation_file, alpha):
     logger.info('Create Features:')
-    train_feat = get_feat(train_file, alpha)
-    validation_feat = get_feat(validation_file, alpha)
+    train_feat = get_feat(train_file, alpha, SPLIT.TRAIN)
+    validation_feat = get_feat(validation_file, alpha, SPLIT.VALIDATION)
     return train_feat, validation_feat
 
 

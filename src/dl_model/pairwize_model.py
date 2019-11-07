@@ -2,8 +2,6 @@ import torch
 
 from torch import nn
 
-import torch.nn.functional as F
-
 
 class PairWiseModel(nn.Module):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim):
@@ -14,10 +12,10 @@ class PairWiseModel(nn.Module):
     @staticmethod
     def get_sequential(ind, hidd):
         return nn.Sequential(
-            # nn.Dropout(0.2),
+            nn.Dropout(0.2),
             nn.Linear(ind, hidd),
             nn.ReLU(),
-            # nn.Dropout(0.2),
+            nn.Dropout(0.2),
             nn.Linear(hidd, hidd),
             nn.ReLU(),
             # nn.Dropout(0.2)
@@ -29,6 +27,8 @@ class PairWiseModel(nn.Module):
 
     def predict(self, features):
         output = self.__call__(features)
-        output = F.softmax(output, dim=1)
+        output = torch.softmax(output, dim=1)
         _, prediction = torch.max(output, dim=1)
+        # output = torch.sigmoid(output)
+        # prediction = torch.round(output)
         return prediction
