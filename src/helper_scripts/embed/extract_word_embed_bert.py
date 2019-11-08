@@ -92,9 +92,9 @@ def get_bert_representation(in_tokens):
 
 
 def bert_dump():
-    mention_files = [str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json',
-                     str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json',
-                     str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json']
+    mention_files = [str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Test_Event_gold_mentions.json',
+                     str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Dev_Event_gold_mentions.json',
+                     str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Train_Event_gold_mentions.json']
 
     out_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
 

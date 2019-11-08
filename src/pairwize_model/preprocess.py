@@ -3,7 +3,7 @@ import time
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dl_model.bert_utils import BertPretrainedUtils
+from src.utils.bert_utils import BertPretrainedUtils
 from src.obj.topics import Topics
 
 USE_CUDA = True
@@ -27,15 +27,15 @@ def extract_feature_dict(topics):
 
 
 if __name__ == '__main__':
-    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/ecb/gold_json/ECB_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/WEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/WEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/WEC_Test_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/ECB_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/ECB_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/ECB_Test_Event_gold_mentions.json'
                  ]
 
-    _bert_utils = BertPretrainedUtils(200)
+    _bert_utils = BertPretrainedUtils(-1)
 
     for resource_file in all_files:
         topics_train = Topics()
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         train_feat = extract_feature_dict(topics_train)
         basename = path.basename(path.splitext(resource_file)[0])
-        pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/preprocessed_bert/" +
+        pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/corpora/single_sent_full_context/" +
                                      basename + ".pickle", "w+b"))
 
         print("Done with -" + basename)

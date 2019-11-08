@@ -9,7 +9,7 @@ from torch import optim
 from src import LIBRARY_ROOT
 from src.dl_experiments.snli_coref_model import SnliCorefModel
 from src.ext_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
-from src.utils.dl_utils import get_feat
+from src.utils.dataset_utils import get_feat
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -202,8 +202,8 @@ if __name__ == '__main__':
     EMBED_SIZE = 1024
     MODEL_SIZE = 1024
 
-    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
-    _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
+    _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Dev_Event_gold_mentions.json'
+    _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Dev_Event_gold_mentions.json'
 
     _bert_file = str(LIBRARY_ROOT) + '/resources/preprocessed_external_features/embedded/wiki_all_embed_bert_all_layers.pickle'
     _model_out = str(LIBRARY_ROOT) + '/saved_models/wiki_trained_model'

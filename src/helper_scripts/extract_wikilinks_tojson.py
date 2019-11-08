@@ -7,9 +7,9 @@ from src.utils.sqlite_utils import create_connection, select_from_validation
 def main():
     connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
 
-    validation_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
-    train_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
-    test_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json'
+    validation_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Dev_Event_gold_mentions.json'
+    train_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Train_Event_gold_mentions.json'
+    test_out = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Test_Event_gold_mentions.json'
 
     extract_and_create_json(connection, validation_out, 'VALIDATION')
     extract_and_create_json(connection, train_out, 'TRAIN')

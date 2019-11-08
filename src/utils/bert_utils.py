@@ -55,15 +55,23 @@ class BertPretrainedUtils(object):
         start_mention_id = tokens_inds[0]
         end_mention_id = tokens_inds[-1] + 1
 
-        context_before = start_mention_id - self.max_surrounding_contx
-        context_after = end_mention_id + self.max_surrounding_contx
+        if self.max_surrounding_contx != -1:
+            context_before = start_mention_id - self.max_surrounding_contx
+            context_after = end_mention_id + self.max_surrounding_contx
+        else:
+            context_before = 0
+            context_after = len(context)
+
         if context_before < 0:
             context_before = 0
         if context_after > len(context):
             context_after = len(context)
 
-        return context[context_before:start_mention_id], context[start_mention_id:end_mention_id], \
-               context[end_mention_id:context_after]
+        ret_context_before = context[context_before:start_mention_id]
+        ret_mention = context[start_mention_id:end_mention_id]
+        ret_context_after = context[end_mention_id:context_after]
+
+        return ret_context_before, ret_mention, ret_context_after
 
 
 class BertFromFile(object):

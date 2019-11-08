@@ -108,10 +108,10 @@ def extract_features(json_file):
 
 
 if __name__ == '__main__':
-    # _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Train_Event_gold_mentions.json'
-    # _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Dev_Event_gold_mentions.json'
-    # _event_test_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Test_Event_gold_mentions.json'
-    _event_small_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WIKI_Small_Event_gold_mentions.json'
+    # _event_train_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Train_Event_gold_mentions.json'
+    # _event_dev_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Dev_Event_gold_mentions.json'
+    # _event_test_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Test_Event_gold_mentions.json'
+    _event_small_file = str(LIBRARY_ROOT) + '/resources/corpora/wiki/gold_json/WEC_Small_Event_gold_mentions.json'
 
     # _event_train_feat_pickle = str(LIBRARY_ROOT) + '/resources/corpora/wiki/feats/WIKI_Train_Event_Features.csv'
     # _event_dev_feat_pickle = str(LIBRARY_ROOT) + '/resources/corpora/wiki/feats/WIKI_Dev_Event_Features.csv'

@@ -1,0 +1,113 @@
+** Long and short context seems to have the same performance **
+** Long Context WIKI (This is amazing and need to be verified as it probebly a mistake) **
+_lr = 1e-7
+_iterations = 2
+_batch_size = 32
+_joint = False
+_type = "event"
+_alpha = 3
+INFO:__main__:Dev-Acc: 1: 653204: Accuracy: 0.9526726007
+INFO:__main__:Train-Acc: 1: 653204: Accuracy: 0.7540892959
+INFO:__main__:Dev-Acc: 2: 653204: Accuracy: 0.9582021832
+INFO:__main__:Train-Acc: 2: 653204: Accuracy: 0.7566873431
+
+** Long Context WIKI **
+_lr = 2e-5
+_iterations = 2
+_batch_size = 32
+_joint = False
+_alpha = 3
+INFO:__main__:Dev-Acc: 1: 653204: Accuracy: 0.1865567714
+INFO:__main__:Train-Acc: 1: 653204: Accuracy: 0.9706983566
+INFO:__main__:Dev-Acc: 2: 653204: Accuracy: 0.1200972274
+INFO:__main__:Train-Acc: 2: 653204: Accuracy: 0.9833183289
+
+** Long Context WIKI **
+_lr = 1e-6
+_iterations = 2
+_batch_size = 32
+_joint = False
+_type = "event"
+_alpha = 3
+INFO:__main__:Dev-Acc: 1: 653204: Accuracy: 0.4540530145
+INFO:__main__:Train-Acc: 1: 653204: Accuracy: 0.8933297992
+INFO:__main__:Dev-Acc: 2: 653204: Accuracy: 0.3493613005
+INFO:__main__:Train-Acc: 2: 653204: Accuracy: 0.9196138382
+
+** Long Context WIKI **
+_lr = 1e-7
+_iterations = 2
+_batch_size = 32
+_alpha = 1
+INFO:__main__:Dev-Acc: 1: 653204: Accuracy: 0.6826726007
+
+** Long Context WIKI **
+_lr = 1e-7
+_iterations = 2
+_batch_size = 32
+_alpha = 2
+INFO:__main__:Dev-Acc: 1: Accuracy: 0.9463092685
+INFO:__main__:Train-Acc: 1: Accuracy: 0.6694641709
+INFO:__main__:Dev-Acc: 2: Accuracy: 0.9550681710
+INFO:__main__:Train-Acc: 2: Accuracy: 0.6795184016
+
+** Long Context WIKI **
+_lr = 2e-5
+_iterations = 2
+_batch_size = 32
+_joint = False
+_alpha = 7
+INFO:__main__:Dev-Acc: 1: 1297235: Accuracy: 0.3213813603
+INFO:__main__:Train-Acc: 1: 1297235: Accuracy: 0.9743455648
+
+** Long Context WIKI **
+_lr = 2e-5
+_iterations = 2
+_batch_size = 32
+_joint = False
+_alpha = 20
+INFO:__main__:Dev-Acc: 1: 3380634: Accuracy: 0.3312824070
+INFO:__main__:Train-Acc: 1: 3380634: Accuracy: 0.9863255024
+
+** Long Context WIKI **
+_lr = 1e-7
+_iterations = 2
+_batch_size = 64
+_alpha = 2
+INFO:__main__:Dev-Acc: 1: Accuracy: 0.9459947348
+INFO:__main__:Train-Acc: 1: Accuracy: 0.6762906313
+INFO:__main__:Dev-Acc: 2: Accuracy: 0.8095944524
+INFO:__main__:Train-Acc: 2: Accuracy: 0.7490940690
+
+** ECB+  **
+_lr = 2e-5
+_iterations = 2
+_batch_size = 32
+_joint = False
+_alpha = 3
+INFO:__main__:Dev-Acc: 1: 62303: Accuracy: 0.6121884584
+INFO:__main__:Train-Acc: 1: 62303: Accuracy: 0.9687333703
+INFO:__main__:Dev-Acc: 2: 62303: Accuracy: 0.5362968445
+INFO:__main__:Train-Acc: 2: 62303: Accuracy: 0.9759277701
+
+** ECB+  **
+_lr = 1e-7
+_iterations = 10
+_batch_size = 32
+_alpha = 2
+_use_cuda = True  # args.cuda in ["True", "true", "yes", "Yes"]
+save_model = False
+INFO:__main__:Dev-Acc: 9: Accuracy: 0.9483666420
+INFO:__main__:Train-Acc: 9: Accuracy: 0.7957712412
+INFO:__main__:Dev-Acc: 10: Accuracy: 0.9516148567
+INFO:__main__:Train-Acc: 10: Accuracy: 0.7985319495
+
+** ECB+  **
+_lr = 1e-7
+_iterations = 10
+_batch_size = 32
+_alpha = 3
+_use_cuda = True  # args.cuda in ["True", "true", "yes", "Yes"]
+save_model = False
+INFO:__main__:Dev-Acc: 5: Accuracy: 0.9376587272
+INFO:__main__:Train-Acc: 5: Accuracy: 0.7651042342

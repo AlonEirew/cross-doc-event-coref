@@ -1,13 +1,13 @@
 import logging
-import random
 
 import numpy as np
+import random
 import torch
 
 from src import LIBRARY_ROOT
-from src.dl_experiments.finetune_bert import load_datasets
-from src.dl_model.bert_utils import BertPretrainedUtils, BertFromFile
+from src.utils.bert_utils import BertFromFile
 from src.dl_model.pairwize_model import PairWiseModel
+from src.utils.dataset_utils import SPLIT, load_datasets, DATASET
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
     dataset_size = len(train)
 
     for epoch in range(epochs): #, desc="Epoch"
+        pairwize_model.train()
         end_index = batch_size
         random.shuffle(train)
 
@@ -43,13 +44,14 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
 
             logger.info("%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch))
 
+        pairwize_model.eval()
         dev_accuracy = accuracy_on_dataset(bert_utils, pairwize_model, validation, use_cuda)
-        logger.info("%s: %d: %d: Accuracy: %.10f" %
-                    ("Dev-Acc", epoch + 1, end_index, dev_accuracy))
+        logger.info("%s: %d: Accuracy: %.10f" %
+                    ("Dev-Acc", epoch + 1, dev_accuracy.item()))
 
         train_accuracy = accuracy_on_dataset(bert_utils, pairwize_model, train, use_cuda)
-        logger.info("%s: %d: %d: Accuracy: %.10f" %
-                    ("Train-Acc", epoch + 1, end_index, train_accuracy))
+        logger.info("%s: %d: Accuracy: %.10f" %
+                    ("Train-Acc", epoch + 1, train_accuracy.item()))
 
 
 def accuracy_on_dataset(bert_utils, pairwize_model, features, use_cuda):
@@ -78,9 +80,14 @@ def get_bert_rep(batch_features, bert_utils, use_cuda):
     batch_labels = list()
     for mention1, mention2 in batch_features:
         # (1, 768), (1, 169)
-        hidden1, attend1 = bert_utils.get_mention_mean_rep(mention1)
+        hidden1 = bert_utils.get_mention_mean_rep(mention1)
+        if type(hidden1) == tuple:
+            hidden1, _ = hidden1
         # (1, 768)
-        hidden2, attend2 = bert_utils.get_mention_mean_rep(mention2)
+        hidden2 = bert_utils.get_mention_mean_rep(mention2)
+        if type(hidden2) == tuple:
+            hidden2, _ = hidden2
+
         # (1, 768), (1,169)
         span1_span2 = hidden1 * hidden2
 
@@ -104,26 +111,25 @@ def get_bert_rep(batch_features, bert_utils, use_cuda):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    data_set_type = "WIKI"
+    dataset = DATASET.WEC
+    context_set = "bkp_single_sent"
 
-    _event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + data_set_type.lower() +"/gold_json/" + \
-                        data_set_type.upper() + "_Train_Event_gold_mentions.json"
-    _event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/ecb/gold_json/ECB_Dev_Event_gold_mentions.json"
+    _event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
+    _event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/bkp_single_sent/ECB_Dev_Event_gold_mentions.json"
 
-    _model_out = str(LIBRARY_ROOT) + "/saved_models/wiki_trained_model"
+    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + dataset.name +"_trained_model"
 
-    _lr = 1e-6
-    _iterations = 2
+    _lr = 1e-7
+    _iterations = 5
     _batch_size = 32
-    _joint = False
-    _type = "event"
-    _alpha = 3
+    _alpha = 5
     _use_cuda = True  # args.cuda in ["True", "true", "yes", "Yes"]
+    save_model = True
 
-    bert_files = [str(LIBRARY_ROOT) + "/resources/preprocessed_bert/WIKI_Dev_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/preprocessed_bert/" + data_set_type.upper() +"_Test_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/preprocessed_bert/" + data_set_type.upper() +"_Train_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/preprocessed_bert/ECB_Dev_Event_gold_mentions.pickle"
+    bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name +"_Train_Event_gold_mentions.pickle",
+                  # str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/WEC_Dev_Event_gold_mentions.pickle",
+                  str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.pickle",
+                  str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Dev_Event_gold_mentions.pickle"
                   ]
 
     # _bert_utils = BertPretrainedUtils()
@@ -138,5 +144,11 @@ if __name__ == '__main__':
     random.seed(1)
     np.random.seed(1)
 
-    _train, _validation = load_datasets(_event_train_file, _event_validation_file, _alpha)
+    _train = load_datasets(_event_train_file, _alpha, SPLIT.TRAIN, dataset)
+    _validation = load_datasets(_event_validation_file, _alpha, SPLIT.VALIDATION, DATASET.ECB)
+
     train_pairwise(_bert_utils, _pairwize_model, _train, _validation, _batch_size, _iterations, _lr, _use_cuda)
+
+    if save_model:
+        print("Saving the model to-" +_model_out)
+        torch.save(_pairwize_model, _model_out)

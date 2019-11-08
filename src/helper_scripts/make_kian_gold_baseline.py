@@ -8,13 +8,13 @@ logger = logging.getLogger(__name__)
 
 def main():
     corpus_id = 'wiki'
-    dev_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WIKI_Dev_Event_gold_mentions.json'
+    dev_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WEC_Dev_Event_gold_mentions.json'
     dev_out_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_scorer/WIKI_CD_dev_event_mention_based.txt'
 
-    test_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WIKI_Test_Event_gold_mentions.json'
+    test_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WEC_Test_Event_gold_mentions.json'
     test_out_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_scorer/WIKI_CD_test_event_mention_based.txt'
 
-    train_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WIKI_Train_Event_gold_mentions.json'
+    train_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WEC_Train_Event_gold_mentions.json'
     train_out_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_scorer/WIKI_CD_train_event_mention_based.txt'
 
     make_kian_scorer_file(dev_in_file, dev_out_file)

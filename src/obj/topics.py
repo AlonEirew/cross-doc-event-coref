@@ -18,6 +18,20 @@ class Topics(object):
         self.topics_list = []
         self.keep_order = False
 
+    def topic_id_exists(self, id_to_search):
+        for topic in self.topics_list:
+            if topic.topic_id == id_to_search:
+                return True
+
+        return False
+
+    def get_topic_by_id(self, id_to_search):
+        for topic in self.topics_list:
+            if topic.topic_id == id_to_search:
+                return topic
+
+        return None
+
     def create_from_file(self, mentions_file_path: str, keep_order: bool = False) -> None:
         """
 
