@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 import numpy as np
 import random
@@ -45,13 +44,13 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
             logger.info("%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch))
 
         pairwize_model.eval()
-        dev_accuracy = accuracy_on_dataset(bert_utils, pairwize_model, validation, use_cuda)
-        logger.info("%s: %d: Accuracy: %.10f" %
-                    ("Dev-Acc", epoch + 1, dev_accuracy.item()))
+        dev_accuracy, dev_precision, dev_recall, dev_f1 = accuracy_on_dataset(bert_utils, pairwize_model, validation, use_cuda)
+        logger.info("%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
+                    ("Dev-Acc", epoch + 1, dev_accuracy.item(), dev_precision, dev_recall, dev_f1))
 
-        train_accuracy = accuracy_on_dataset(bert_utils, pairwize_model, train, use_cuda)
-        logger.info("%s: %d: Accuracy: %.10f" %
-                    ("Train-Acc", epoch + 1, train_accuracy.item()))
+        train_accuracy, train_precision, train_recall, train_f1 = accuracy_on_dataset(bert_utils, pairwize_model, train, use_cuda)
+        logger.info("%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
+                    ("Train-Acc", epoch + 1, train_accuracy.item(), train_precision, train_recall, train_f1))
 
 
 def accuracy_on_dataset(bert_utils, pairwize_model, features, use_cuda):
@@ -72,7 +71,18 @@ def accuracy_on_dataset(bert_utils, pairwize_model, features, use_cuda):
         labels.append(batch_label)
         end_index += batch_size
 
-    return torch.mean((torch.cat(labels) == torch.cat(predictions)).float())
+    all_labels = torch.cat(labels).bool()
+    all_predictions = torch.cat(predictions).bool()
+    accuracy = torch.mean((all_labels == all_predictions).float())
+    tp = torch.sum(all_labels & all_predictions).float().item()
+    # tn = torch.sum(~all_labels & ~all_predictions)
+    fn = torch.sum(all_labels & ~all_predictions).float().item()
+    fp = torch.sum(~all_labels & all_predictions).float().item()
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    f1 = (2 * precision * recall) / (precision + recall)
+
+    return accuracy, precision, recall, f1
 
 
 def get_bert_rep(batch_features, bert_utils, use_cuda):
@@ -108,51 +118,65 @@ def get_bert_rep(batch_features, bert_utils, use_cuda):
     return ret_result, ret_golds
 
 
-if __name__ == '__main__':
-    torch.manual_seed(0)
-    random.seed(0)
-    np.random.seed(0)
+def run_experiment(train_file, valid_file, test_file, bert_utils, pairwize_model, batch_size, iterations,
+                   lr, alpha, dataset_type, use_cuda, save_model):
 
-    dataset = DATASET.WEC
-    context_set = "single_sent_full_context"
+    train_feat = load_datasets(train_file, alpha, SPLIT.TRAIN, dataset_type)
+    validation_feat = load_datasets(valid_file, alpha, SPLIT.VALIDATION, DATASET.ECB)
 
-    _lr = 1e-7
-    _batch_size = 32
-    _alpha = 1
-    _iterations = 1
-    _use_cuda = True  # args.cuda in ["True", "true", "yes", "Yes"]
-    save_model = True
+    train_pairwise(bert_utils, pairwize_model, train_feat, validation_feat, batch_size, iterations, lr, use_cuda)
 
-    running_timestamp = "train_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
-    params_str = "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
-    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + params_str + ".log"
-    logger = create_logger(__name__, log_file)
+    if save_model:
+        print("Saving the model to-" + _model_out)
+        torch.save(_pairwize_model, _model_out)
 
-    _event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
-    _event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/bkp_single_sent/ECB_Dev_Event_gold_mentions.json"
 
-    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + dataset.name +"_trained_model"
+def init_basic_training_resources(context_set, dataset, use_cuda):
+    torch.manual_seed(1)
+    random.seed(1)
+    np.random.seed(1)
 
-    bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name +"_Train_Event_gold_mentions.pickle",
+    bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.pickle",
                   # str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/WEC_Dev_Event_gold_mentions.pickle",
                   str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.pickle",
                   str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Dev_Event_gold_mentions.pickle"
                   ]
 
-    # _bert_utils = BertPretrainedUtils()
-    _bert_utils = BertFromFile(bert_files)
-    _pairwize_model = PairWiseModel(2304, 250, 2)
+    bert_utils = BertFromFile(bert_files)
+    pairwize_model = PairWiseModel(2304, 250, 2)
 
-    if _use_cuda:
-        logger.info(torch.cuda.get_device_name(0))
-        torch.cuda.manual_seed(0)
-        _pairwize_model.cuda()
+    event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/" + _context_set + "/ECB_Dev_Event_gold_mentions.json"
+    event_test_file = str(LIBRARY_ROOT) + "/resources/corpora/" + _context_set + "/ECB_Test_Event_gold_mentions.json"
 
-    _train = load_datasets(_event_train_file, _alpha, SPLIT.TRAIN, dataset)
-    _validation = load_datasets(_event_validation_file, _alpha, SPLIT.VALIDATION, DATASET.ECB)
+    if use_cuda:
+        print(torch.cuda.get_device_name(1))
+        torch.cuda.manual_seed(1)
+        pairwize_model.cuda()
 
-    train_pairwise(_bert_utils, _pairwize_model, _train, _validation, _batch_size, _iterations, _lr, _use_cuda)
+    return event_train_file, event_validation_file, event_test_file, bert_utils, pairwize_model
 
-    if save_model:
-        print("Saving the model to-" +_model_out)
-        torch.save(_pairwize_model, _model_out)
+
+if __name__ == '__main__':
+    _dataset = DATASET.ECB
+    _context_set = "bkp_single_sent"
+
+    _lr = 1e-7
+    _batch_size = 32
+    _alpha = 1
+    _iterations = 10
+    _use_cuda = True
+    _save_model = False
+
+    running_timestamp = "train_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
+    params_str = "_ds" + _dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
+    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + params_str + ".log"
+    logger = create_logger(__name__, log_file)
+
+    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _dataset.name +"_trained_model"
+
+    _event_train_file, _event_validation_file, _event_test_file, _bert_utils, _pairwize_model = \
+        init_basic_training_resources(_context_set, _dataset, _use_cuda)
+
+    run_experiment(_event_train_file, _event_validation_file, None, _bert_utils, _pairwize_model, _batch_size, _iterations, _lr
+                   , _alpha, _dataset, _use_cuda, _save_model)
