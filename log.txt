@@ -79,6 +79,17 @@ INFO:__main__:Train-Acc: 1: Accuracy: 0.6762906313
 INFO:__main__:Dev-Acc: 2: Accuracy: 0.8095944524
 INFO:__main__:Train-Acc: 2: Accuracy: 0.7490940690
 
+** Long Context WIKI **
+_lr = 1e-7
+_iterations = 5
+_batch_size = 32
+_alpha = 5
+INFO:__main__:Dev-Acc: 5: Accuracy: 0.7896590829
+INFO:__main__:Train-Acc: 5: Accuracy: 0.8884294033
+INFO:__main__:Test-Pos-Acc: 0: Accuracy: 0.5484479070
+INFO:__main__:Test-Neg-Acc: 0: Accuracy: 0.8375467062
+INFO:__main__:Test-Acc: 0: Accuracy: 0.8265199661
+
 ** ECB+  **
 _lr = 2e-5
 _iterations = 2

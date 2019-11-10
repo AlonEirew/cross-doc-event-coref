@@ -1,20 +1,22 @@
-import logging
+import datetime
 
 import torch
 
 from src import LIBRARY_ROOT
+from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.bert_utils import BertFromFile
-from src.dl_model.pairwize_train import accuracy_on_dataset
 from src.utils.dataset_utils import SPLIT, DATASET, get_feat, create_features_from_pos_neg
-
-logger = logging.getLogger(__name__)
+from src.utils.log_utils import create_logger
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    dataset = DATASET.WEC
-    context_set = "bkp_single_sent"
+    dataset = DATASET.ECB
+    context_set = "single_sent_full_context"
 
-    _event_test_file = str(LIBRARY_ROOT) + "/resources/corpora/ecb/gold_json_single_sent/ECB_Test_Event_gold_mentions.json"
+    running_timestamp = "inference_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
+    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + dataset.name + ".log"
+    logger = create_logger(__name__, log_file)
+
+    _event_test_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.json"
     positive_, negative_ = get_feat(_event_test_file, -1, SPLIT.TEST, DATASET.ECB)
     _model_out = str(LIBRARY_ROOT) + "/saved_models/" + dataset.name + "_trained_model"
     _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.pickle"])

@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 import numpy as np
@@ -5,11 +6,10 @@ import random
 import torch
 
 from src import LIBRARY_ROOT
+from src.pairwize_model.model import PairWiseModel
 from src.utils.bert_utils import BertFromFile
-from src.dl_model.pairwize_model import PairWiseModel
 from src.utils.dataset_utils import SPLIT, load_datasets, DATASET
-
-logger = logging.getLogger(__name__)
+from src.utils.log_utils import create_logger
 
 
 def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, epochs=4, lr=1e-5, use_cuda=True):
@@ -109,22 +109,29 @@ def get_bert_rep(batch_features, bert_utils, use_cuda):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    torch.manual_seed(0)
+    random.seed(0)
+    np.random.seed(0)
 
     dataset = DATASET.WEC
-    context_set = "bkp_single_sent"
+    context_set = "single_sent_full_context"
+
+    _lr = 1e-7
+    _batch_size = 32
+    _alpha = 1
+    _iterations = 1
+    _use_cuda = True  # args.cuda in ["True", "true", "yes", "Yes"]
+    save_model = True
+
+    running_timestamp = "train_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
+    params_str = "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
+    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + params_str + ".log"
+    logger = create_logger(__name__, log_file)
 
     _event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
     _event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/bkp_single_sent/ECB_Dev_Event_gold_mentions.json"
 
     _model_out = str(LIBRARY_ROOT) + "/saved_models/" + dataset.name +"_trained_model"
-
-    _lr = 1e-7
-    _iterations = 5
-    _batch_size = 32
-    _alpha = 5
-    _use_cuda = True  # args.cuda in ["True", "true", "yes", "Yes"]
-    save_model = True
 
     bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name +"_Train_Event_gold_mentions.pickle",
                   # str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/WEC_Dev_Event_gold_mentions.pickle",
@@ -138,11 +145,8 @@ if __name__ == '__main__':
 
     if _use_cuda:
         logger.info(torch.cuda.get_device_name(0))
-        torch.cuda.manual_seed(1)
+        torch.cuda.manual_seed(0)
         _pairwize_model.cuda()
-
-    random.seed(1)
-    np.random.seed(1)
 
     _train = load_datasets(_event_train_file, _alpha, SPLIT.TRAIN, dataset)
     _validation = load_datasets(_event_validation_file, _alpha, SPLIT.VALIDATION, DATASET.ECB)
