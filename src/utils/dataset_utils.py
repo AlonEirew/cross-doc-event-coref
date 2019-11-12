@@ -70,8 +70,9 @@ def create_pos_neg_pairs_wec(topics, alpha, split_type):
     # create WEC negative examples
     for _, mentions_list1 in clusters.items():
         for _, mentions_list2 in clusters.items():
-            index1 = random.randint(0, len(mentions_list1) - 1)
-            index2 = random.randint(0, len(mentions_list2) - 1)
+            # index1 = random.randint(0, len(mentions_list1) - 1)
+            # index2 = random.randint(0, len(mentions_list2) - 1)
+            index2, index1 = (0, 0)
             if mentions_list1[index1].coref_chain != mentions_list2[index2].coref_chain:
                 mentions_key1 = mentions_list1[index1].mention_id + '_' + mentions_list2[index2].mention_id
                 mentions_key2 = mentions_list2[index2].mention_id + '_' + mentions_list1[index1].mention_id
