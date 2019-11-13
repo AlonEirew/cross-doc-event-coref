@@ -1,14 +1,14 @@
 import logging
-import random
 
 import numpy as np
+import random
 import torch
 from keras.preprocessing.sequence import pad_sequences
 from tqdm import trange
 from transformers import BertForSequenceClassification, AdamW, BertTokenizer
 
 from src import LIBRARY_ROOT
-from src.utils.dataset_utils import get_feat, SPLIT, load_datasets
+from src.utils.dataset_utils import load_datasets
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

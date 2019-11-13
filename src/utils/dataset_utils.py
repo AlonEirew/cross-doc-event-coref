@@ -4,7 +4,7 @@ import re
 
 import random
 
-from src.obj.topics import Topics, Topic
+from src.dataobjs.topics import Topics, Topic
 
 logger = logging.getLogger(__name__)
 

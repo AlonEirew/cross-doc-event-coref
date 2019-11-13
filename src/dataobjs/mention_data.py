@@ -39,7 +39,7 @@ class MentionData(MentionDataLight):
                  mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA',
                  is_continuous: bool = True, is_singleton: bool = False, score: float = float(-1),
                  predicted_coref_chain: str = None, mention_pos: str = None,
-                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False) -> None:
+                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False, min_span_str: str = None) -> None:
         """
         Object represent a mention
 
@@ -58,6 +58,8 @@ class MentionData(MentionDataLight):
             mention_pos: str
             mention_ner: str
             mention_index: in case order is of value (default = -1)
+            min_span_str: the minimum span of the mention (extracted "Using Automatically
+                    Extracted Minimum Spans to Disentangle Coreference Evaluation from Boundary Detection")
         """
         super(MentionData, self).__init__(tokens_str, mention_context, mention_head,
                                           mention_head_lemma, mention_pos,
@@ -73,6 +75,7 @@ class MentionData(MentionDataLight):
         self.score = score
         self.predicted_coref_chain = predicted_coref_chain
         self.mention_id = str(mention_id)
+        self.min_span_str = min_span_str
 
         if self.mention_id is None:
             self.mention_id = self.gen_mention_id()
@@ -106,6 +109,7 @@ class MentionData(MentionDataLight):
             mention_pos = None
             mention_ner = None
             mention_index = -1
+            min_span_str = None
 
             mention_text = mention_line['tokens_str']
 
@@ -160,12 +164,15 @@ class MentionData(MentionDataLight):
             if 'mention_index' in mention_line:
                 mention_index = mention_line['mention_index']
 
+            if 'min_span_str' in mention_line:
+                min_span_str = mention_line['min_span_str']
+
             mention_data = MentionData(mention_id, topic_id, doc_id, sent_id, tokens_numbers, mention_text,
                                        mention_context,
                                        mention_head, mention_head_lemma,
                                        coref_chain, mention_type, is_continue, is_singleton, score,
                                        predicted_coref_chain, mention_pos, mention_ner,
-                                       mention_index)
+                                       mention_index, min_span_str=min_span_str)
         except Exception:
             print('Unexpected error:', sys.exc_info()[0])
             raise Exception('failed reading json line-' + str(mention_line))

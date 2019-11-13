@@ -1,7 +1,7 @@
 from transformers import BertTokenizer
 
 from src import LIBRARY_ROOT
-from src.obj.mention_data import MentionData
+from src.dataobjs.mention_data import MentionData
 
 
 def calc_longest_mention(split_list, message):

@@ -1,8 +1,7 @@
 from transformers import BertTokenizer
 
 from src import LIBRARY_ROOT
-from src.obj.topics import Topics
-from src.utils.json_utils import write_mention_to_json
+from src.dataobjs.topics import Topics
 
 if __name__ == '__main__':
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')

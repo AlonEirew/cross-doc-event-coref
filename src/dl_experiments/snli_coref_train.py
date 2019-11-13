@@ -8,7 +8,6 @@ from torch import optim
 
 from src import LIBRARY_ROOT
 from src.dl_experiments.snli_coref_model import SnliCorefModel
-from src.ext_resources.embedding.embed_elmo import ElmoEmbedding, ElmoEmbeddingOffline
 from src.utils.dataset_utils import get_feat
 
 logging.basicConfig(level=logging.DEBUG)

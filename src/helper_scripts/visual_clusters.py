@@ -2,6 +2,7 @@ from heapq import heappush, heappop
 
 import spacy
 
+
 class VisualCluster(object):
     def __init__(self, sentence):
         self.sentence = sentence

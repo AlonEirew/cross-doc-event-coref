@@ -3,8 +3,8 @@ import time
 from os import path
 
 from src import LIBRARY_ROOT
+from src.dataobjs.topics import Topics
 from src.utils.bert_utils import BertPretrainedUtils
-from src.obj.topics import Topics
 
 USE_CUDA = True
 

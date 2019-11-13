@@ -1,5 +1,5 @@
 from src import LIBRARY_ROOT
-from src.obj.mention_data import MentionData
+from src.dataobjs.mention_data import MentionData
 from src.utils.json_utils import write_mention_to_json
 from src.utils.sqlite_utils import create_connection, select_from_validation
 

@@ -1,7 +1,7 @@
 import logging
 
 from src import LIBRARY_ROOT
-from src.obj.topics import Topics
+from src.dataobjs.topics import Topics
 
 logger = logging.getLogger(__name__)
 

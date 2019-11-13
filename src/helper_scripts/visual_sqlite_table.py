@@ -1,7 +1,7 @@
 import spacy
 
-from src.obj.mention_data import MentionData
-from src.utils.sqlite_utils import select_from_validation, create_connection, select_all_from_mentions
+from src.dataobjs.mention_data import MentionData
+from src.utils.sqlite_utils import select_from_validation, create_connection
 
 
 def visualize_clusters(clusters, read_mention_line_method):
