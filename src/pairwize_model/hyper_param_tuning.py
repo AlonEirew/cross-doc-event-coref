@@ -10,13 +10,13 @@ if __name__ == '__main__':
 
     logger = create_logger(__name__)
 
-    _datasets = [DATASET.ECB, DATASET.WEC]
+    _datasets = [DATASET.WEC]
     _context_set = "single_sent_full_context"
 
-    _lrs = [1e-6, 1e-7, 1e-8]
+    _lrs = [1e-7, 1e-8]
     _batch_sizes = [32, 64]
-    _alphas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    _iterations = 20
+    _alphas = [8, 9, 10]
+    _iterations = 5
     _use_cuda = True
     _save_model = False
 
@@ -27,9 +27,9 @@ if __name__ == '__main__':
                     _event_train_file, _event_validation_file, _event_test_file, _bert_utils, _pairwize_model = \
                         init_basic_training_resources(_context_set, dataset, _use_cuda)
 
-                    params_str = "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
-                    running_timestamp = "hptuning_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
-                    report_file = str(LIBRARY_ROOT) + "/reports/" + running_timestamp + "_" + params_str + ".txt"
+                    params_str = dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
+                    running_timestamp = str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
+                    report_file = str(LIBRARY_ROOT) + "/reports/" + params_str + "_" + running_timestamp + ".txt"
 
                     with open(report_file, 'w+') as report_fs:
                         run_experiment(_event_train_file, _event_validation_file, None, _bert_utils,
