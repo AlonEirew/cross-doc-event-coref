@@ -26,22 +26,32 @@ def extract_feature_dict(topics):
     return result_train
 
 
+def replace_with_mini_spans(topics):
+    for topic in topics.topics_list:
+        for mention in topic.mentions:
+            if mention.min_span_str is not None and len(mention.min_span_str) > 0:
+                mention.tokens_str = mention.min_span_str
+                mention.tokens_number = mention.min_span_ids
+
+
 if __name__ == '__main__':
-    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/WEC_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/WEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/WEC_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/ECB_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/ECB_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/bkp_single_sent/ECB_Test_Event_gold_mentions.json'
+    use_mini_span = False
+    use_head_span = False
+
+    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/Min_WEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/Min_WEC_Test_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/Min_WEC_Train_Event_gold_mentions.json'
                  ]
 
     _bert_utils = BertPretrainedUtils(-1)
 
     for resource_file in all_files:
-        topics_train = Topics()
-        topics_train.create_from_file(resource_file, keep_order=True)
+        topics = Topics()
+        topics.create_from_file(resource_file, keep_order=True)
+        if use_mini_span:
+            replace_with_mini_spans(topics)
 
-        train_feat = extract_feature_dict(topics_train)
+        train_feat = extract_feature_dict(topics)
         basename = path.basename(path.splitext(resource_file)[0])
         pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/corpora/single_sent_full_context/" +
                                      basename + ".pickle", "w+b"))

@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     _lr = 1e-7
     _batch_size = 32
-    _alpha = 1
+    _alpha = 11
     _iterations = 2
     _use_cuda = True
     _save_model = False
