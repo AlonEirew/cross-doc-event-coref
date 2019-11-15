@@ -10,29 +10,25 @@ if __name__ == '__main__':
                  str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/WEC_Train_Event_gold_mentions.json',
                  str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/ECB_Dev_Event_gold_mentions.json',
                  str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/ECB_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/ECB_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/Min_WEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/Min_WEC_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/Min_WEC_Train_Event_gold_mentions.json'
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context_mean/ECB_Train_Event_gold_mentions.json'
                  ]
 
+    count = 0
     for resource_file in all_files:
-        count = 0
         topics = Topics()
         topics.create_from_file(resource_file, keep_order=True)
         new_mentions = list()
         for topic in topics.topics_list:
             for mention in topic.mentions:
-                if len(mention.mention_context) <= 75 and len(mention.tokens_number) <= 7:
-                    new_mentions.append(mention)
-                else:
-                    count += 1
+                if mention.mention_head is not None:
+                    for num in mention.tokens_number:
+                        if mention.mention_context[num] == mention.mention_head:
+                            mention.tokens_str = mention.mention_head
+                            mention.tokens_number = [num]
+                            new_mentions.append(mention)
+
         basename = path.basename(path.splitext(resource_file)[0])
-        print("*********")
-        print(basename)
-        print("cleaned=" + str(count))
-        print("*********")
-        write_mention_to_json(str(LIBRARY_ROOT) + "/resources/corpora/single_sent_full_context_mean/Clean" +
+        write_mention_to_json(str(LIBRARY_ROOT) + "/resources/corpora/head_lemma/" +
                                      basename + ".json", new_mentions)
 
     print(str(count))

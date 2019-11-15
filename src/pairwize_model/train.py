@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, epochs=4, lr=1e-5, use_cuda=True, report_fs=None):
     loss_func = torch.nn.CrossEntropyLoss()
     # loss_func = torch.nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr)
+    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.001)
     dataset_size = len(train)
 
     for epoch in range(epochs): #, desc="Epoch"
@@ -142,7 +142,7 @@ def run_experiment(train_file, valid_file, test_file, bert_utils, pairwize_model
                    lr, alpha, dataset_type, use_cuda, save_model, report_fs=None):
 
     train_feat = load_datasets(train_file, alpha, SPLIT.TRAIN, dataset_type)
-    validation_feat = load_datasets(valid_file, alpha, SPLIT.VALIDATION, DATASET.ECB)
+    validation_feat = load_datasets(valid_file, alpha, SPLIT.VALIDATION, DATASET.WEC)
 
     train_pairwise(bert_utils, pairwize_model, train_feat, validation_feat, batch_size, iterations, lr, use_cuda, report_fs)
 
@@ -156,17 +156,17 @@ def init_basic_training_resources(context_set, dataset, use_cuda):
     random.seed(1)
     np.random.seed(1)
 
-    bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.pickle",
-                  # str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/WEC_Dev_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Dev_Event_gold_mentions.pickle"
+    bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/Min_" + dataset.name + "_Train_Event_gold_mentions.pickle",
+                  str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/Min_WEC_Dev_Event_gold_mentions.pickle",
+                  # str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.pickle",
+                  # str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Dev_Event_gold_mentions.pickle"
                   ]
 
     bert_utils = BertFromFile(bert_files)
     pairwize_model = PairWiseModel(2304, 250, 2)
 
-    event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Dev_Event_gold_mentions.json"
+    event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/CleanMin_" + dataset.name + "_Train_Event_gold_mentions.json"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/CleanMin_WEC_Dev_Event_gold_mentions.json"
     event_test_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.json"
 
     if use_cuda:
@@ -179,12 +179,12 @@ def init_basic_training_resources(context_set, dataset, use_cuda):
 
 if __name__ == '__main__':
     _dataset = DATASET.WEC
-    _context_set = "single_sent_full_context"
+    _context_set = "single_sent_full_context_mean"
 
     _lr = 1e-7
     _batch_size = 32
-    _alpha = 11
-    _iterations = 2
+    _alpha = 1
+    _iterations = 3
     _use_cuda = True
     _save_model = False
 

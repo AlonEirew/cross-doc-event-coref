@@ -12,13 +12,13 @@ class PairWiseModel(nn.Module):
     @staticmethod
     def get_sequential(ind, hidd):
         return nn.Sequential(
-            # nn.Dropout(0.2),
+            nn.Dropout(0.2),
             nn.Linear(ind, hidd),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(hidd, hidd),
             nn.ReLU(),
-            nn.Dropout(0.2)
+            # nn.Dropout(0.2)
         )
 
     def forward(self, features):

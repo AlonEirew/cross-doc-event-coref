@@ -81,9 +81,8 @@ def create_pos_neg_pairs_wec(topics, alpha, split_type):
                     negative_map[mentions_key1] = True
                     negative_map[mentions_key2] = True
 
-        if split_type == SPLIT.TRAIN:
-            if len(negative_pairs) > (len(positive_pairs) * alpha):
-                break
+        if len(negative_pairs) > (len(positive_pairs) * alpha):
+            break
 
     logger.info('pos-' + str(len(positive_pairs)))
     logger.info('neg-' + str(len(negative_pairs)))

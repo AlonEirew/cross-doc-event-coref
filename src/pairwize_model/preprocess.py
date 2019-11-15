@@ -18,7 +18,7 @@ def extract_feature_dict(topics):
             start = time.time()
             hidden, attend = _bert_utils.get_mention_mean_rep(mention)
             end = time.time()
-            result_train[mention.mention_id] = (hidden, attend)
+            result_train[mention.mention_id] = (hidden.cpu(), attend.cpu())
             print("To Go: Topics" + str(topic_count) + ", Mentions" + str(mention_count) + ", took-" + str((end - start)))
             mention_count -= 1
         topic_count -= 1
@@ -34,13 +34,26 @@ def replace_with_mini_spans(topics):
                 mention.tokens_number = mention.min_span_ids
 
 
+def replace_with_head_spans(topics):
+    for topic in topics.topics_list:
+        for mention in topic.mentions:
+            if mention.mention_head is not None:
+                for num in mention.tokens_number:
+                    if mention.mention_context[num] == mention.mention_head:
+                        mention.tokens_str = mention.mention_head
+                        mention.tokens_number = [num]
+
+
 if __name__ == '__main__':
     use_mini_span = False
-    use_head_span = False
+    use_head_span = True
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/Min_WEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/Min_WEC_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/Min_WEC_Train_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/WEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/WEC_Test_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/WEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/ECB_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/ECB_Test_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/corpora/single_sent_full_context/ECB_Train_Event_gold_mentions.json'
                  ]
 
     _bert_utils = BertPretrainedUtils(-1)
@@ -51,9 +64,12 @@ if __name__ == '__main__':
         if use_mini_span:
             replace_with_mini_spans(topics)
 
+        if use_head_span:
+            replace_with_head_spans(topics)
+
         train_feat = extract_feature_dict(topics)
         basename = path.basename(path.splitext(resource_file)[0])
-        pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/corpora/single_sent_full_context/" +
+        pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/corpora/head_lemma/" +
                                      basename + ".pickle", "w+b"))
 
         print("Done with -" + basename)
