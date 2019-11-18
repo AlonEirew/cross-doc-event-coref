@@ -17,9 +17,10 @@ if __name__ == '__main__':
         for topic in topics.topics_list:
             for mention in topic.mentions:
                 if len(mention.mention_context) <= 75 and len(mention.tokens_number) <= 7:
-                    pass#new_mentions.append(mention)
+                    pass
                 else:
                     count += 1
+
         basename = path.basename(path.splitext(resource_file)[0])
         print("*********")
         print(basename)

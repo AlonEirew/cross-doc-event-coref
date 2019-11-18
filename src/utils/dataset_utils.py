@@ -43,6 +43,8 @@ def get_feat(data_file, alpha, split, dataset):
     else:
         positive_, negative_ = create_pos_neg_pairs_wec(topics_, alpha, split)
 
+    logger.info('pos-' + str(len(positive_)))
+    logger.info('neg-' + str(len(negative_)))
     return positive_, negative_
 
 
@@ -84,8 +86,6 @@ def create_pos_neg_pairs_wec(topics, alpha, split_type):
         if len(negative_pairs) > (len(positive_pairs) * alpha):
             break
 
-    logger.info('pos-' + str(len(positive_pairs)))
-    logger.info('neg-' + str(len(negative_pairs)))
     return positive_pairs, negative_pairs
 
 
@@ -107,13 +107,12 @@ def create_pos_neg_pairs_ecb(topics, alpha, split_type):
     positive_pairs = create_pairs(new_topics, POLARITY.POSITIVE)
     # create negative examples
     negative_pairs = create_pairs(new_topics, POLARITY.NEGATIVE)
+    random.shuffle(negative_pairs)
 
     if split_type == SPLIT.TRAIN:
         if len(negative_pairs) > (len(positive_pairs) * alpha):
             negative_pairs = negative_pairs[0:len(positive_pairs) * alpha]
 
-    logger.info('pos-' + str(len(positive_pairs)))
-    logger.info('neg-' + str(len(negative_pairs)))
     return positive_pairs, negative_pairs
 
 
