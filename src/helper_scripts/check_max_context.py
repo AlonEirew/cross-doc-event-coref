@@ -4,9 +4,9 @@ from src import LIBRARY_ROOT
 from src.dataobjs.topics import Topics
 
 if __name__ == '__main__':
-    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json'
                  ]
 
     for resource_file in all_files:

@@ -33,11 +33,11 @@ if __name__ == '__main__':
     log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + dataset.name + ".log"
     logger = create_logger_with_fh(__name__, log_file)
 
-    _event_test_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Dev_Event_gold_mentions.json"
+    _event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Dev_Event_gold_mentions.json"
     positive_, negative_ = get_feat(_event_test_file, -1, SPLIT.TEST, DATASET.ECB)
 
     _model_out = str(LIBRARY_ROOT) + "/saved_models/" + dataset.name + "_trained_model"
-    _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.pickle"])
+    _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Test_Event_gold_mentions.pickle"])
 
     print("Loading the model to-" + _model_out)
     _pairwize_model = torch.load(_model_out)

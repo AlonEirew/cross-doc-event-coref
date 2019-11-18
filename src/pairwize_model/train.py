@@ -156,8 +156,8 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
     random.seed(1)
     np.random.seed(1)
 
-    bert_files = [str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Dev_Event_gold_mentions.pickle",
+    bert_files = [str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.pickle",
+                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Dev_Event_gold_mentions.pickle",
                   ]
 
     bert_utils = BertFromFile(bert_files)
@@ -168,9 +168,9 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
     else:
         pairwize_model = PairWiseModel(2304, 250, 2)
 
-    event_train_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/" + dataset.name + "_Dev_Event_gold_mentions.json"
-    event_test_file = str(LIBRARY_ROOT) + "/resources/corpora/" + context_set + "/ECB_Test_Event_gold_mentions.json"
+    event_train_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Dev_Event_gold_mentions.json"
+    event_test_file = None#str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Test_Event_gold_mentions.json"
 
     if use_cuda:
         # print(torch.cuda.get_device_name(1))
@@ -182,15 +182,15 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
 
 if __name__ == '__main__':
     _dataset = DATASET.ECB
-    _context_set = "single_sent_full_context_mean"
+    _context_set = "final_set"
 
     _lr = 1e-7
     _batch_size = 32
     _alpha = 7
-    _iterations = 50
+    _iterations = 5
     _use_cuda = True
     _save_model = False
-    _fine_tune = False
+    _fine_tune = True
 
     running_timestamp = "train_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
     params_str = "_ds" + _dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)

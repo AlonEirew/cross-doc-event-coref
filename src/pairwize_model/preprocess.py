@@ -28,9 +28,9 @@ def extract_feature_dict(topics):
 
 if __name__ == '__main__':
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/corpora/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/final_set/Min_CleanWEC_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/corpora/final_set/Min_CleanWEC_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Test_Event_gold_mentions.json'
                  ]
 
     _bert_utils = BertPretrainedUtils(-1)
