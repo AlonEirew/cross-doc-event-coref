@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
-    context_set = "final_set"
+    context_set = "final_set_clean_min"
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Train_Event_gold_mentions.json"
 
     positive_, negative_ = get_feat(event_validation_file, 1, SPLIT.TRAIN, DATASET.ECB)

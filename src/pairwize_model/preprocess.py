@@ -28,9 +28,9 @@ def extract_feature_dict(topics):
 
 if __name__ == '__main__':
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set_clean_min/Min_CleanWEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set_clean_min/Min_CleanWEC_Test_Event_gold_mentions.json'
                  ]
 
     _bert_utils = BertPretrainedUtils(-1)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         topics.create_from_file(resource_file, keep_order=True)
         train_feat = extract_feature_dict(topics)
         basename = path.basename(path.splitext(resource_file)[0])
-        pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/final_set/" +
+        pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/final_set_clean_min/" +
                                      basename + ".pickle", "w+b"))
 
         print("Done with -" + basename)

@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 from src import LIBRARY_ROOT
 
@@ -19,7 +20,7 @@ def plot_loss(all_lines):
     # plt.ylabel('Loss', fontdict=font)
 
     plt.title('Experiment', fontdict=font)
-    # plt.xticks(np.arange(0, len(graph_b_x), step=30))
+    # plt.xticks(np.arange(-1, len(graph_b_x), step=5))
     plt.legend()
     plt.show()
 
@@ -29,9 +30,12 @@ def get_loss(all_lines):
     graph_y_train = list()
     for i in range(len(all_lines)):
         line_split = all_lines[i].split(':')
-        if line_split[0] == 'Dev-Acc':
-            itr = all_lines[i - 1].split(':')[0]
-            loss = all_lines[i - 1].split(':')[3]
+
+        if len(line_split) < 2:
+            continue
+        if line_split[2] == 'Dev-Acc':
+            itr = all_lines[i - 1].split(':')[2]
+            loss = all_lines[i - 1].split(':')[5]
             graph_x.append(itr)
             graph_y_train.append(float(loss))
 
@@ -47,7 +51,7 @@ def plot_accuracy_dev(all_lines):
     plt.ylabel('Accuracy', fontdict=font)
 
     plt.title('Experiment', fontdict=font)
-    # plt.xticks(np.arange(0, len(graph_b_x), step=30))
+    # plt.xticks(np.arange(-1, len(dev_x), step=5))
     plt.legend()
     plt.show()
 
@@ -59,14 +63,18 @@ def get_accuracy(all_lines):
     train_y = list()
     for i in range(len(all_lines)):
         line_split = all_lines[i].split(':')
-        if line_split[0] == 'Dev-Acc':
-            itr = line_split[1]
-            accuracy = line_split[3]
+
+        if len(line_split) < 2:
+            continue
+
+        if line_split[2] == 'Dev-Acc':
+            itr = line_split[3]
+            accuracy = line_split[5]
             dev_x.append(itr)
             dev_y.append(float(accuracy))
-        if line_split[0] == 'Train-Acc':
-            itr = line_split[1]
-            accuracy = line_split[3]
+        if line_split[2] == 'Train-Acc':
+            itr = line_split[3]
+            accuracy = line_split[5]
             train_x.append(itr)
             train_y.append(float(accuracy))
 
@@ -80,11 +88,15 @@ def get_prf1(all_lines):
     graph_f1y = list()
     for i in range(len(all_lines)):
         line_split = all_lines[i].split(':')
-        if line_split[0] == 'Dev-Acc':
-            itr = line_split[1]
-            p = line_split[5]
-            r = line_split[7]
-            f1 = line_split[9]
+
+        if len(line_split) < 2:
+            continue
+
+        if line_split[2] == 'Dev-Acc':
+            itr = line_split[3]
+            p = line_split[7]
+            r = line_split[9]
+            f1 = line_split[11]
             itr_px.append(itr)
             graph_py.append(float(p))
             graph_ry.append(float(r))
@@ -103,15 +115,15 @@ def plot_prf1(all_lines):
     plt.ylabel('P/R/F1', fontdict=font)
 
     plt.title('Experiment', fontdict=font)
-    # plt.xticks(np.arange(0, len(graph_b_x), step=30))
+    # plt.xticks(np.arange(-1, len(x), step=5))
     plt.legend()
     plt.show()
 
 
 if __name__ == '__main__':
-    file_name = str(LIBRARY_ROOT) + '/best_reports/ECB_lr1e-06_bs32_a7_itr20.txt'
+    file_name = str(LIBRARY_ROOT) + '/all_report_same_ratio_dev/WEC_Min_Clean_1drop0_2_lr1e-08_bs32_a1_itr19.txt'
     with open(file_name, 'r') as file_fs:
         all_lines = file_fs.readlines()
         # plot_loss(all_lines)
-        # plot_accuracy_dev(all_lines)
+        plot_accuracy_dev(all_lines)
         plot_prf1(all_lines)

@@ -1,0 +1,1119 @@
+ssh://alon_nlp@MLU-01-TitanXP.iil.intel.com:22/home/alon_nlp/venv/bin/python -u /home/alon_nlp/cross-doc-coref/src/pairwize_model/train.py
+2019-11-18 17:54:12.702245: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2019-11-18 17:54:12.732090: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2999980000 Hz
+2019-11-18 17:54:12.735232: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5822120 executing computations on platform Host. Devices:
+2019-11-18 17:54:12.735260: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
+INFO:src.utils.dataset_utils:Create Features:SPLIT.TRAIN
+INFO:src.utils.json_utils:Loading mentions from-/home/alon_nlp/cross-doc-coref/resources/final_set_clean_min/ECB_Train_Event_gold_mentions.json
+INFO:src.utils.json_utils:Mentions file-/home/alon_nlp/cross-doc-coref/resources/final_set_clean_min/ECB_Train_Event_gold_mentions.json, took:0.0372 sec to load
+INFO:src.utils.dataset_utils:Create pos/neg examples
+INFO:src.utils.dataset_utils:pos-15211
+INFO:src.utils.dataset_utils:neg-15211
+INFO:src.utils.dataset_utils:Create Features:SPLIT.TRAIN
+INFO:src.utils.json_utils:Loading mentions from-/home/alon_nlp/cross-doc-coref/resources/final_set_clean_min/ECB_Dev_Event_gold_mentions.json
+INFO:src.utils.json_utils:Mentions file-/home/alon_nlp/cross-doc-coref/resources/final_set_clean_min/ECB_Dev_Event_gold_mentions.json, took:0.0104 sec to load
+INFO:src.utils.dataset_utils:Create pos/neg examples
+INFO:src.utils.dataset_utils:pos-5881
+INFO:src.utils.dataset_utils:neg-5881
+INFO:__main__:1: 3232: loss: 0.6881508100:
+INFO:__main__:1: 6432: loss: 0.6854483554:
+INFO:__main__:1: 9632: loss: 0.6834982409:
+INFO:__main__:1: 12832: loss: 0.6817121735:
+INFO:__main__:1: 16032: loss: 0.6793790883:
+INFO:__main__:1: 19232: loss: 0.6778498203:
+INFO:__main__:1: 22432: loss: 0.6758081972:
+INFO:__main__:1: 25632: loss: 0.6737216024:
+INFO:__main__:1: 28832: loss: 0.6716791842:
+INFO:__main__:Dev-Acc: 1: Accuracy: 0.5959020853: precision: 0.5572705118: recall: 0.9331746302: f1: 0.6978193146
+INFO:__main__:Train-Acc: 1: Accuracy: 0.6246466637: precision: 0.5759128764: recall: 0.9456314509: f1: 0.7158533854
+INFO:__main__:2: 3232: loss: 0.6496480799:
+INFO:__main__:2: 6432: loss: 0.6469850469:
+INFO:__main__:2: 9632: loss: 0.6454418526:
+INFO:__main__:2: 12832: loss: 0.6438400298:
+INFO:__main__:2: 16032: loss: 0.6424117848:
+INFO:__main__:2: 19232: loss: 0.6407029926:
+INFO:__main__:2: 22432: loss: 0.6385181228:
+INFO:__main__:2: 25632: loss: 0.6365820011:
+INFO:__main__:2: 28832: loss: 0.6346020718:
+INFO:__main__:Dev-Acc: 2: Accuracy: 0.6590716243: precision: 0.6136556919: recall: 0.8588675395: f1: 0.7158446712
+INFO:__main__:Train-Acc: 2: Accuracy: 0.7208270431: precision: 0.6627107150: recall: 0.8994148971: f1: 0.7631292707
+INFO:__main__:3: 3232: loss: 0.6140610820:
+INFO:__main__:3: 6432: loss: 0.6105975941:
+INFO:__main__:3: 9632: loss: 0.6080423707:
+INFO:__main__:3: 12832: loss: 0.6061533052:
+INFO:__main__:3: 16032: loss: 0.6036511320:
+INFO:__main__:3: 19232: loss: 0.6013683950:
+INFO:__main__:3: 22432: loss: 0.5986252974:
+INFO:__main__:3: 25632: loss: 0.5959959219:
+INFO:__main__:3: 28832: loss: 0.5943035921:
+INFO:__main__:Dev-Acc: 3: Accuracy: 0.6992008686: precision: 0.6796503604: recall: 0.7536133311: f1: 0.7147234317
+INFO:__main__:Train-Acc: 3: Accuracy: 0.7794030905: precision: 0.7534892043: recall: 0.8305173887: f1: 0.7901304062
+INFO:__main__:4: 3232: loss: 0.5736128697:
+INFO:__main__:4: 6432: loss: 0.5721899892:
+INFO:__main__:4: 9632: loss: 0.5710332252:
+INFO:__main__:4: 12832: loss: 0.5692680639:
+INFO:__main__:4: 16032: loss: 0.5670362050:
+INFO:__main__:4: 19232: loss: 0.5641544410:
+INFO:__main__:4: 22432: loss: 0.5612989424:
+INFO:__main__:4: 25632: loss: 0.5585909133:
+INFO:__main__:4: 28832: loss: 0.5563246140:
+INFO:__main__:Dev-Acc: 4: Accuracy: 0.7287876606: precision: 0.7416921142: recall: 0.7020914810: f1: 0.7213487072
+INFO:__main__:Train-Acc: 4: Accuracy: 0.8000131845: precision: 0.8186579150: recall: 0.7707580041: f1: 0.7939861845
+INFO:__main__:5: 3232: loss: 0.5361271304:
+INFO:__main__:5: 6432: loss: 0.5343902481:
+INFO:__main__:5: 9632: loss: 0.5307786662:
+INFO:__main__:5: 12832: loss: 0.5303252788:
+INFO:__main__:5: 16032: loss: 0.5272911398:
+INFO:__main__:5: 19232: loss: 0.5262996991:
+INFO:__main__:5: 22432: loss: 0.5240490708:
+INFO:__main__:5: 25632: loss: 0.5217776100:
+INFO:__main__:5: 28832: loss: 0.5206851634:
+INFO:__main__:Dev-Acc: 5: Accuracy: 0.7362693548: precision: 0.7678812416: recall: 0.6772657711: f1: 0.7197325623
+INFO:__main__:Train-Acc: 5: Accuracy: 0.8076063991: precision: 0.8500149611: recall: 0.7470251791: f1: 0.7951992722
+INFO:__main__:6: 3232: loss: 0.4980250120:
+INFO:__main__:6: 6432: loss: 0.4973346651:
+INFO:__main__:6: 9632: loss: 0.4963313575:
+INFO:__main__:6: 12832: loss: 0.4968806497:
+INFO:__main__:6: 16032: loss: 0.4961339481:
+INFO:__main__:6: 19232: loss: 0.4939009428:
+INFO:__main__:6: 22432: loss: 0.4952304517:
+INFO:__main__:6: 25632: loss: 0.4943038184:
+INFO:__main__:6: 28832: loss: 0.4925021864:
+INFO:__main__:Dev-Acc: 6: Accuracy: 0.7408604026: precision: 0.7842665061: recall: 0.6645128380: f1: 0.7194403535
+INFO:__main__:Train-Acc: 6: Accuracy: 0.8127999902: precision: 0.8683232699: recall: 0.7374268621: f1: 0.7975399054
+INFO:__main__:7: 3232: loss: 0.4789250365:
+INFO:__main__:7: 6432: loss: 0.4777738433:
+INFO:__main__:7: 9632: loss: 0.4748872788:
+INFO:__main__:7: 12832: loss: 0.4742858611:
+INFO:__main__:7: 16032: loss: 0.4745680263:
+INFO:__main__:7: 19232: loss: 0.4728087024:
+INFO:__main__:7: 22432: loss: 0.4724329480:
+INFO:__main__:7: 25632: loss: 0.4717300305:
+INFO:__main__:7: 28832: loss: 0.4703326629:
+INFO:__main__:Dev-Acc: 7: Accuracy: 0.7420507073: precision: 0.7904509284: recall: 0.6587315082: f1: 0.7186050825
+INFO:__main__:Train-Acc: 7: Accuracy: 0.8186181188: precision: 0.8751451351: recall: 0.7432778910: f1: 0.8038393175
+INFO:__main__:8: 3232: loss: 0.4500885463:
+INFO:__main__:8: 6432: loss: 0.4557058209:
+INFO:__main__:8: 9632: loss: 0.4553070952:
+INFO:__main__:8: 12832: loss: 0.4568735567:
+INFO:__main__:8: 16032: loss: 0.4572224495:
+INFO:__main__:8: 19232: loss: 0.4554204548:
+INFO:__main__:8: 22432: loss: 0.4543710348:
+INFO:__main__:8: 25632: loss: 0.4533349261:
+INFO:__main__:8: 28832: loss: 0.4526013914:
+INFO:__main__:Dev-Acc: 8: Accuracy: 0.7456215024: precision: 0.7965510162: recall: 0.6597517429: f1: 0.7217261905
+INFO:__main__:Train-Acc: 8: Accuracy: 0.8228256106: precision: 0.8782253716: recall: 0.7495891131: f1: 0.8088245726
+INFO:__main__:9: 3232: loss: 0.4552759829:
+INFO:__main__:9: 6432: loss: 0.4501360822:
+INFO:__main__:9: 9632: loss: 0.4462882420:
+INFO:__main__:9: 12832: loss: 0.4446217173:
+INFO:__main__:9: 16032: loss: 0.4427625195:
+INFO:__main__:9: 19232: loss: 0.4407551043:
+INFO:__main__:9: 22432: loss: 0.4391908246:
+INFO:__main__:9: 25632: loss: 0.4388390720:
+INFO:__main__:9: 28832: loss: 0.4387460646:
+INFO:__main__:Dev-Acc: 9: Accuracy: 0.7474068999: precision: 0.7960927961: recall: 0.6651929944: f1: 0.7247799907
+INFO:__main__:Train-Acc: 9: Accuracy: 0.8274275661: precision: 0.8752354404: recall: 0.7637236211: f1: 0.8156859992
+INFO:__main__:10: 3232: loss: 0.4299963181:
+INFO:__main__:10: 6432: loss: 0.4293751166:
+INFO:__main__:10: 9632: loss: 0.4288174540:
+INFO:__main__:10: 12832: loss: 0.4299852533:
+INFO:__main__:10: 16032: loss: 0.4283174803:
+INFO:__main__:10: 19232: loss: 0.4281647178:
+INFO:__main__:10: 22432: loss: 0.4280197410:
+INFO:__main__:10: 25632: loss: 0.4260902052:
+INFO:__main__:10: 28832: loss: 0.4255609639:
+INFO:__main__:Dev-Acc: 10: Accuracy: 0.7487672567: precision: 0.7960339943: recall: 0.6689338548: f1: 0.7269703409
+INFO:__main__:Train-Acc: 10: Accuracy: 0.8302873373: precision: 0.8750933254: recall: 0.7705607784: f1: 0.8195070792
+INFO:__main__:11: 3232: loss: 0.4151693846:
+INFO:__main__:11: 6432: loss: 0.4208567566:
+INFO:__main__:11: 9632: loss: 0.4180693099:
+INFO:__main__:11: 12832: loss: 0.4181978155:
+INFO:__main__:11: 16032: loss: 0.4170854983:
+INFO:__main__:11: 19232: loss: 0.4171413130:
+INFO:__main__:11: 22432: loss: 0.4170471878:
+INFO:__main__:11: 25632: loss: 0.4156823843:
+INFO:__main__:11: 28832: loss: 0.4160313124:
+INFO:__main__:Dev-Acc: 11: Accuracy: 0.7492773533: precision: 0.7956837434: recall: 0.6708042850: f1: 0.7279269305
+INFO:__main__:Train-Acc: 11: Accuracy: 0.8338702917: precision: 0.8745482705: recall: 0.7795674183: f1: 0.8243309002
+INFO:__main__:12: 3232: loss: 0.4172309095:
+INFO:__main__:12: 6432: loss: 0.4158951904:
+INFO:__main__:12: 9632: loss: 0.4123595029:
+INFO:__main__:12: 12832: loss: 0.4101360020:
+INFO:__main__:12: 16032: loss: 0.4043250216:
+INFO:__main__:12: 19232: loss: 0.4070551715:
+INFO:__main__:12: 22432: loss: 0.4084470646:
+INFO:__main__:12: 25632: loss: 0.4077784051:
+INFO:__main__:12: 28832: loss: 0.4065836702:
+INFO:__main__:Dev-Acc: 12: Accuracy: 0.7511478066: precision: 0.7970635559: recall: 0.6738649889: f1: 0.7303049848
+INFO:__main__:Train-Acc: 12: Accuracy: 0.8361712098: precision: 0.8749175159: recall: 0.7844980606: f1: 0.8272443674
+INFO:__main__:13: 3232: loss: 0.4122437359:
+INFO:__main__:13: 6432: loss: 0.4145110147:
+INFO:__main__:13: 9632: loss: 0.4099698332:
+INFO:__main__:13: 12832: loss: 0.4095703198:
+INFO:__main__:13: 16032: loss: 0.4095053330:
+INFO:__main__:13: 19232: loss: 0.4039343541:
+INFO:__main__:13: 22432: loss: 0.4039126086:
+INFO:__main__:13: 25632: loss: 0.4022529569:
+INFO:__main__:13: 28832: loss: 0.4004169782:
+INFO:__main__:Dev-Acc: 13: Accuracy: 0.7515729070: precision: 0.7941936767: recall: 0.6791362013: f1: 0.7321723190
+INFO:__main__:Train-Acc: 13: Accuracy: 0.8387023211: precision: 0.8711280795: recall: 0.7950167642: f1: 0.8313339979
+INFO:__main__:14: 3232: loss: 0.4031583245:
+INFO:__main__:14: 6432: loss: 0.3996887776:
+INFO:__main__:14: 9632: loss: 0.3987311812:
+INFO:__main__:14: 12832: loss: 0.3985500029:
+INFO:__main__:14: 16032: loss: 0.3985921968:
+INFO:__main__:14: 19232: loss: 0.3990344408:
+INFO:__main__:14: 22432: loss: 0.3974255199:
+INFO:__main__:14: 25632: loss: 0.3942271294:
+INFO:__main__:14: 28832: loss: 0.3936947164:
+INFO:__main__:Dev-Acc: 14: Accuracy: 0.7524231076: precision: 0.7946021036: recall: 0.6808365924: f1: 0.7333333333
+INFO:__main__:Train-Acc: 14: Accuracy: 0.8407403231: precision: 0.8702671810: recall: 0.8008677930: f1: 0.8341264679
+INFO:__main__:15: 3232: loss: 0.3951814047:
+INFO:__main__:15: 6432: loss: 0.3955375515:
+INFO:__main__:15: 9632: loss: 0.3957053584:
+INFO:__main__:15: 12832: loss: 0.3948342818:
+INFO:__main__:15: 16032: loss: 0.3910880107:
+INFO:__main__:15: 19232: loss: 0.3882416048:
+INFO:__main__:15: 22432: loss: 0.3880176112:
+INFO:__main__:15: 25632: loss: 0.3885145214:
+INFO:__main__:15: 28832: loss: 0.3878470449:
+INFO:__main__:Dev-Acc: 15: Accuracy: 0.7528482080: precision: 0.7945721078: recall: 0.6820268662: f1: 0.7340104310
+INFO:__main__:Train-Acc: 15: Accuracy: 0.8433371186: precision: 0.8711534361: recall: 0.8058641772: f1: 0.8372378936
+INFO:__main__:16: 3232: loss: 0.3847502647:
+INFO:__main__:16: 6432: loss: 0.3815208361:
+INFO:__main__:16: 9632: loss: 0.3804261664:
+INFO:__main__:16: 12832: loss: 0.3809900750:
+INFO:__main__:16: 16032: loss: 0.3822017964:
+INFO:__main__:16: 19232: loss: 0.3825571671:
+INFO:__main__:16: 22432: loss: 0.3833477730:
+INFO:__main__:16: 25632: loss: 0.3817696008:
+INFO:__main__:16: 28832: loss: 0.3802338905:
+INFO:__main__:Dev-Acc: 16: Accuracy: 0.7528482080: precision: 0.7923712151: recall: 0.6852576093: f1: 0.7349320689
+INFO:__main__:Train-Acc: 16: Accuracy: 0.8451449871: precision: 0.8680078508: recall: 0.8140819144: f1: 0.8401804797
+INFO:__main__:17: 3232: loss: 0.3949122457:
+INFO:__main__:17: 6432: loss: 0.3839205467:
+INFO:__main__:17: 9632: loss: 0.3823175188:
+INFO:__main__:17: 12832: loss: 0.3779542061:
+INFO:__main__:17: 16032: loss: 0.3768046504:
+INFO:__main__:17: 19232: loss: 0.3759356881:
+INFO:__main__:17: 22432: loss: 0.3751136064:
+INFO:__main__:17: 25632: loss: 0.3763770165:
+INFO:__main__:17: 28832: loss: 0.3770458893:
+INFO:__main__:Dev-Acc: 17: Accuracy: 0.7533583045: precision: 0.7934226073: recall: 0.6850875701: f1: 0.7352860662
+INFO:__main__:Train-Acc: 17: Accuracy: 0.8479390144: precision: 0.8706492051: recall: 0.8173032674: f1: 0.8431332655
+INFO:__main__:18: 3232: loss: 0.3688464168:
+INFO:__main__:18: 6432: loss: 0.3732381275:
+INFO:__main__:18: 9632: loss: 0.3824844220:
+INFO:__main__:18: 12832: loss: 0.3790049995:
+INFO:__main__:18: 16032: loss: 0.3766494578:
+INFO:__main__:18: 19232: loss: 0.3775827982:
+INFO:__main__:18: 22432: loss: 0.3765404772:
+INFO:__main__:18: 25632: loss: 0.3740552833:
+INFO:__main__:18: 28832: loss: 0.3720209193:
+INFO:__main__:Dev-Acc: 18: Accuracy: 0.7552287579: precision: 0.7927067083: recall: 0.6912089781: f1: 0.7384866927
+INFO:__main__:Train-Acc: 18: Accuracy: 0.8503057361: precision: 0.8694958741: recall: 0.8243376504: f1: 0.8463147948
+INFO:__main__:19: 3232: loss: 0.3782812707:
+INFO:__main__:19: 6432: loss: 0.3723671677:
+INFO:__main__:19: 9632: loss: 0.3742382848:
+INFO:__main__:19: 12832: loss: 0.3718077467:
+INFO:__main__:19: 16032: loss: 0.3725146579:
+INFO:__main__:19: 19232: loss: 0.3700262665:
+INFO:__main__:19: 22432: loss: 0.3719997042:
+INFO:__main__:19: 25632: loss: 0.3708375578:
+INFO:__main__:19: 28832: loss: 0.3688326962:
+INFO:__main__:Dev-Acc: 19: Accuracy: 0.7543785572: precision: 0.7900348972: recall: 0.6929093692: f1: 0.7382915119
+INFO:__main__:Train-Acc: 19: Accuracy: 0.8524094820: precision: 0.8690025470: recall: 0.8299257117: f1: 0.8490147286
+INFO:__main__:20: 3232: loss: 0.3615970051:
+INFO:__main__:20: 6432: loss: 0.3605007073:
+INFO:__main__:20: 9632: loss: 0.3613673557:
+INFO:__main__:20: 12832: loss: 0.3632073017:
+INFO:__main__:20: 16032: loss: 0.3645934781:
+INFO:__main__:20: 19232: loss: 0.3653736438:
+INFO:__main__:20: 22432: loss: 0.3653603562:
+INFO:__main__:20: 25632: loss: 0.3651652040:
+INFO:__main__:20: 28832: loss: 0.3639700017:
+INFO:__main__:Dev-Acc: 20: Accuracy: 0.7548886538: precision: 0.7903913212: recall: 0.6937595647: f1: 0.7389296387
+INFO:__main__:Train-Acc: 20: Accuracy: 0.8543817401: precision: 0.8694400658: recall: 0.8340017093: f1: 0.8513522582
+INFO:__main__:21: 3232: loss: 0.3598621100:
+INFO:__main__:21: 6432: loss: 0.3704160096:
+INFO:__main__:21: 9632: loss: 0.3683812889:
+INFO:__main__:21: 12832: loss: 0.3632181222:
+INFO:__main__:21: 16032: loss: 0.3656846254:
+INFO:__main__:21: 19232: loss: 0.3645016419:
+INFO:__main__:21: 22432: loss: 0.3632848705:
+INFO:__main__:21: 25632: loss: 0.3610716558:
+INFO:__main__:21: 28832: loss: 0.3608126791:
+INFO:__main__:Dev-Acc: 21: Accuracy: 0.7563340068: precision: 0.7917553706: recall: 0.6956299949: f1: 0.7405865315
+INFO:__main__:Train-Acc: 21: Accuracy: 0.8556965590: precision: 0.8700499282: recall: 0.8363026757: f1: 0.8528425851
+INFO:__main__:22: 3232: loss: 0.3818971343:
+INFO:__main__:22: 6432: loss: 0.3732434658:
+INFO:__main__:22: 9632: loss: 0.3675543312:
+INFO:__main__:22: 12832: loss: 0.3609832220:
+INFO:__main__:22: 16032: loss: 0.3597157335:
+INFO:__main__:22: 19232: loss: 0.3602018730:
+INFO:__main__:22: 22432: loss: 0.3589005582:
+INFO:__main__:22: 25632: loss: 0.3595053664:
+INFO:__main__:22: 28832: loss: 0.3591474660:
+INFO:__main__:Dev-Acc: 22: Accuracy: 0.7570141554: precision: 0.7912892658: recall: 0.6981805815: f1: 0.7418247516
+INFO:__main__:Train-Acc: 22: Accuracy: 0.8572743535: precision: 0.8701723316: recall: 0.8398527382: f1: 0.8547437441
+INFO:__main__:23: 3232: loss: 0.3605763373:
+INFO:__main__:23: 6432: loss: 0.3560202788:
+INFO:__main__:23: 9632: loss: 0.3560153042:
+INFO:__main__:23: 12832: loss: 0.3554320559:
+INFO:__main__:23: 16032: loss: 0.3549995178:
+INFO:__main__:23: 19232: loss: 0.3554976386:
+INFO:__main__:23: 22432: loss: 0.3541177041:
+INFO:__main__:23: 25632: loss: 0.3557178140:
+INFO:__main__:23: 28832: loss: 0.3547789709:
+INFO:__main__:Dev-Acc: 23: Accuracy: 0.7569290996: precision: 0.7906887264: recall: 0.6988607380: f1: 0.7419442188
+INFO:__main__:Train-Acc: 23: Accuracy: 0.8587864637: precision: 0.8708296528: recall: 0.8425481559: f1: 0.8564554932
+INFO:__main__:24: 3232: loss: 0.3534570120:
+INFO:__main__:24: 6432: loss: 0.3471333892:
+INFO:__main__:24: 9632: loss: 0.3481547295:
+INFO:__main__:24: 12832: loss: 0.3469723034:
+INFO:__main__:24: 16032: loss: 0.3515949422:
+INFO:__main__:24: 19232: loss: 0.3503670947:
+INFO:__main__:24: 22432: loss: 0.3519364172:
+INFO:__main__:24: 25632: loss: 0.3542345443:
+INFO:__main__:24: 28832: loss: 0.3514125622:
+INFO:__main__:Dev-Acc: 24: Accuracy: 0.7573541999: precision: 0.7907780980: recall: 0.6998809726: f1: 0.7425581815
+INFO:__main__:Train-Acc: 24: Accuracy: 0.8599040508: precision: 0.8708257129: recall: 0.8451778318: f1: 0.8578101021
+INFO:__main__:25: 3232: loss: 0.3402629244:
+INFO:__main__:25: 6432: loss: 0.3472620454:
+INFO:__main__:25: 9632: loss: 0.3451001926:
+INFO:__main__:25: 12832: loss: 0.3458994090:
+INFO:__main__:25: 16032: loss: 0.3462053114:
+INFO:__main__:25: 19232: loss: 0.3480561173:
+INFO:__main__:25: 22432: loss: 0.3475785987:
+INFO:__main__:25: 25632: loss: 0.3459265919:
+INFO:__main__:25: 28832: loss: 0.3490249132:
+INFO:__main__:Dev-Acc: 25: Accuracy: 0.7584594488: precision: 0.7900763359: recall: 0.7039619112: f1: 0.7445373617
+INFO:__main__:Train-Acc: 25: Accuracy: 0.8612517715: precision: 0.8701333693: recall: 0.8492538295: f1: 0.8595668230
+INFO:__main__:26: 3232: loss: 0.3530210143:
+INFO:__main__:26: 6432: loss: 0.3460996951:
+INFO:__main__:26: 9632: loss: 0.3498488173:
+INFO:__main__:26: 12832: loss: 0.3521375035:
+INFO:__main__:26: 16032: loss: 0.3503512329:
+INFO:__main__:26: 19232: loss: 0.3517752506:
+INFO:__main__:26: 22432: loss: 0.3487466036:
+INFO:__main__:26: 25632: loss: 0.3475890137:
+INFO:__main__:26: 28832: loss: 0.3456203532:
+INFO:__main__:Dev-Acc: 26: Accuracy: 0.7587995529: precision: 0.7893536122: recall: 0.7060023805: f1: 0.7453549951
+INFO:__main__:Train-Acc: 26: Accuracy: 0.8631253839: precision: 0.8703815463: recall: 0.8533298271: f1: 0.8617713451
+INFO:__main__:27: 3232: loss: 0.3596953520:
+INFO:__main__:27: 6432: loss: 0.3551822272:
+INFO:__main__:27: 9632: loss: 0.3494944829:
+INFO:__main__:27: 12832: loss: 0.3466097731:
+INFO:__main__:27: 16032: loss: 0.3458411498:
+INFO:__main__:27: 19232: loss: 0.3426874465:
+INFO:__main__:27: 22432: loss: 0.3422662613:
+INFO:__main__:27: 25632: loss: 0.3431348562:
+INFO:__main__:27: 28832: loss: 0.3418117206:
+INFO:__main__:Dev-Acc: 27: Accuracy: 0.7593947053: precision: 0.7899638852: recall: 0.7066825370: f1: 0.7460061030
+INFO:__main__:Train-Acc: 27: Accuracy: 0.8645717502: precision: 0.8715577889: recall: 0.8551706002: f1: 0.8632864348
+INFO:__main__:28: 3232: loss: 0.3425065529:
+INFO:__main__:28: 6432: loss: 0.3452629227:
+INFO:__main__:28: 9632: loss: 0.3406956520:
+INFO:__main__:28: 12832: loss: 0.3397743022:
+INFO:__main__:28: 16032: loss: 0.3388741831:
+INFO:__main__:28: 19232: loss: 0.3378427070:
+INFO:__main__:28: 22432: loss: 0.3377517000:
+INFO:__main__:28: 25632: loss: 0.3387814677:
+INFO:__main__:28: 28832: loss: 0.3387280665:
+INFO:__main__:Dev-Acc: 28: Accuracy: 0.7591396570: precision: 0.7865739000: recall: 0.7112735929: f1: 0.7470309849
+INFO:__main__:Train-Acc: 28: Accuracy: 0.8662810326: precision: 0.8696834981: recall: 0.8616790481: f1: 0.8656627700
+INFO:__main__:29: 3232: loss: 0.3449423921:
+INFO:__main__:29: 6432: loss: 0.3407621406:
+INFO:__main__:29: 9632: loss: 0.3430919187:
+INFO:__main__:29: 12832: loss: 0.3433132552:
+INFO:__main__:29: 16032: loss: 0.3425050246:
+INFO:__main__:29: 19232: loss: 0.3381380192:
+INFO:__main__:29: 22432: loss: 0.3391641450:
+INFO:__main__:29: 25632: loss: 0.3394974942:
+INFO:__main__:29: 28832: loss: 0.3382898231:
+INFO:__main__:Dev-Acc: 29: Accuracy: 0.7593096495: precision: 0.7854736054: recall: 0.7134841013: f1: 0.7477501559
+INFO:__main__:Train-Acc: 29: Accuracy: 0.8673657775: precision: 0.8685043524: recall: 0.8658207876: f1: 0.8671604938
+INFO:__main__:30: 3232: loss: 0.3238623437:
+INFO:__main__:30: 6432: loss: 0.3252087459:
+INFO:__main__:30: 9632: loss: 0.3288262401:
+INFO:__main__:30: 12832: loss: 0.3293144027:
+INFO:__main__:30: 16032: loss: 0.3335999074:
+INFO:__main__:30: 19232: loss: 0.3356065850:
+INFO:__main__:30: 22432: loss: 0.3350423785:
+INFO:__main__:30: 25632: loss: 0.3343119097:
+INFO:__main__:30: 28832: loss: 0.3346042825:
+INFO:__main__:Dev-Acc: 30: Accuracy: 0.7589696050: precision: 0.7868173258: recall: 0.7104233974: f1: 0.7466714324
+INFO:__main__:Train-Acc: 30: Accuracy: 0.8687792420: precision: 0.8711705155: recall: 0.8655578200: f1: 0.8683550983
+INFO:__main__:31: 3232: loss: 0.3215427573:
+INFO:__main__:31: 6432: loss: 0.3310192078:
+INFO:__main__:31: 9632: loss: 0.3331552880:
+INFO:__main__:31: 12832: loss: 0.3340476898:
+INFO:__main__:31: 16032: loss: 0.3321889405:
+INFO:__main__:31: 19232: loss: 0.3317005200:
+INFO:__main__:31: 22432: loss: 0.3316172232:
+INFO:__main__:31: 25632: loss: 0.3319121329:
+INFO:__main__:31: 28832: loss: 0.3322415767:
+INFO:__main__:Dev-Acc: 31: Accuracy: 0.7597347498: precision: 0.7880445031: recall: 0.7105934365: f1: 0.7473175966
+INFO:__main__:Train-Acc: 31: Accuracy: 0.8698639274: precision: 0.8726321367: recall: 0.8661494971: f1: 0.8693787324
+INFO:__main__:32: 3232: loss: 0.3231727082:
+INFO:__main__:32: 6432: loss: 0.3300334344:
+INFO:__main__:32: 9632: loss: 0.3334877796:
+INFO:__main__:32: 12832: loss: 0.3305399573:
+INFO:__main__:32: 16032: loss: 0.3289322247:
+INFO:__main__:32: 19232: loss: 0.3276677656:
+INFO:__main__:32: 22432: loss: 0.3290746640:
+INFO:__main__:32: 25632: loss: 0.3303552384:
+INFO:__main__:32: 28832: loss: 0.3304306555:
+INFO:__main__:Dev-Acc: 32: Accuracy: 0.7607550025: precision: 0.7899413878: recall: 0.7104233974: f1: 0.7480752014
+INFO:__main__:Train-Acc: 32: Accuracy: 0.8711788058: precision: 0.8740063593: recall: 0.8673985931: f1: 0.8706899396
+INFO:__main__:33: 3232: loss: 0.3426940853:
+INFO:__main__:33: 6432: loss: 0.3312467135:
+INFO:__main__:33: 9632: loss: 0.3348506594:
+INFO:__main__:33: 12832: loss: 0.3319454808:
+INFO:__main__:33: 16032: loss: 0.3278289990:
+INFO:__main__:33: 19232: loss: 0.3265749844:
+INFO:__main__:33: 22432: loss: 0.3287067402:
+INFO:__main__:33: 25632: loss: 0.3286640606:
+INFO:__main__:33: 28832: loss: 0.3287750723:
+INFO:__main__:Dev-Acc: 33: Accuracy: 0.7601598501: precision: 0.7880271084: recall: 0.7117837103: f1: 0.7479674797
+INFO:__main__:Train-Acc: 33: Accuracy: 0.8720991611: precision: 0.8733016752: recall: 0.8704884623: f1: 0.8718927995
+INFO:__main__:34: 3232: loss: 0.3141935985:
+INFO:__main__:34: 6432: loss: 0.3199696033:
+INFO:__main__:34: 9632: loss: 0.3194379701:
+INFO:__main__:34: 12832: loss: 0.3228004204:
+INFO:__main__:34: 16032: loss: 0.3264054625:
+INFO:__main__:34: 19232: loss: 0.3249172915:
+INFO:__main__:34: 22432: loss: 0.3260233316:
+INFO:__main__:34: 25632: loss: 0.3266401760:
+INFO:__main__:34: 28832: loss: 0.3260027581:
+INFO:__main__:Dev-Acc: 34: Accuracy: 0.7606700063: precision: 0.7884832518: recall: 0.7124638667: f1: 0.7485484591
+INFO:__main__:Train-Acc: 34: Accuracy: 0.8730524182: precision: 0.8737403675: recall: 0.8721320097: f1: 0.8729354478
+INFO:__main__:35: 3232: loss: 0.3182739538:
+INFO:__main__:35: 6432: loss: 0.3184726182:
+INFO:__main__:35: 9632: loss: 0.3211573226:
+INFO:__main__:35: 12832: loss: 0.3240899363:
+INFO:__main__:35: 16032: loss: 0.3236313224:
+INFO:__main__:35: 19232: loss: 0.3257040976:
+INFO:__main__:35: 22432: loss: 0.3238664264:
+INFO:__main__:35: 25632: loss: 0.3244207344:
+INFO:__main__:35: 28832: loss: 0.3240205718:
+INFO:__main__:Dev-Acc: 35: Accuracy: 0.7604999542: precision: 0.7856077554: recall: 0.7165448053: f1: 0.7494886616
+INFO:__main__:Train-Acc: 35: Accuracy: 0.8741371632: precision: 0.8717663967: recall: 0.8773256196: f1: 0.8745371736
+INFO:__main__:36: 3232: loss: 0.3249277450:
+INFO:__main__:36: 6432: loss: 0.3218967621:
+INFO:__main__:36: 9632: loss: 0.3194219538:
+INFO:__main__:36: 12832: loss: 0.3182620582:
+INFO:__main__:36: 16032: loss: 0.3213235727:
+INFO:__main__:36: 19232: loss: 0.3183037033:
+INFO:__main__:36: 22432: loss: 0.3178602860:
+INFO:__main__:36: 25632: loss: 0.3204245954:
+INFO:__main__:36: 28832: loss: 0.3214217423:
+INFO:__main__:Dev-Acc: 36: Accuracy: 0.7606700063: precision: 0.7869711718: recall: 0.7148444142: f1: 0.7491757997
+INFO:__main__:Train-Acc: 36: Accuracy: 0.8756163716: precision: 0.8731143473: recall: 0.8789691671: f1: 0.8760319748
+INFO:__main__:37: 3232: loss: 0.3243079241:
+INFO:__main__:37: 6432: loss: 0.3197316965:
+INFO:__main__:37: 9632: loss: 0.3253506949:
+INFO:__main__:37: 12832: loss: 0.3214762863:
+INFO:__main__:37: 16032: loss: 0.3190719186:
+INFO:__main__:37: 19232: loss: 0.3210943652:
+INFO:__main__:37: 22432: loss: 0.3210788152:
+INFO:__main__:37: 25632: loss: 0.3207168307:
+INFO:__main__:37: 28832: loss: 0.3207774904:
+INFO:__main__:Dev-Acc: 37: Accuracy: 0.7606700063: precision: 0.7870786517: recall: 0.7146743751: f1: 0.7491310935
+INFO:__main__:Train-Acc: 37: Accuracy: 0.8767011166: precision: 0.8737281503: recall: 0.8806784564: f1: 0.8771895361
+INFO:__main__:38: 3232: loss: 0.3280088200:
+INFO:__main__:38: 6432: loss: 0.3257485020:
+INFO:__main__:38: 9632: loss: 0.3264560466:
+INFO:__main__:38: 12832: loss: 0.3221382469:
+INFO:__main__:38: 16032: loss: 0.3192927368:
+INFO:__main__:38: 19232: loss: 0.3206478768:
+INFO:__main__:38: 22432: loss: 0.3198758040:
+INFO:__main__:38: 25632: loss: 0.3193073949:
+INFO:__main__:38: 28832: loss: 0.3196203540:
+INFO:__main__:Dev-Acc: 38: Accuracy: 0.7604999542: precision: 0.7845468053: recall: 0.7182451964: f1: 0.7499334221
+INFO:__main__:Train-Acc: 38: Accuracy: 0.8771284223: precision: 0.8715590388: recall: 0.8846229702: f1: 0.8780424144
+INFO:__main__:39: 3232: loss: 0.3122623028:
+INFO:__main__:39: 6432: loss: 0.3110150547:
+INFO:__main__:39: 9632: loss: 0.3131556393:
+INFO:__main__:39: 12832: loss: 0.3155157570:
+INFO:__main__:39: 16032: loss: 0.3138296036:
+INFO:__main__:39: 19232: loss: 0.3156207898:
+INFO:__main__:39: 22432: loss: 0.3143065001:
+INFO:__main__:39: 25632: loss: 0.3160141735:
+INFO:__main__:39: 28832: loss: 0.3177848932:
+INFO:__main__:Dev-Acc: 39: Accuracy: 0.7604148984: precision: 0.7865294668: recall: 0.7148444142: f1: 0.7489755924
+INFO:__main__:Train-Acc: 39: Accuracy: 0.8781803250: precision: 0.8739517649: recall: 0.8838340675: f1: 0.8788651370
+INFO:__main__:40: 3232: loss: 0.3163724908:
+INFO:__main__:40: 6432: loss: 0.3185188461:
+INFO:__main__:40: 9632: loss: 0.3143536985:
+INFO:__main__:40: 12832: loss: 0.3135154353:
+INFO:__main__:40: 16032: loss: 0.3136999277:
+INFO:__main__:40: 19232: loss: 0.3148621100:
+INFO:__main__:40: 22432: loss: 0.3135663150:
+INFO:__main__:40: 25632: loss: 0.3150411189:
+INFO:__main__:40: 28832: loss: 0.3140830922:
+INFO:__main__:Dev-Acc: 40: Accuracy: 0.7608399987: precision: 0.7878048780: recall: 0.7139942187: f1: 0.7490857194
+INFO:__main__:Train-Acc: 40: Accuracy: 0.8794623017: precision: 0.8758301862: recall: 0.8842942607: f1: 0.8800418725
+INFO:__main__:41: 3232: loss: 0.3092473271:
+INFO:__main__:41: 6432: loss: 0.3086539130:
+INFO:__main__:41: 9632: loss: 0.3084501185:
+INFO:__main__:41: 12832: loss: 0.3083531236:
+INFO:__main__:41: 16032: loss: 0.3093961156:
+INFO:__main__:41: 19232: loss: 0.3098712323:
+INFO:__main__:41: 22432: loss: 0.3130706207:
+INFO:__main__:41: 25632: loss: 0.3134627748:
+INFO:__main__:41: 28832: loss: 0.3141360382:
+INFO:__main__:Dev-Acc: 41: Accuracy: 0.7610951066: precision: 0.7850380546: recall: 0.7190953919: f1: 0.7506212283
+INFO:__main__:Train-Acc: 41: Accuracy: 0.8807442188: precision: 0.8737657309: recall: 0.8900795477: f1: 0.8818471960
+INFO:__main__:42: 3232: loss: 0.3119115649:
+INFO:__main__:42: 6432: loss: 0.3097314633:
+INFO:__main__:42: 9632: loss: 0.3124794895:
+INFO:__main__:42: 12832: loss: 0.3099452061:
+INFO:__main__:42: 16032: loss: 0.3110595911:
+INFO:__main__:42: 19232: loss: 0.3130345832:
+INFO:__main__:42: 22432: loss: 0.3139392989:
+INFO:__main__:42: 25632: loss: 0.3133856321:
+INFO:__main__:42: 28832: loss: 0.3132777692:
+INFO:__main__:Dev-Acc: 42: Accuracy: 0.7603299022: precision: 0.7846783191: recall: 0.7175650400: f1: 0.7496225242
+INFO:__main__:Train-Acc: 42: Accuracy: 0.8812373281: precision: 0.8746124031: recall: 0.8900795477: f1: 0.8822781923
+INFO:__main__:43: 3232: loss: 0.3114947677:
+INFO:__main__:43: 6432: loss: 0.3094605102:
+INFO:__main__:43: 9632: loss: 0.3120202640:
+INFO:__main__:43: 12832: loss: 0.3144107068:
+INFO:__main__:43: 16032: loss: 0.3126244477:
+INFO:__main__:43: 19232: loss: 0.3127520182:
+INFO:__main__:43: 22432: loss: 0.3118862806:
+INFO:__main__:43: 25632: loss: 0.3115612931:
+INFO:__main__:43: 28832: loss: 0.3097258900:
+INFO:__main__:Dev-Acc: 43: Accuracy: 0.7624554038: precision: 0.7840971839: recall: 0.7243666043: f1: 0.7530493194
+INFO:__main__:Train-Acc: 43: Accuracy: 0.8819933534: precision: 0.8724918264: recall: 0.8947472224: f1: 0.8834793898
+INFO:__main__:44: 3232: loss: 0.3048980382:
+INFO:__main__:44: 6432: loss: 0.3011241539:
+INFO:__main__:44: 9632: loss: 0.3030635369:
+INFO:__main__:44: 12832: loss: 0.3053555485:
+INFO:__main__:44: 16032: loss: 0.3077723267:
+INFO:__main__:44: 19232: loss: 0.3094311285:
+INFO:__main__:44: 22432: loss: 0.3079278816:
+INFO:__main__:44: 25632: loss: 0.3079100658:
+INFO:__main__:44: 28832: loss: 0.3078709033:
+INFO:__main__:Dev-Acc: 44: Accuracy: 0.7622003555: precision: 0.7849223947: recall: 0.7223261350: f1: 0.7523244488
+INFO:__main__:Train-Acc: 44: Accuracy: 0.8829466105: precision: 0.8744535870: recall: 0.8942870291: f1: 0.8842591088
+INFO:__main__:45: 3232: loss: 0.3092927326:
+INFO:__main__:45: 6432: loss: 0.3068392942:
+INFO:__main__:45: 9632: loss: 0.3034413754:
+INFO:__main__:45: 12832: loss: 0.3064973305:
+INFO:__main__:45: 16032: loss: 0.3061714244:
+INFO:__main__:45: 19232: loss: 0.3070699758:
+INFO:__main__:45: 22432: loss: 0.3072879283:
+INFO:__main__:45: 25632: loss: 0.3068990988:
+INFO:__main__:45: 28832: loss: 0.3071399700:
+INFO:__main__:Dev-Acc: 45: Accuracy: 0.7624554038: precision: 0.7878053328: recall: 0.7184152355: f1: 0.7515119175
+INFO:__main__:Train-Acc: 45: Accuracy: 0.8835711479: precision: 0.8766380479: recall: 0.8927749655: f1: 0.8846329229
+INFO:__main__:46: 3232: loss: 0.3163374366:
+INFO:__main__:46: 6432: loss: 0.3133233923:
+INFO:__main__:46: 9632: loss: 0.3134431771:
+INFO:__main__:46: 12832: loss: 0.3105515087:
+INFO:__main__:46: 16032: loss: 0.3118441674:
+INFO:__main__:46: 19232: loss: 0.3086137022:
+INFO:__main__:46: 22432: loss: 0.3065721702:
+INFO:__main__:46: 25632: loss: 0.3052073988:
+INFO:__main__:46: 28832: loss: 0.3050398028:
+INFO:__main__:Dev-Acc: 46: Accuracy: 0.7637307048: precision: 0.7830291971: recall: 0.7296378167: f1: 0.7553912508
+INFO:__main__:Train-Acc: 46: Accuracy: 0.8850831985: precision: 0.8725434077: recall: 0.9019130892: f1: 0.8869851943
+INFO:__main__:47: 3232: loss: 0.2979461262:
+INFO:__main__:47: 6432: loss: 0.3061273579:
+INFO:__main__:47: 9632: loss: 0.3032666918:
+INFO:__main__:47: 12832: loss: 0.3040666268:
+INFO:__main__:47: 16032: loss: 0.3024826717:
+INFO:__main__:47: 19232: loss: 0.3023565269:
+INFO:__main__:47: 22432: loss: 0.3027283471:
+INFO:__main__:47: 25632: loss: 0.3043738433:
+INFO:__main__:47: 28832: loss: 0.3051809693:
+INFO:__main__:Dev-Acc: 47: Accuracy: 0.7622003555: precision: 0.7865105909: recall: 0.7197755484: f1: 0.7516647430
+INFO:__main__:Train-Acc: 47: Accuracy: 0.8854119182: precision: 0.8763561661: recall: 0.8974426402: f1: 0.8867740678
+INFO:__main__:48: 3232: loss: 0.3189663902:
+INFO:__main__:48: 6432: loss: 0.3184679705:
+INFO:__main__:48: 9632: loss: 0.3146365547:
+INFO:__main__:48: 12832: loss: 0.3079541629:
+INFO:__main__:48: 16032: loss: 0.3090390925:
+INFO:__main__:48: 19232: loss: 0.3071739016:
+INFO:__main__:48: 22432: loss: 0.3071271348:
+INFO:__main__:48: 25632: loss: 0.3062763645:
+INFO:__main__:48: 28832: loss: 0.3047283653:
+INFO:__main__:Dev-Acc: 48: Accuracy: 0.7627954483: precision: 0.7846748941: recall: 0.7243666043: f1: 0.7533156499
+INFO:__main__:Train-Acc: 48: Accuracy: 0.8864309192: precision: 0.8754471129: recall: 0.9010584445: f1: 0.8880681634
+INFO:__main__:49: 3232: loss: 0.3010382177:
+INFO:__main__:49: 6432: loss: 0.2947505394:
+INFO:__main__:49: 9632: loss: 0.2935611234:
+INFO:__main__:49: 12832: loss: 0.2988839494:
+INFO:__main__:49: 16032: loss: 0.2968122275:
+INFO:__main__:49: 19232: loss: 0.2978443670:
+INFO:__main__:49: 22432: loss: 0.2986862970:
+INFO:__main__:49: 25632: loss: 0.3011884940:
+INFO:__main__:49: 28832: loss: 0.3001505170:
+INFO:__main__:Dev-Acc: 49: Accuracy: 0.7625404000: precision: 0.7864564007: recall: 0.7207957830: f1: 0.7521959010
+INFO:__main__:Train-Acc: 49: Accuracy: 0.8872198462: precision: 0.8771289538: recall: 0.9005982513: f1: 0.8887086834
+INFO:__main__:50: 3232: loss: 0.3126113004:
+INFO:__main__:50: 6432: loss: 0.3054958015:
+INFO:__main__:50: 9632: loss: 0.2994094849:
+INFO:__main__:50: 12832: loss: 0.2961181615:
+INFO:__main__:50: 16032: loss: 0.2959373676:
+INFO:__main__:50: 19232: loss: 0.2991231596:
+INFO:__main__:50: 22432: loss: 0.2992910168:
+INFO:__main__:50: 25632: loss: 0.2991318081:
+INFO:__main__:50: 28832: loss: 0.2994658230:
+INFO:__main__:Dev-Acc: 50: Accuracy: 0.7627954483: precision: 0.7871075608: recall: 0.7204557048: f1: 0.7523082386
+INFO:__main__:Train-Acc: 50: Accuracy: 0.8877457380: precision: 0.8779800051: recall: 0.9006639932: f1: 0.8891773487
+INFO:__main__:51: 3232: loss: 0.3003707902:
+INFO:__main__:51: 6432: loss: 0.2938068061:
+INFO:__main__:51: 9632: loss: 0.2937551951:
+INFO:__main__:51: 12832: loss: 0.2956107631:
+INFO:__main__:51: 16032: loss: 0.2953900270:
+INFO:__main__:51: 19232: loss: 0.2957994281:
+INFO:__main__:51: 22432: loss: 0.2977779818:
+INFO:__main__:51: 25632: loss: 0.2986195987:
+INFO:__main__:51: 28832: loss: 0.2979522689:
+INFO:__main__:Dev-Acc: 51: Accuracy: 0.7637307048: precision: 0.7829259394: recall: 0.7298078558: f1: 0.7554343043
+INFO:__main__:Train-Acc: 51: Accuracy: 0.8886332512: precision: 0.8753095042: recall: 0.9063835382: f1: 0.8905755442
+INFO:__main__:52: 3232: loss: 0.3132554314:
+INFO:__main__:52: 6432: loss: 0.2947292068:
+INFO:__main__:52: 9632: loss: 0.2979061564:
+INFO:__main__:52: 12832: loss: 0.2967792593:
+INFO:__main__:52: 16032: loss: 0.2996818926:
+INFO:__main__:52: 19232: loss: 0.2986879092:
+INFO:__main__:52: 22432: loss: 0.2984595336:
+INFO:__main__:52: 25632: loss: 0.2986577258:
+INFO:__main__:52: 28832: loss: 0.2988396856:
+INFO:__main__:Dev-Acc: 52: Accuracy: 0.7627954483: precision: 0.7840470502: recall: 0.7253868390: f1: 0.7535771065
+INFO:__main__:Train-Acc: 52: Accuracy: 0.8896194100: precision: 0.8771237671: recall: 0.9061863125: f1: 0.8914182241
+INFO:__main__:53: 3232: loss: 0.3029225168:
+INFO:__main__:53: 6432: loss: 0.2949956252:
+INFO:__main__:53: 9632: loss: 0.2937410975:
+INFO:__main__:53: 12832: loss: 0.2945803120:
+INFO:__main__:53: 16032: loss: 0.2954462858:
+INFO:__main__:53: 19232: loss: 0.2952533323:
+INFO:__main__:53: 22432: loss: 0.2960891201:
+INFO:__main__:53: 25632: loss: 0.2967182391:
+INFO:__main__:53: 28832: loss: 0.2965933354:
+INFO:__main__:Dev-Acc: 53: Accuracy: 0.7631355524: precision: 0.7857802401: recall: 0.7235164088: f1: 0.7533640227
+INFO:__main__:Train-Acc: 53: Accuracy: 0.8896851540: precision: 0.8783430140: recall: 0.9046742489: f1: 0.8913142043
+INFO:__main__:54: 3232: loss: 0.3008521557:
+INFO:__main__:54: 6432: loss: 0.3047574528:
+INFO:__main__:54: 9632: loss: 0.2991914156:
+INFO:__main__:54: 12832: loss: 0.2973283683:
+INFO:__main__:54: 16032: loss: 0.2960536909:
+INFO:__main__:54: 19232: loss: 0.2969864491:
+INFO:__main__:54: 22432: loss: 0.2976926825:
+INFO:__main__:54: 25632: loss: 0.2957795351:
+INFO:__main__:54: 28832: loss: 0.2949175824:
+INFO:__main__:Dev-Acc: 54: Accuracy: 0.7622853518: precision: 0.7845415975: recall: 0.7231763306: f1: 0.7526101575
+INFO:__main__:Train-Acc: 54: Accuracy: 0.8907369971: precision: 0.8787840163: recall: 0.9065150220: f1: 0.8924341467
+INFO:__main__:55: 3232: loss: 0.3068295629:
+INFO:__main__:55: 6432: loss: 0.2949150098:
+INFO:__main__:55: 9632: loss: 0.2971089074:
+INFO:__main__:55: 12832: loss: 0.2974742782:
+INFO:__main__:55: 16032: loss: 0.2996773725:
+INFO:__main__:55: 19232: loss: 0.2977597752:
+INFO:__main__:55: 22432: loss: 0.2970203644:
+INFO:__main__:55: 25632: loss: 0.2973021025:
+INFO:__main__:55: 28832: loss: 0.2950855100:
+INFO:__main__:Dev-Acc: 55: Accuracy: 0.7636456490: precision: 0.7831963470: recall: 0.7291276994: f1: 0.7551954914
+INFO:__main__:Train-Acc: 55: Accuracy: 0.8912629485: precision: 0.8772263421: recall: 0.9098678588: f1: 0.8932489996
+INFO:__main__:56: 3232: loss: 0.2918480736:
+INFO:__main__:56: 6432: loss: 0.2955311512:
+INFO:__main__:56: 9632: loss: 0.2927940346:
+INFO:__main__:56: 12832: loss: 0.2964202190:
+INFO:__main__:56: 16032: loss: 0.2961473684:
+INFO:__main__:56: 19232: loss: 0.2939572723:
+INFO:__main__:56: 22432: loss: 0.2933900026:
+INFO:__main__:56: 25632: loss: 0.2914626245:
+INFO:__main__:56: 28832: loss: 0.2918937264:
+INFO:__main__:Dev-Acc: 56: Accuracy: 0.7635606527: precision: 0.7860834256: recall: 0.7241965652: f1: 0.7538720241
+INFO:__main__:Train-Acc: 56: Accuracy: 0.8917231560: precision: 0.8791117898: recall: 0.9083557951: f1: 0.8934945680
+INFO:__main__:57: 3232: loss: 0.2952703116:
+INFO:__main__:57: 6432: loss: 0.2937985743:
+INFO:__main__:57: 9632: loss: 0.2899934259:
+INFO:__main__:57: 12832: loss: 0.2943498589:
+INFO:__main__:57: 16032: loss: 0.2945216695:
+INFO:__main__:57: 19232: loss: 0.2932007883:
+INFO:__main__:57: 22432: loss: 0.2925399372:
+INFO:__main__:57: 25632: loss: 0.2916934685:
+INFO:__main__:57: 28832: loss: 0.2925686694:
+INFO:__main__:Dev-Acc: 57: Accuracy: 0.7643257976: precision: 0.7888868240: recall: 0.7218160177: f1: 0.7538625466
+INFO:__main__:Train-Acc: 57: Accuracy: 0.8921504617: precision: 0.8820289484: recall: 0.9053974098: f1: 0.8935604217
+INFO:__main__:58: 3232: loss: 0.3119069162:
+INFO:__main__:58: 6432: loss: 0.3035729920:
+INFO:__main__:58: 9632: loss: 0.2965862382:
+INFO:__main__:58: 12832: loss: 0.2934944398:
+INFO:__main__:58: 16032: loss: 0.2917995207:
+INFO:__main__:58: 19232: loss: 0.2929065293:
+INFO:__main__:58: 22432: loss: 0.2914313185:
+INFO:__main__:58: 25632: loss: 0.2919373083:
+INFO:__main__:58: 28832: loss: 0.2918337622:
+INFO:__main__:Dev-Acc: 58: Accuracy: 0.7643257976: precision: 0.7839269406: recall: 0.7298078558: f1: 0.7558999648
+INFO:__main__:Train-Acc: 58: Accuracy: 0.8928407431: precision: 0.8777419559: recall: 0.9128262442: f1: 0.8949403803
+INFO:__main__:59: 3232: loss: 0.2995132964:
+INFO:__main__:59: 6432: loss: 0.2923469390:
+INFO:__main__:59: 9632: loss: 0.2930098093:
+INFO:__main__:59: 12832: loss: 0.2920976892:
+INFO:__main__:59: 16032: loss: 0.2909824835:
+INFO:__main__:59: 19232: loss: 0.2916217716:
+INFO:__main__:59: 22432: loss: 0.2910052434:
+INFO:__main__:59: 25632: loss: 0.2909293151:
+INFO:__main__:59: 28832: loss: 0.2885684175:
+INFO:__main__:Dev-Acc: 59: Accuracy: 0.7636456490: precision: 0.7811423391: recall: 0.7325284816: f1: 0.7560547561
+INFO:__main__:Train-Acc: 59: Accuracy: 0.8934324384: precision: 0.8764546770: recall: 0.9159818552: f1: 0.8957824354
+INFO:__main__:60: 3232: loss: 0.2739002047:
+INFO:__main__:60: 6432: loss: 0.2874989188:
+INFO:__main__:60: 9632: loss: 0.2866180945:
+INFO:__main__:60: 12832: loss: 0.2853850028:
+INFO:__main__:60: 16032: loss: 0.2876146933:
+INFO:__main__:60: 19232: loss: 0.2889197890:
+INFO:__main__:60: 22432: loss: 0.2868711560:
+INFO:__main__:60: 25632: loss: 0.2879594749:
+INFO:__main__:60: 28832: loss: 0.2868023018:
+INFO:__main__:Dev-Acc: 60: Accuracy: 0.7636456490: precision: 0.7866518765: recall: 0.7235164088: f1: 0.7537643933
+INFO:__main__:Train-Acc: 60: Accuracy: 0.8943856955: precision: 0.8816643339: recall: 0.9110512129: f1: 0.8961169129
+INFO:__main__:61: 3232: loss: 0.2839727943:
+INFO:__main__:61: 6432: loss: 0.2816000716:
+INFO:__main__:61: 9632: loss: 0.2872440115:
+INFO:__main__:61: 12832: loss: 0.2889095423:
+INFO:__main__:61: 16032: loss: 0.2866081472:
+INFO:__main__:61: 19232: loss: 0.2851940936:
+INFO:__main__:61: 22432: loss: 0.2849587294:
+INFO:__main__:61: 25632: loss: 0.2845724295:
+INFO:__main__:61: 28832: loss: 0.2849004922:
+INFO:__main__:Dev-Acc: 61: Accuracy: 0.7630505562: precision: 0.7843750000: recall: 0.7255568781: f1: 0.7538203339
+INFO:__main__:Train-Acc: 61: Accuracy: 0.8956676722: precision: 0.8808936143: recall: 0.9150614687: f1: 0.8976525216
+INFO:__main__:62: 3232: loss: 0.2644406240:
+INFO:__main__:62: 6432: loss: 0.2770683265:
+INFO:__main__:62: 9632: loss: 0.2851457905:
+INFO:__main__:62: 12832: loss: 0.2910676993:
+INFO:__main__:62: 16032: loss: 0.2880573388:
+INFO:__main__:62: 19232: loss: 0.2883033483:
+INFO:__main__:62: 22432: loss: 0.2873307044:
+INFO:__main__:62: 25632: loss: 0.2876916586:
+INFO:__main__:62: 28832: loss: 0.2872377391:
+INFO:__main__:Dev-Acc: 62: Accuracy: 0.7636456490: precision: 0.7828863346: recall: 0.7296378167: f1: 0.7553247668
+INFO:__main__:Train-Acc: 62: Accuracy: 0.8954046965: precision: 0.8782942323: recall: 0.9180198541: f1: 0.8977177756
+INFO:__main__:63: 3232: loss: 0.2902178413:
+INFO:__main__:63: 6432: loss: 0.2877754470:
+INFO:__main__:63: 9632: loss: 0.2881676620:
+INFO:__main__:63: 12832: loss: 0.2869012351:
+INFO:__main__:63: 16032: loss: 0.2907272274:
+INFO:__main__:63: 19232: loss: 0.2897069443:
+INFO:__main__:63: 22432: loss: 0.2884970217:
+INFO:__main__:63: 25632: loss: 0.2874638672:
+INFO:__main__:63: 28832: loss: 0.2855634825:
+INFO:__main__:Dev-Acc: 63: Accuracy: 0.7634755969: precision: 0.7842597688: recall: 0.7269171910: f1: 0.7545005295
+INFO:__main__:Train-Acc: 63: Accuracy: 0.8971139789: precision: 0.8813206237: recall: 0.9178226284: f1: 0.8992013397
+INFO:__main__:64: 3232: loss: 0.2834879000:
+INFO:__main__:64: 6432: loss: 0.2869015177:
+INFO:__main__:64: 9632: loss: 0.2897880803:
+INFO:__main__:64: 12832: loss: 0.2850822343:
+INFO:__main__:64: 16032: loss: 0.2844501706:
+INFO:__main__:64: 19232: loss: 0.2845248481:
+INFO:__main__:64: 22432: loss: 0.2836399022:
+INFO:__main__:64: 25632: loss: 0.2848556736:
+INFO:__main__:64: 28832: loss: 0.2846514743:
+INFO:__main__:Dev-Acc: 64: Accuracy: 0.7647508979: precision: 0.7830909091: recall: 0.7323584424: f1: 0.7568754942
+INFO:__main__:Train-Acc: 64: Accuracy: 0.8977385163: precision: 0.8800728735: recall: 0.9209782394: f1: 0.9000610363
+INFO:__main__:65: 3232: loss: 0.2962555866:
+INFO:__main__:65: 6432: loss: 0.2938713053:
+INFO:__main__:65: 9632: loss: 0.2933609798:
+INFO:__main__:65: 12832: loss: 0.2913346238:
+INFO:__main__:65: 16032: loss: 0.2869798421:
+INFO:__main__:65: 19232: loss: 0.2867564844:
+INFO:__main__:65: 22432: loss: 0.2862845785:
+INFO:__main__:65: 25632: loss: 0.2859353245:
+INFO:__main__:65: 28832: loss: 0.2847321265:
+INFO:__main__:Dev-Acc: 65: Accuracy: 0.7644958496: precision: 0.7835916135: recall: 0.7308280905: f1: 0.7562906915
+INFO:__main__:Train-Acc: 65: Accuracy: 0.8981658220: precision: 0.8807443264: recall: 0.9210439813: f1: 0.9004434732
+INFO:__main__:66: 3232: loss: 0.2744143938:
+INFO:__main__:66: 6432: loss: 0.2810007641:
+INFO:__main__:66: 9632: loss: 0.2840621347:
+INFO:__main__:66: 12832: loss: 0.2799312606:
+INFO:__main__:66: 16032: loss: 0.2806534336:
+INFO:__main__:66: 19232: loss: 0.2805255851:
+INFO:__main__:66: 22432: loss: 0.2806098356:
+INFO:__main__:66: 25632: loss: 0.2815728137:
+INFO:__main__:66: 28832: loss: 0.2818727854:
+INFO:__main__:Dev-Acc: 66: Accuracy: 0.7644958496: precision: 0.7848379418: recall: 0.7287876212: f1: 0.7557749956
+INFO:__main__:Train-Acc: 66: Accuracy: 0.8986917734: precision: 0.8823047343: recall: 0.9201235948: f1: 0.9008174036
+INFO:__main__:67: 3232: loss: 0.2838358878:
+INFO:__main__:67: 6432: loss: 0.2787437493:
+INFO:__main__:67: 9632: loss: 0.2786877274:
+INFO:__main__:67: 12832: loss: 0.2790788390:
+INFO:__main__:67: 16032: loss: 0.2802488176:
+INFO:__main__:67: 19232: loss: 0.2814996800:
+INFO:__main__:67: 22432: loss: 0.2815773269:
+INFO:__main__:67: 25632: loss: 0.2812271604:
+INFO:__main__:67: 28832: loss: 0.2812510220:
+INFO:__main__:Dev-Acc: 67: Accuracy: 0.7653460503: precision: 0.7841923147: recall: 0.7321884033: f1: 0.7572986282
+INFO:__main__:Train-Acc: 67: Accuracy: 0.8991848230: precision: 0.8813112283: recall: 0.9226217869: f1: 0.9014934961
+INFO:__main__:68: 3232: loss: 0.2883416186:
+INFO:__main__:68: 6432: loss: 0.2834670977:
+INFO:__main__:68: 9632: loss: 0.2799255364:
+INFO:__main__:68: 12832: loss: 0.2763979364:
+INFO:__main__:68: 16032: loss: 0.2767539883:
+INFO:__main__:68: 19232: loss: 0.2784677507:
+INFO:__main__:68: 22432: loss: 0.2800738351:
+INFO:__main__:68: 25632: loss: 0.2795189500:
+INFO:__main__:68: 28832: loss: 0.2803786186:
+INFO:__main__:Dev-Acc: 68: Accuracy: 0.7649209499: precision: 0.7857666911: recall: 0.7284475429: f1: 0.7560222359
+INFO:__main__:Train-Acc: 68: Accuracy: 0.8996450305: precision: 0.8835331230: recall: 0.9206495299: f1: 0.9017095393
+INFO:__main__:69: 3232: loss: 0.2719503525:
+INFO:__main__:69: 6432: loss: 0.2724963837:
+INFO:__main__:69: 9632: loss: 0.2800687281:
+INFO:__main__:69: 12832: loss: 0.2788390053:
+INFO:__main__:69: 16032: loss: 0.2781187192:
+INFO:__main__:69: 19232: loss: 0.2787664754:
+INFO:__main__:69: 22432: loss: 0.2793070351:
+INFO:__main__:69: 25632: loss: 0.2791580337:
+INFO:__main__:69: 28832: loss: 0.2791665470:
+INFO:__main__:Dev-Acc: 69: Accuracy: 0.7648359537: precision: 0.7836459661: recall: 0.7316782860: f1: 0.7567710165
+INFO:__main__:Train-Acc: 69: Accuracy: 0.9002695680: precision: 0.8819875776: recall: 0.9241995924: f1: 0.9026003210
+INFO:__main__:70: 3232: loss: 0.2635359029:
+INFO:__main__:70: 6432: loss: 0.2724400021:
+INFO:__main__:70: 9632: loss: 0.2716143545:
+INFO:__main__:70: 12832: loss: 0.2716210270:
+INFO:__main__:70: 16032: loss: 0.2727555936:
+INFO:__main__:70: 19232: loss: 0.2750260733:
+INFO:__main__:70: 22432: loss: 0.2764849474:
+INFO:__main__:70: 25632: loss: 0.2756814526:
+INFO:__main__:70: 28832: loss: 0.2764469263:
+INFO:__main__:Dev-Acc: 70: Accuracy: 0.7652610540: precision: 0.7841530055: recall: 0.7320183642: f1: 0.7571893413
+INFO:__main__:Train-Acc: 70: Accuracy: 0.9008283615: precision: 0.8819218241: recall: 0.9255801722: f1: 0.9032237370
+INFO:__main__:71: 3232: loss: 0.2653328258:
+INFO:__main__:71: 6432: loss: 0.2723078976:
+INFO:__main__:71: 9632: loss: 0.2754590215:
+INFO:__main__:71: 12832: loss: 0.2767502192:
+INFO:__main__:71: 16032: loss: 0.2771343523:
+INFO:__main__:71: 19232: loss: 0.2773419520:
+INFO:__main__:71: 22432: loss: 0.2756822044:
+INFO:__main__:71: 25632: loss: 0.2749847598:
+INFO:__main__:71: 28832: loss: 0.2767589072:
+INFO:__main__:Dev-Acc: 71: Accuracy: 0.7654310465: precision: 0.7854791514: recall: 0.7303179731: f1: 0.7568948806
+INFO:__main__:Train-Acc: 71: Accuracy: 0.9015187025: precision: 0.8828913548: recall: 0.9258431398: f1: 0.9038572620
+INFO:__main__:72: 3232: loss: 0.2686837201:
+INFO:__main__:72: 6432: loss: 0.2686404390:
+INFO:__main__:72: 9632: loss: 0.2772753062:
+INFO:__main__:72: 12832: loss: 0.2767000731:
+INFO:__main__:72: 16032: loss: 0.2763488345:
+INFO:__main__:72: 19232: loss: 0.2772446965:
+INFO:__main__:72: 22432: loss: 0.2774815136:
+INFO:__main__:72: 25632: loss: 0.2779440046:
+INFO:__main__:72: 28832: loss: 0.2780074379:
+INFO:__main__:Dev-Acc: 72: Accuracy: 0.7653460503: precision: 0.7873319831: recall: 0.7270872301: f1: 0.7560113154
+INFO:__main__:Train-Acc: 72: Accuracy: 0.9017816782: precision: 0.8844436057: recall: 0.9243310762: f1: 0.9039475376
+INFO:__main__:73: 3232: loss: 0.2812631972:
+INFO:__main__:73: 6432: loss: 0.2759444863:
+INFO:__main__:73: 9632: loss: 0.2789758749:
+INFO:__main__:73: 12832: loss: 0.2770049531:
+INFO:__main__:73: 16032: loss: 0.2772787118:
+INFO:__main__:73: 19232: loss: 0.2761559350:
+INFO:__main__:73: 22432: loss: 0.2776410126:
+INFO:__main__:73: 25632: loss: 0.2768886681:
+INFO:__main__:73: 28832: loss: 0.2754068354:
+INFO:__main__:Dev-Acc: 73: Accuracy: 0.7653460503: precision: 0.7877558547: recall: 0.7264070736: f1: 0.7558386412
+INFO:__main__:Train-Acc: 73: Accuracy: 0.9026034474: precision: 0.8854481370: recall: 0.9248570114: f1: 0.9047236246
+INFO:__main__:74: 3232: loss: 0.2799589599:
+INFO:__main__:74: 6432: loss: 0.2772119095:
+INFO:__main__:74: 9632: loss: 0.2731634752:
+INFO:__main__:74: 12832: loss: 0.2743112598:
+INFO:__main__:74: 16032: loss: 0.2739362293:
+INFO:__main__:74: 19232: loss: 0.2727048405:
+INFO:__main__:74: 22432: loss: 0.2726778914:
+INFO:__main__:74: 25632: loss: 0.2740148737:
+INFO:__main__:74: 28832: loss: 0.2745804506:
+INFO:__main__:Dev-Acc: 74: Accuracy: 0.7649209499: precision: 0.7819399204: recall: 0.7347389900: f1: 0.7576049794
+INFO:__main__:Train-Acc: 74: Accuracy: 0.9024390578: precision: 0.8804773448: recall: 0.9312997173: f1: 0.9051757188
+INFO:__main__:75: 3232: loss: 0.2771578979:
+INFO:__main__:75: 6432: loss: 0.2696044965:
+INFO:__main__:75: 9632: loss: 0.2739653065:
+INFO:__main__:75: 12832: loss: 0.2752242679:
+INFO:__main__:75: 16032: loss: 0.2746250944:
+INFO:__main__:75: 19232: loss: 0.2762266899:
+INFO:__main__:75: 22432: loss: 0.2745276501:
+INFO:__main__:75: 25632: loss: 0.2740211634:
+INFO:__main__:75: 28832: loss: 0.2737837563:
+INFO:__main__:Dev-Acc: 75: Accuracy: 0.7651759982: precision: 0.7818543286: recall: 0.7355891855: f1: 0.7580164710
+INFO:__main__:Train-Acc: 75: Accuracy: 0.9031293392: precision: 0.8809168841: recall: 0.9322858458: f1: 0.9058737104
+INFO:__main__:76: 3232: loss: 0.2929650526:
+INFO:__main__:76: 6432: loss: 0.2768745107:
+INFO:__main__:76: 9632: loss: 0.2793854956:
+INFO:__main__:76: 12832: loss: 0.2767812202:
+INFO:__main__:76: 16032: loss: 0.2779142542:
+INFO:__main__:76: 19232: loss: 0.2739427627:
+INFO:__main__:76: 22432: loss: 0.2699456733:
+INFO:__main__:76: 25632: loss: 0.2706043284:
+INFO:__main__:76: 28832: loss: 0.2732406899:
+INFO:__main__:Dev-Acc: 76: Accuracy: 0.7654310465: precision: 0.7864220183: recall: 0.7287876212: f1: 0.7565086930
+INFO:__main__:Train-Acc: 76: Accuracy: 0.9040825963: precision: 0.8849502098: recall: 0.9289330090: f1: 0.9064083649
+INFO:__main__:77: 3232: loss: 0.2665457286:
+INFO:__main__:77: 6432: loss: 0.2637675201:
+INFO:__main__:77: 9632: loss: 0.2685120343:
+INFO:__main__:77: 12832: loss: 0.2666752386:
+INFO:__main__:77: 16032: loss: 0.2681936586:
+INFO:__main__:77: 19232: loss: 0.2695939596:
+INFO:__main__:77: 22432: loss: 0.2712930149:
+INFO:__main__:77: 25632: loss: 0.2711385628:
+INFO:__main__:77: 28832: loss: 0.2716162094:
+INFO:__main__:Dev-Acc: 77: Accuracy: 0.7650060058: precision: 0.7827980403: recall: 0.7335487162: f1: 0.7573735955
+INFO:__main__:Train-Acc: 77: Accuracy: 0.9039511085: precision: 0.8824774354: recall: 0.9320228782: f1: 0.9065737307
+INFO:__main__:78: 3232: loss: 0.2562357683:
+INFO:__main__:78: 6432: loss: 0.2696031836:
+INFO:__main__:78: 9632: loss: 0.2699633256:
+INFO:__main__:78: 12832: loss: 0.2733207638:
+INFO:__main__:78: 16032: loss: 0.2708732278:
+INFO:__main__:78: 19232: loss: 0.2681219988:
+INFO:__main__:78: 22432: loss: 0.2692891004:
+INFO:__main__:78: 25632: loss: 0.2691772859:
+INFO:__main__:78: 28832: loss: 0.2702345123:
+INFO:__main__:Dev-Acc: 78: Accuracy: 0.7656010985: precision: 0.7888313609: recall: 0.7253868390: f1: 0.7557799628
+INFO:__main__:Train-Acc: 78: Accuracy: 0.9054303169: precision: 0.8885458669: recall: 0.9271579778: f1: 0.9074413667
+INFO:__main__:79: 3232: loss: 0.2690127183:
+INFO:__main__:79: 6432: loss: 0.2740599783:
+INFO:__main__:79: 9632: loss: 0.2757417019:
+INFO:__main__:79: 12832: loss: 0.2760453543:
+INFO:__main__:79: 16032: loss: 0.2741481617:
+INFO:__main__:79: 19232: loss: 0.2704935576:
+INFO:__main__:79: 22432: loss: 0.2686945019:
+INFO:__main__:79: 25632: loss: 0.2685255355:
+INFO:__main__:79: 28832: loss: 0.2703339904:
+INFO:__main__:Dev-Acc: 79: Accuracy: 0.7650060058: precision: 0.7844497171: recall: 0.7308280905: f1: 0.7566901408
+INFO:__main__:Train-Acc: 79: Accuracy: 0.9054303169: precision: 0.8854856857: recall: 0.9312997173: f1: 0.9078150533
+INFO:__main__:80: 3232: loss: 0.2599939124:
+INFO:__main__:80: 6432: loss: 0.2738044399:
+INFO:__main__:80: 9632: loss: 0.2723953806:
+INFO:__main__:80: 12832: loss: 0.2703428436:
+INFO:__main__:80: 16032: loss: 0.2712753678:
+INFO:__main__:80: 19232: loss: 0.2710563876:
+INFO:__main__:80: 22432: loss: 0.2706521778:
+INFO:__main__:80: 25632: loss: 0.2712888427:
+INFO:__main__:80: 28832: loss: 0.2699111986:
+INFO:__main__:Dev-Acc: 80: Accuracy: 0.7655161023: precision: 0.7870932157: recall: 0.7279374256: f1: 0.7563604240
+INFO:__main__:Train-Acc: 80: Accuracy: 0.9057590365: precision: 0.8875423835: recall: 0.9292617185: f1: 0.9079230497
+INFO:__main__:81: 3232: loss: 0.2663546866:
+INFO:__main__:81: 6432: loss: 0.2683411257:
+INFO:__main__:81: 9632: loss: 0.2685056248:
+INFO:__main__:81: 12832: loss: 0.2695588338:
+INFO:__main__:81: 16032: loss: 0.2684004108:
+INFO:__main__:81: 19232: loss: 0.2672975641:
+INFO:__main__:81: 22432: loss: 0.2675868285:
+INFO:__main__:81: 25632: loss: 0.2694123122:
+INFO:__main__:81: 28832: loss: 0.2682887000:
+INFO:__main__:Dev-Acc: 81: Accuracy: 0.7656861544: precision: 0.7820906301: recall: 0.7366094202: f1: 0.7586690018
+INFO:__main__:Train-Acc: 81: Accuracy: 0.9060548544: precision: 0.8829912569: recall: 0.9361646177: f1: 0.9088008169
+INFO:__main__:82: 3232: loss: 0.2678984551:
+INFO:__main__:82: 6432: loss: 0.2742026547:
+INFO:__main__:82: 9632: loss: 0.2737943303:
+INFO:__main__:82: 12832: loss: 0.2695551835:
+INFO:__main__:82: 16032: loss: 0.2691797875:
+INFO:__main__:82: 19232: loss: 0.2677653334:
+INFO:__main__:82: 22432: loss: 0.2683434300:
+INFO:__main__:82: 25632: loss: 0.2676424266:
+INFO:__main__:82: 28832: loss: 0.2670893365:
+INFO:__main__:Dev-Acc: 82: Accuracy: 0.7656010985: precision: 0.7835875091: recall: 0.7338887944: f1: 0.7579243129
+INFO:__main__:Train-Acc: 82: Accuracy: 0.9072710872: precision: 0.8853091180: recall: 0.9357701663: f1: 0.9098405190
+INFO:__main__:83: 3232: loss: 0.2687914271:
+INFO:__main__:83: 6432: loss: 0.2623916435:
+INFO:__main__:83: 9632: loss: 0.2606675843:
+INFO:__main__:83: 12832: loss: 0.2633646563:
+INFO:__main__:83: 16032: loss: 0.2635856618:
+INFO:__main__:83: 19232: loss: 0.2640447219:
+INFO:__main__:83: 22432: loss: 0.2641052244:
+INFO:__main__:83: 25632: loss: 0.2653149167:
+INFO:__main__:83: 28832: loss: 0.2655780728:
+INFO:__main__:Dev-Acc: 83: Accuracy: 0.7655161023: precision: 0.7880464859: recall: 0.7264070736: f1: 0.7559723943
+INFO:__main__:Train-Acc: 83: Accuracy: 0.9073368311: precision: 0.8890493533: recall: 0.9308395240: f1: 0.9094646241
+INFO:__main__:84: 3232: loss: 0.2501688296:
+INFO:__main__:84: 6432: loss: 0.2647457821:
+INFO:__main__:84: 9632: loss: 0.2670341653:
+INFO:__main__:84: 12832: loss: 0.2632215437:
+INFO:__main__:84: 16032: loss: 0.2651599651:
+INFO:__main__:84: 19232: loss: 0.2637435481:
+INFO:__main__:84: 22432: loss: 0.2636840358:
+INFO:__main__:84: 25632: loss: 0.2645455951:
+INFO:__main__:84: 28832: loss: 0.2651637714:
+INFO:__main__:Dev-Acc: 84: Accuracy: 0.7654310465: precision: 0.7881136951: recall: 0.7260669954: f1: 0.7558190990
+INFO:__main__:Train-Acc: 84: Accuracy: 0.9078956246: precision: 0.8899993714: recall: 0.9308395240: f1: 0.9099614396
+INFO:__main__:85: 3232: loss: 0.2465168443:
+INFO:__main__:85: 6432: loss: 0.2529447284:
+INFO:__main__:85: 9632: loss: 0.2599552839:
+INFO:__main__:85: 12832: loss: 0.2645603491:
+INFO:__main__:85: 16032: loss: 0.2632273364:
+INFO:__main__:85: 19232: loss: 0.2644544558:
+INFO:__main__:85: 22432: loss: 0.2631834337:
+INFO:__main__:85: 25632: loss: 0.2639729313:
+INFO:__main__:85: 28832: loss: 0.2656263014:
+INFO:__main__:Dev-Acc: 85: Accuracy: 0.7658561468: precision: 0.7838083137: recall: 0.7342288726: f1: 0.7582089552
+INFO:__main__:Train-Acc: 85: Accuracy: 0.9082243443: precision: 0.8858030444: recall: 0.9372822300: f1: 0.9108158181
+INFO:__main__:86: 3232: loss: 0.2651614831:
+INFO:__main__:86: 6432: loss: 0.2603313343:
+INFO:__main__:86: 9632: loss: 0.2623258722:
+INFO:__main__:86: 12832: loss: 0.2617723508:
+INFO:__main__:86: 16032: loss: 0.2602197983:
+INFO:__main__:86: 19232: loss: 0.2609621844:
+INFO:__main__:86: 22432: loss: 0.2632299969:
+INFO:__main__:86: 25632: loss: 0.2620453462:
+INFO:__main__:86: 28832: loss: 0.2633668956:
+INFO:__main__:Dev-Acc: 86: Accuracy: 0.7655161023: precision: 0.7824199674: recall: 0.7355891855: f1: 0.7582822086
+INFO:__main__:Train-Acc: 86: Accuracy: 0.9087173939: precision: 0.8857178310: recall: 0.9385313260: f1: 0.9113600817
+INFO:__main__:87: 3232: loss: 0.2583387198:
+INFO:__main__:87: 6432: loss: 0.2617035490:
+INFO:__main__:87: 9632: loss: 0.2619297492:
+INFO:__main__:87: 12832: loss: 0.2642253604:
+INFO:__main__:87: 16032: loss: 0.2657008121:
+INFO:__main__:87: 19232: loss: 0.2664647092:
+INFO:__main__:87: 22432: loss: 0.2645408754:
+INFO:__main__:87: 25632: loss: 0.2652613265:
+INFO:__main__:87: 28832: loss: 0.2643766393:
+INFO:__main__:Dev-Acc: 87: Accuracy: 0.7655161023: precision: 0.7837543158: recall: 0.7333786771: f1: 0.7577301476
+INFO:__main__:Train-Acc: 87: Accuracy: 0.9092105031: precision: 0.8862550419: recall: 0.9389257774: f1: 0.9118304284
+INFO:__main__:88: 3232: loss: 0.2617267687:
+INFO:__main__:88: 6432: loss: 0.2636756039:
+INFO:__main__:88: 9632: loss: 0.2640083119:
+INFO:__main__:88: 12832: loss: 0.2644066441:
+INFO:__main__:88: 16032: loss: 0.2637405748:
+INFO:__main__:88: 19232: loss: 0.2629897293:
+INFO:__main__:88: 22432: loss: 0.2638632077:
+INFO:__main__:88: 25632: loss: 0.2635181532:
+INFO:__main__:88: 28832: loss: 0.2626909045:
+INFO:__main__:Dev-Acc: 88: Accuracy: 0.7659412026: precision: 0.7845705968: recall: 0.7332086380: f1: 0.7580205678
+INFO:__main__:Train-Acc: 88: Accuracy: 0.9094077349: precision: 0.8867291809: recall: 0.9387285517: f1: 0.9119882481
+INFO:__main__:89: 3232: loss: 0.2583863617:
+INFO:__main__:89: 6432: loss: 0.2562846576:
+INFO:__main__:89: 9632: loss: 0.2563662952:
+INFO:__main__:89: 12832: loss: 0.2594594482:
+INFO:__main__:89: 16032: loss: 0.2600630840:
+INFO:__main__:89: 19232: loss: 0.2593808744:
+INFO:__main__:89: 22432: loss: 0.2599571176:
+INFO:__main__:89: 25632: loss: 0.2619203775:
+INFO:__main__:89: 28832: loss: 0.2624566807:
+INFO:__main__:Dev-Acc: 89: Accuracy: 0.7655161023: precision: 0.7814020544: recall: 0.7372895766: f1: 0.7587051619
+INFO:__main__:Train-Acc: 89: Accuracy: 0.9092433453: precision: 0.8848293769: recall: 0.9409637762: f1: 0.9120336445
+INFO:__main__:90: 3232: loss: 0.2516369218:
+INFO:__main__:90: 6432: loss: 0.2506969557:
+INFO:__main__:90: 9632: loss: 0.2567396996:
+INFO:__main__:90: 12832: loss: 0.2587959152:
+INFO:__main__:90: 16032: loss: 0.2612287882:
+INFO:__main__:90: 19232: loss: 0.2610408903:
+INFO:__main__:90: 22432: loss: 0.2611708522:
+INFO:__main__:90: 25632: loss: 0.2606588303:
+INFO:__main__:90: 28832: loss: 0.2603759070:
+INFO:__main__:Dev-Acc: 90: Accuracy: 0.7655161023: precision: 0.7881527957: recall: 0.7262370345: f1: 0.7559292035
+INFO:__main__:Train-Acc: 90: Accuracy: 0.9108540416: precision: 0.8914990916: recall: 0.9355729406: f1: 0.9130044268
+INFO:__main__:91: 3232: loss: 0.2479778402:
+INFO:__main__:91: 6432: loss: 0.2524419699:
+INFO:__main__:91: 9632: loss: 0.2491167919:
+INFO:__main__:91: 12832: loss: 0.2532728717:
+INFO:__main__:91: 16032: loss: 0.2554002051:
+INFO:__main__:91: 19232: loss: 0.2571700813:
+INFO:__main__:91: 22432: loss: 0.2588615670:
+INFO:__main__:91: 25632: loss: 0.2589871098:
+INFO:__main__:91: 28832: loss: 0.2585109913:
+INFO:__main__:Dev-Acc: 91: Accuracy: 0.7644958496: precision: 0.7850467290: recall: 0.7284475429: f1: 0.7556888340
+INFO:__main__:Train-Acc: 91: Accuracy: 0.9108211398: precision: 0.8896371119: recall: 0.9380053908: f1: 0.9131812218
+INFO:__main__:92: 3232: loss: 0.2588554806:
+INFO:__main__:92: 6432: loss: 0.2596273020:
+INFO:__main__:92: 9632: loss: 0.2566804884:
+INFO:__main__:92: 12832: loss: 0.2569785287:
+INFO:__main__:92: 16032: loss: 0.2589258228:
+INFO:__main__:92: 19232: loss: 0.2593708653:
+INFO:__main__:92: 22432: loss: 0.2581699922:
+INFO:__main__:92: 25632: loss: 0.2584463335:
+INFO:__main__:92: 28832: loss: 0.2587889823:
+INFO:__main__:Dev-Acc: 92: Accuracy: 0.7650060058: precision: 0.7847615567: recall: 0.7303179731: f1: 0.7565615642
+INFO:__main__:Train-Acc: 92: Accuracy: 0.9109855294: precision: 0.8888474218: recall: 0.9394517126: f1: 0.9134492457
+INFO:__main__:93: 3232: loss: 0.2615038154:
+INFO:__main__:93: 6432: loss: 0.2555354113:
+INFO:__main__:93: 9632: loss: 0.2608648744:
+INFO:__main__:93: 12832: loss: 0.2627119957:
+INFO:__main__:93: 16032: loss: 0.2629964150:
+INFO:__main__:93: 19232: loss: 0.2612570029:
+INFO:__main__:93: 22432: loss: 0.2590204683:
+INFO:__main__:93: 25632: loss: 0.2590260250:
+INFO:__main__:93: 28832: loss: 0.2599415471:
+INFO:__main__:Dev-Acc: 93: Accuracy: 0.7648359537: precision: 0.7856225931: recall: 0.7284475429: f1: 0.7559555320
+INFO:__main__:Train-Acc: 93: Accuracy: 0.9117415547: precision: 0.8906561876: recall: 0.9387285517: f1: 0.9140607496
+INFO:__main__:94: 3232: loss: 0.2706115973:
+INFO:__main__:94: 6432: loss: 0.2550897827:
+INFO:__main__:94: 9632: loss: 0.2526675239:
+INFO:__main__:94: 12832: loss: 0.2548484066:
+INFO:__main__:94: 16032: loss: 0.2561995534:
+INFO:__main__:94: 19232: loss: 0.2569293128:
+INFO:__main__:94: 22432: loss: 0.2571604367:
+INFO:__main__:94: 25632: loss: 0.2577308496:
+INFO:__main__:94: 28832: loss: 0.2581002544:
+INFO:__main__:Dev-Acc: 94: Accuracy: 0.7642408013: precision: 0.7836801752: recall: 0.7299778949: f1: 0.7558763976
+INFO:__main__:Train-Acc: 94: Accuracy: 0.9118730426: precision: 0.8904886562: recall: 0.9392544869: f1: 0.9142217245
+INFO:__main__:95: 3232: loss: 0.2632465285:
+INFO:__main__:95: 6432: loss: 0.2624931214:
+INFO:__main__:95: 9632: loss: 0.2613049157:
+INFO:__main__:95: 12832: loss: 0.2638923511:
+INFO:__main__:95: 16032: loss: 0.2636305348:
+INFO:__main__:95: 19232: loss: 0.2636251678:
+INFO:__main__:95: 22432: loss: 0.2593904566:
+INFO:__main__:95: 25632: loss: 0.2579343868:
+INFO:__main__:95: 28832: loss: 0.2576250324:
+INFO:__main__:Dev-Acc: 95: Accuracy: 0.7650060058: precision: 0.7845535877: recall: 0.7306580514: f1: 0.7566472971
+INFO:__main__:Train-Acc: 95: Accuracy: 0.9130235314: precision: 0.8915062005: recall: 0.9405035829: f1: 0.9153496705
+INFO:__main__:96: 3232: loss: 0.2509220253:
+INFO:__main__:96: 6432: loss: 0.2474792960:
+INFO:__main__:96: 9632: loss: 0.2540738755:
+INFO:__main__:96: 12832: loss: 0.2566268138:
+INFO:__main__:96: 16032: loss: 0.2550211034:
+INFO:__main__:96: 19232: loss: 0.2554095260:
+INFO:__main__:96: 22432: loss: 0.2549075102:
+INFO:__main__:96: 25632: loss: 0.2573731053:
+INFO:__main__:96: 28832: loss: 0.2571605831:
+INFO:__main__:Dev-Acc: 96: Accuracy: 0.7653460503: precision: 0.7804132974: recall: 0.7384798504: f1: 0.7588677267
+INFO:__main__:Train-Acc: 96: Accuracy: 0.9120702744: precision: 0.8868180696: recall: 0.9447110644: f1: 0.9148495941
+INFO:__main__:97: 3232: loss: 0.2605187215:
+INFO:__main__:97: 6432: loss: 0.2559468893:
+INFO:__main__:97: 9632: loss: 0.2549623950:
+INFO:__main__:97: 12832: loss: 0.2581064263:
+INFO:__main__:97: 16032: loss: 0.2570815042:
+INFO:__main__:97: 19232: loss: 0.2549374592:
+INFO:__main__:97: 22432: loss: 0.2556508387:
+INFO:__main__:97: 25632: loss: 0.2567654991:
+INFO:__main__:97: 28832: loss: 0.2560441936:
+INFO:__main__:Dev-Acc: 97: Accuracy: 0.7649209499: precision: 0.7862918045: recall: 0.7275973474: f1: 0.7558067650
+INFO:__main__:Train-Acc: 97: Accuracy: 0.9140425324: precision: 0.8928883344: recall: 0.9409637762: f1: 0.9162958932
+INFO:__main__:98: 3232: loss: 0.2613743991:
+INFO:__main__:98: 6432: loss: 0.2607340677:
+INFO:__main__:98: 9632: loss: 0.2590452728:
+INFO:__main__:98: 12832: loss: 0.2552648338:
+INFO:__main__:98: 16032: loss: 0.2559089721:
+INFO:__main__:98: 19232: loss: 0.2544488301:
+INFO:__main__:98: 22432: loss: 0.2563593447:
+INFO:__main__:98: 25632: loss: 0.2560492334:
+INFO:__main__:98: 28832: loss: 0.2570600557:
+INFO:__main__:Dev-Acc: 98: Accuracy: 0.7656010985: precision: 0.7862903226: recall: 0.7294677776: f1: 0.7568139720
+INFO:__main__:Train-Acc: 98: Accuracy: 0.9137138128: precision: 0.8918430884: recall: 0.9416211952: f1: 0.9160564101
+INFO:__main__:99: 3232: loss: 0.2572382590:
+INFO:__main__:99: 6432: loss: 0.2588718216:
+INFO:__main__:99: 9632: loss: 0.2610066583:
+INFO:__main__:99: 12832: loss: 0.2588244069:
+INFO:__main__:99: 16032: loss: 0.2605148821:
+INFO:__main__:99: 19232: loss: 0.2607333335:
+INFO:__main__:99: 22432: loss: 0.2564177099:
+INFO:__main__:99: 25632: loss: 0.2563380410:
+INFO:__main__:99: 28832: loss: 0.2566871948:
+INFO:__main__:Dev-Acc: 99: Accuracy: 0.7650910020: precision: 0.7840743440: recall: 0.7316782860: f1: 0.7569707098
+INFO:__main__:Train-Acc: 99: Accuracy: 0.9138453007: precision: 0.8909937888: recall: 0.9430675169: f1: 0.9162913992
+INFO:__main__:100: 3232: loss: 0.2568247552:
+INFO:__main__:100: 6432: loss: 0.2582426169:
+INFO:__main__:100: 9632: loss: 0.2614289677:
+INFO:__main__:100: 12832: loss: 0.2584987397:
+INFO:__main__:100: 16032: loss: 0.2577869780:
+INFO:__main__:100: 19232: loss: 0.2563358092:
+INFO:__main__:100: 22432: loss: 0.2561816973:
+INFO:__main__:100: 25632: loss: 0.2563265659:
+INFO:__main__:100: 28832: loss: 0.2559593857:
+INFO:__main__:Dev-Acc: 100: Accuracy: 0.7654310465: precision: 0.7866323907: recall: 0.7284475429: f1: 0.7564227068
+INFO:__main__:Train-Acc: 100: Accuracy: 0.9147985578: precision: 0.8932377688: recall: 0.9422128723: f1: 0.9170719222
+
+Process finished with exit code 0
