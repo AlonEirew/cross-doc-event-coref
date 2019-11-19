@@ -6,7 +6,7 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 
-def select_from_validation(conn, split: str, coref_type: List[str] = None, limit: int = -1):
+def select_from_validation(conn, table_name, split: str, coref_type: List[str] = None, limit: int = -1):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
@@ -18,8 +18,8 @@ def select_from_validation(conn, split: str, coref_type: List[str] = None, limit
     fields = 'coreChainId, mentionText, tokenStart, tokenEnd, extractedFromPage, ' \
              'context, PartOfSpeech, corefValue, mentionsCount, corefType, mentionId, split'
 
-    query = "SELECT " + fields + " from Validation INNER JOIN CorefChains ON " \
-                                 "Validation.coreChainId=CorefChains.corefId WHERE split=\"" + split + "\""
+    query = "SELECT " + fields + " from " + table_name + " INNER JOIN CorefChains ON " \
+                                 + table_name + ".coreChainId=CorefChains.corefId WHERE split=\"" + split + "\""
     if coref_type is not None:
         coref_types = ','.join(coref_type)
         query += " and corefType in (" + coref_types + ")"

@@ -25,9 +25,9 @@ if __name__ == '__main__':
     extract_head = False
     extract_min_span = True
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_set/Min_CleanWEC_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set_clean_min/Min_CleanWEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_set_clean_min/Min_CleanWEC_Test_Event_gold_mentions.json'
                  ]
 
     count = 0
@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 new_mentions.append(_mention)
 
         basename = path.basename(path.splitext(resource_file)[0])
-        write_mention_to_json(str(LIBRARY_ROOT) + "/resources/final_set/New" +
+        write_mention_to_json(str(LIBRARY_ROOT) + "/resources/final_set_clean_min/New" +
                                      basename + ".json", new_mentions)
 
     print(str(count))
