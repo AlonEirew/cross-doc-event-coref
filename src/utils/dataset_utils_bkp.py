@@ -1,8 +1,10 @@
 import enum
 import logging
 
-import random
+import math
 import re
+
+import random
 
 from src.dataobjs.topics import Topics, Topic
 
@@ -66,23 +68,35 @@ def create_pos_neg_pairs_wec(topics, alpha):
 
     # create WEC negative challenging examples
     negative_map = dict()
-    negative_pairs = list()
-    condition = True
+    negative_pairs_lemma = list()
+    negative_pairs_no_lemma = list()
+    threash_same_lema = math.ceil((len(positive_pairs) * alpha) / 50)
+    threash_not_lema = math.ceil((len(positive_pairs) * alpha * 49) / 50)
+    cond = True
     index = -1
-    while condition:
+    while cond:
         index += 1
-        condition = False
+        found_at_list_1 = False
         for _, mentions_list1 in clusters.items():
-            if len(negative_pairs) < (len(positive_pairs) * alpha):
-                for _, mentions_list2 in clusters.items():
-                    if len(mentions_list1) > index and len(mentions_list2) > index and \
-                            mentions_list1[index].coref_chain != mentions_list2[index].coref_chain:
-                        if check_and_add_pair(negative_map, negative_pairs, mentions_list1[index], mentions_list2[index]):
-                            condition = True
-            else:
-                condition = False
-                break
+            for _, mentions_list2 in clusters.items():
+                if mentions_list1[0].coref_chain != mentions_list2[0].coref_chain:
+                    if len(negative_pairs_no_lemma) <= threash_not_lema:
+                        mention1, mention2 = check_clusters_for_pairs(mentions_list1, mentions_list2, index, lambda a, b: a != b)
+                        if check_and_add_pair(negative_map, negative_pairs_no_lemma, mention1, mention2):
+                            found_at_list_1 = True
+                    if len(negative_pairs_lemma) <= threash_same_lema:
+                        mention11, mention22 = check_clusters_for_pairs(mentions_list1, mentions_list2, index, lambda a, b: a == b)
+                        if check_and_add_pair(negative_map, negative_pairs_lemma, mention11, mention22):
+                            found_at_list_1 = True
 
+        if not found_at_list_1:
+            cond = False
+
+    logger.info("Found neg_same_lemma pairs-" + str(len(negative_pairs_lemma)))
+    logger.info("Found neg_no_same_lemma pairs-" + str(len(negative_pairs_no_lemma)))
+
+    negative_pairs = negative_pairs_lemma + negative_pairs_no_lemma
+    random.shuffle(negative_pairs)
     return positive_pairs, negative_pairs
 
 
@@ -127,7 +141,8 @@ def create_pairs(topics, polarity):
                 if mention1.mention_id != mention2.mention_id:
                     if polarity == POLARITY.POSITIVE and mention1.coref_chain == mention2.coref_chain:
                         check_and_add_pair(_map, _pairs, mention1, mention2)
-                    elif polarity == POLARITY.NEGATIVE and mention1.coref_chain != mention2.coref_chain:
+                    elif polarity == POLARITY.NEGATIVE and mention1.coref_chain != mention2.coref_chain and \
+                        not mention1.is_singleton and not mention2.is_singleton:
                         check_and_add_pair(_map, _pairs, mention1, mention2)
 
     return _pairs

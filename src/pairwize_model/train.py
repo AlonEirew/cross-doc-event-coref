@@ -62,6 +62,14 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
                 if report_fs is not None:
                     report_fs.write(report + "\n")
 
+            if count_btch % 10000 == 0:
+                pairwize_model.eval()
+                dev_accuracy, dev_precision, dev_recall, dev_f1 = accuracy_on_dataset(bert_utils, pairwize_model, validation, use_cuda)
+                dev_report = "%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" % \
+                             ("Dev-Acc", epoch + 1, dev_accuracy.item(), dev_precision, dev_recall, dev_f1)
+                logger.info(dev_report)
+                pairwize_model.train()
+
         pairwize_model.eval()
         dev_accuracy, dev_precision, dev_recall, dev_f1 = accuracy_on_dataset(bert_utils, pairwize_model, validation, use_cuda)
         dev_report = "%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" % \
@@ -157,7 +165,7 @@ def run_experiment(train_file, valid_file, test_file, bert_utils, pairwize_model
                    lr, alpha, dataset_type, use_cuda, save_model=False, model_out=None, report_fs=None):
 
     train_feat = load_datasets(train_file, alpha, SPLIT.TRAIN, dataset_type)
-    validation_feat = load_datasets(valid_file, alpha, SPLIT.TRAIN, dataset_type)
+    validation_feat = load_datasets(valid_file, alpha, SPLIT.VALIDATION, DATASET.ECB)
 
     train_pairwise(bert_utils, pairwize_model, train_feat, validation_feat, batch_size, iterations, lr, use_cuda, report_fs)
 
@@ -172,7 +180,7 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
     np.random.seed(1)
 
     bert_files = [str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Dev_Event_gold_mentions.pickle",
+                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Dev_Event_gold_mentions.pickle",
                   ]
 
     bert_utils = BertFromFile(bert_files)
@@ -184,7 +192,7 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
         pairwize_model = PairWiseModel(2304, 250, 2)
 
     event_train_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Train_Event_gold_mentions.json"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_Dev_Event_gold_mentions.json"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Dev_Event_gold_mentions.json"
     event_test_file = None
 
     if use_cuda:
@@ -197,12 +205,12 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
 
 if __name__ == '__main__':
     _dataset = DATASET.WEC
-    _context_set = "final_set_clean_min"
+    _context_set = "single_sent_full_context_mean"
 
-    _lr = 1e-8
+    _lr = 1e-7
     _batch_size = 32
-    _alpha = 1
-    _iterations = 20
+    _alpha = 10
+    _iterations = 3
     _use_cuda = True
     _save_model = False
     _fine_tune = False
