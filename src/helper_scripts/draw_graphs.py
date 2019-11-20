@@ -121,7 +121,7 @@ def plot_prf1(all_lines):
 
 
 if __name__ == '__main__':
-    file_name = str(LIBRARY_ROOT) + '/all_report_same_ratio_dev/WEC_Min_Clean_1drop0_2_lr1e-08_bs32_a1_itr19.txt'
+    file_name = str(LIBRARY_ROOT) + '/same_ratio_dev_invalid/WEC_Min_Clean_1drop0_2_lr1e-08_bs32_a1_itr19.txt'
     with open(file_name, 'r') as file_fs:
         all_lines = file_fs.readlines()
         # plot_loss(all_lines)

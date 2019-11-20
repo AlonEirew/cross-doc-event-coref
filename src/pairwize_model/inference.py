@@ -1,5 +1,3 @@
-import datetime
-
 import torch
 
 from src import LIBRARY_ROOT
@@ -26,18 +24,17 @@ def accuracy_on_dataset_test(bert_utils, pairwize_model, raw_features, use_cuda)
 
 
 if __name__ == '__main__':
-    dataset = DATASET.WEC
-    context_set = "final_set_clean_min"
+    dataset = DATASET.ECB
+    context_set = "single_sent_full_context_mean"
 
-    running_timestamp = "inference_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
-    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + dataset.name + ".log"
-    logger = create_logger_with_fh(__name__, log_file)
+    log_param_str = "inference_" + dataset.name + ".log"
+    create_logger_with_fh(log_param_str)
 
-    _event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Dev_Event_gold_mentions.json"
-    positive_, negative_ = get_feat(_event_test_file, 1, SPLIT.TRAIN, dataset)
+    _event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Test_Event_gold_mentions.json"
+    positive_, negative_ = get_feat(_event_test_file, -1, SPLIT.TEST, dataset)
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/" + dataset.name + "_trained_model_1"
-    _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Dev_Event_gold_mentions.pickle"])
+    _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_10"
+    _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Test_Event_gold_mentions.pickle"])
 
     print("Loading the model to-" + _model_in)
     _pairwize_model = torch.load(_model_in)

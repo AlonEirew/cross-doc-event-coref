@@ -3,12 +3,12 @@ import datetime
 from src import LIBRARY_ROOT
 from src.pairwize_model.train import run_experiment, init_basic_training_resources
 from src.utils.dataset_utils import DATASET
-from src.utils.log_utils import create_logger
+from src.utils.log_utils import create_logger_with_fh
 
 if __name__ == '__main__':
     _use_cuda = True
 
-    logger = create_logger(__name__)
+    logger = create_logger_with_fh("hptune")
 
     _datasets = [DATASET.WEC]
     _context_set = "single_sent_full_context"

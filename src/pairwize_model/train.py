@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 import numpy as np
@@ -8,7 +7,7 @@ import torch
 from src import LIBRARY_ROOT
 from src.pairwize_model.model import PairWiseModel
 from src.utils.bert_utils import BertFromFile
-from src.utils.dataset_utils import SPLIT, load_datasets, DATASET
+from src.utils.dataset_utils import SPLIT, DATASET, load_datasets
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -204,21 +203,19 @@ def init_basic_training_resources(context_set, dataset, use_cuda, fine_tune=Fals
 
 
 if __name__ == '__main__':
-    _dataset = DATASET.WEC
+    _dataset = DATASET.ECB
     _context_set = "single_sent_full_context_mean"
 
-    _lr = 1e-7
+    _lr = 1e-6
     _batch_size = 32
     _alpha = 10
-    _iterations = 3
+    _iterations = 20
     _use_cuda = True
     _save_model = False
-    _fine_tune = False
+    _fine_tune = True
 
-    running_timestamp = "train_" + str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
-    params_str = "_ds" + _dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
-    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + params_str + ".log"
-    logger = create_logger_with_fh(__name__, log_file)
+    log_params_str = "train_ds" + _dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + str(_alpha) + "_itr" + str(_iterations)
+    create_logger_with_fh(log_params_str)
 
     _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _dataset.name + "_trained_model_" + str(_alpha)
     _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_1"
