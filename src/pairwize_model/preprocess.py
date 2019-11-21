@@ -36,7 +36,7 @@ def worker(resource_file):
     topics.create_from_file(resource_file, keep_order=True)
     train_feat = extract_feature_dict(topics, bert_utils)
     basename = path.basename(path.splitext(resource_file)[0])
-    pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/final_set_clean_min/" +
+    pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/single_sent_full_context_mean/" +
                                  basename + ".pickle", "w+b"))
 
     print("Done with -" + basename)
@@ -45,9 +45,9 @@ def worker(resource_file):
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC4_Dev_Event_gold_mentions.json',
-                 # str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC4_Train_Event_gold_mentions.json',
-                 # str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC4_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/single_sent_full_context_mean/CleanWEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/single_sent_full_context_mean/CleanWEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/single_sent_full_context_mean/CleanWEC_Test_Event_gold_mentions.json'
                  ]
 
     jobs = list()

@@ -35,7 +35,7 @@ def calc_singletons(split_list, message):
 
 
 def cal_head_lemma_pairs(data_file, message, alpha, dataset):
-    positives, negatives = get_feat(data_file, alpha, SPLIT.TRAIN, dataset)
+    positives, negatives = get_feat(data_file, alpha, SPLIT.Train, dataset)
     same_head_pos, same_head_neg = (0, 0)
     not_same_head_pos, not_same_head_neg = (0, 0)
     for mention1, mention2 in positives:

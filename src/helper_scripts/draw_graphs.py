@@ -110,8 +110,7 @@ def get_prf1(all_lines, which):
     return itr_px, graph_py, graph_ry, graph_f1y
 
 
-def plot_prf1(all_lines):
-    which = 'Train'
+def plot_prf1(all_lines, title, which):
     x, p_y, r_y, f1_y = get_prf1(all_lines, which)
     plt.plot(x, p_y, label='Precision')
     plt.plot(x, r_y, label='Recall')
@@ -120,16 +119,18 @@ def plot_prf1(all_lines):
     plt.xlabel('Iter', fontdict=font)
     plt.ylabel('P/R/F1', fontdict=font)
 
-    plt.title('ECB F1/Precision/Recall on ' + which, fontdict=font)
+    plt.title(title + ' F1/Precision/Recall on ' + which, fontdict=font)
     # plt.xticks(np.arange(-1, len(x), step=5))
     plt.legend()
     plt.show()
 
 
 if __name__ == '__main__':
-    file_name = str(LIBRARY_ROOT) + '/reports/clean_new_full_dev/train_dsWEC_WEC_lr1e-07_bs32_a10_itr15.log'
+    file_name = str(LIBRARY_ROOT) + '/reports/clean_new_full_dev/train40pr_dsECB_lr1e-06_bs32_a7_itr25.log'
+    title = 'ECB 40% of Train'
+    which = 'Dev'
     with open(file_name, 'r') as file_fs:
         all_lines = file_fs.readlines()
         # plot_loss(all_lines)
         # plot_accuracy_dev(all_lines)
-        plot_prf1(all_lines)
+        plot_prf1(all_lines, title, which)

@@ -1,7 +1,10 @@
+import logging
 import pickle
 
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification
+
+logger = logging.getLogger(__name__)
 
 
 class BertPretrainedUtils(object):
@@ -80,6 +83,7 @@ class BertFromFile(object):
         if files_to_load is not None and len(files_to_load) > 0:
             for file_ in files_to_load:
                 self.bert_dict.update(pickle.load(open(file_, "rb")))
+                logger.info("Bert representation loaded-" + file_)
 
     def get_mention_mean_rep(self, mention):
         return self.bert_dict[mention.mention_id]

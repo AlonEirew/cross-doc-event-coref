@@ -14,7 +14,7 @@ def main():
     context_set = "final_set_clean_min"
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Train_Event_gold_mentions.json"
 
-    positive_, negative_ = get_feat(event_validation_file, 1, SPLIT.TRAIN, DATASET.ECB)
+    positive_, negative_ = get_feat(event_validation_file, 1, SPLIT.Train, DATASET.ECB)
     features = create_features_from_pos_neg(positive_, negative_)
     accuracy_on_dataset(features)
 
