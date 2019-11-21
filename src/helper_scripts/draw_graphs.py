@@ -77,11 +77,16 @@ def get_accuracy(all_lines):
             accuracy = line_split[5]
             train_x.append(itr)
             train_y.append(float(accuracy))
+        if line_split[2] == 'Test-Acc':
+            itr = line_split[3]
+            accuracy = line_split[5]
+            train_x.append(itr)
+            train_y.append(float(accuracy))
 
     return dev_x, dev_y, train_x, train_y
 
 
-def get_prf1(all_lines):
+def get_prf1(all_lines, which):
     itr_px = list()
     graph_py = list()
     graph_ry = list()
@@ -92,7 +97,7 @@ def get_prf1(all_lines):
         if len(line_split) < 2:
             continue
 
-        if line_split[2] == 'Dev-Acc':
+        if line_split[2] == which + '-Acc':
             itr = line_split[3]
             p = line_split[7]
             r = line_split[9]
@@ -106,7 +111,8 @@ def get_prf1(all_lines):
 
 
 def plot_prf1(all_lines):
-    x, p_y, r_y, f1_y = get_prf1(all_lines)
+    which = 'Train'
+    x, p_y, r_y, f1_y = get_prf1(all_lines, which)
     plt.plot(x, p_y, label='Precision')
     plt.plot(x, r_y, label='Recall')
     plt.plot(x, f1_y, label='F1')
@@ -114,16 +120,16 @@ def plot_prf1(all_lines):
     plt.xlabel('Iter', fontdict=font)
     plt.ylabel('P/R/F1', fontdict=font)
 
-    plt.title('Experiment', fontdict=font)
+    plt.title('ECB F1/Precision/Recall on ' + which, fontdict=font)
     # plt.xticks(np.arange(-1, len(x), step=5))
     plt.legend()
     plt.show()
 
 
 if __name__ == '__main__':
-    file_name = str(LIBRARY_ROOT) + '/same_ratio_dev_invalid/WEC_Min_Clean_1drop0_2_lr1e-08_bs32_a1_itr19.txt'
+    file_name = str(LIBRARY_ROOT) + '/reports/clean_new_full_dev/train_dsWEC_WEC_lr1e-07_bs32_a10_itr15.log'
     with open(file_name, 'r') as file_fs:
         all_lines = file_fs.readlines()
         # plot_loss(all_lines)
-        plot_accuracy_dev(all_lines)
+        # plot_accuracy_dev(all_lines)
         plot_prf1(all_lines)
