@@ -26,14 +26,14 @@ class DATASET(enum.Enum):
     WEC = 2
 
 
-def load_datasets(split_file, alpha, split, dataset):
-    logger.info('Create Features:' + str(split))
-    positive_, negative_ = get_feat(split_file, alpha, split, dataset)
+def load_datasets(split_file, alpha, dataset):
+    logger.info('Create Features:' + dataset.name)
+    positive_, negative_ = get_feat(split_file, alpha, dataset)
     split_feat = create_features_from_pos_neg(positive_, negative_)
     return split_feat
 
 
-def get_feat(data_file, alpha, split, dataset):
+def get_feat(data_file, alpha, dataset):
     topics_ = Topics()
     topics_.create_from_file(data_file, keep_order=True)
 
@@ -43,7 +43,7 @@ def get_feat(data_file, alpha, split, dataset):
     else:
         positive_, negative_ = create_pos_neg_pairs_wec(topics_, alpha)
 
-    if split == SPLIT.Train:
+    if dataset == DATASET.ECB:
         if len(negative_) > (len(positive_) * alpha):
             negative_ = negative_[0:len(positive_) * alpha]
 

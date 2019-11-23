@@ -11,7 +11,7 @@ from src.utils.log_utils import create_logger_with_fh
 logger = logging.getLogger(__name__)
 
 
-def accuracy_on_dataset_test(bert_utils, pairwize_model, features, use_cuda):
+def accuracy_on_dataset_local(bert_utils, pairwize_model, features, use_cuda):
     dataset_size = len(features)
     batch_size = 10000
     end_index = batch_size
@@ -63,17 +63,17 @@ def accuracy_on_dataset_test(bert_utils, pairwize_model, features, use_cuda):
 
 if __name__ == '__main__':
     dataset = DATASET.WEC
-    split = SPLIT.Dev
-    alpha = 20
+    split = SPLIT.Test
+    alpha = 25
     context_set = "single_sent_clean_mean"
 
     log_param_str = "inference_" + dataset.name + ".log"
     create_logger_with_fh(log_param_str)
 
     _event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.json"
-    positive_, negative_ = get_feat(_event_test_file, alpha, split, dataset)
+    positive_, negative_ = get_feat(_event_test_file, alpha, dataset)
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model"
+    _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_best_trained_model"
     _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
 
     print("Loading the model to-" + _model_in)
@@ -91,6 +91,4 @@ if __name__ == '__main__':
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
     split_feat = create_features_from_pos_neg(positive_, negative_)
-    test_accuracy, test_precision, test_recall, test_f1 = accuracy_on_dataset_test(_bert_utils, _pairwize_model, split_feat, _use_cuda)
-    logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
-                ("Dev-Acc", test_accuracy.item(), test_precision, test_recall, test_f1))
+    test_accuracy, test_precision, test_recall, test_f1 = accuracy_on_dataset(split.name, -1, _bert_utils, _pairwize_model, split_feat, _use_cuda)
