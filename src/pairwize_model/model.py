@@ -33,9 +33,7 @@ class PairWiseModel(nn.Module):
         # prediction = torch.round(output)
         return prediction
 
-    def get_bert_rep(self, batch_features, bert_utils, use_cuda):
-        batch_result = list()
-        batch_labels = list()
+    def get_bert_rep(self, batch_features, bert_utils, use_cuda, bs=None):
         # for mention1, mention2 in batch_features:
         mentions1, mentions2 = zip(*batch_features)
         # (1, 768), (1, 169)
@@ -47,17 +45,13 @@ class PairWiseModel(nn.Module):
         hiddens2, _ = zip(*hiddens2)
         hiddens2 = torch.cat(hiddens2)
 
-        # (1, 768), (1,169)
+        # (32, 768), (32,768)
         span1_span2 = hiddens1 * hiddens2
 
-        # 768 * 2 + 1 = (1, 2304)
+        # 768 * 3 = (1, 2304)
         concat_result = torch.cat((hiddens1, hiddens2, span1_span2), dim=1)
 
-        for mentions1, mentions2 in batch_features:
-            gold_label = 1 if mentions1.coref_chain == mentions2.coref_chain else 0
-            batch_labels.append(gold_label)
-
-        ret_golds = torch.tensor(batch_labels)
+        ret_golds = torch.tensor(self.get_gold_labels(batch_features))
 
         if use_cuda:
             concat_result = concat_result.cuda()
@@ -65,57 +59,66 @@ class PairWiseModel(nn.Module):
 
         return concat_result, ret_golds
 
+    def get_gold_labels(self, batch_features):
+        batch_labels = list()
+        for mentions1, mentions2 in batch_features:
+            gold_label = 1 if mentions1.coref_chain == mentions2.coref_chain else 0
+            batch_labels.append(gold_label)
+        return batch_labels
+
 
 class PairWiseModelKenton(PairWiseModel):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim):
         super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim)
-        self.attend = PairWiseModel.get_sequential(768, f_hid_dim)
-        self.w_alpha = nn.Linear(f_hid_dim, 1)
+        self.attend = PairWiseModel.get_sequential(5376, f_hid_dim)
+        self.w_alpha = nn.Linear(f_hid_dim, 7)
 
-    def get_bert_rep(self, batch_features, bert_utils, use_cuda):
-        batch_result = list()
-        batch_labels = list()
-        for mention1, mention2 in batch_features:
-            # (x, 768)
-            hidden1 = bert_utils.get_mention_full_rep(mention1)
-            if type(hidden1) == tuple:
-                hidden1, _ = hidden1
-            # (x, 768)
-            hidden2 = bert_utils.get_mention_full_rep(mention2)
-            if type(hidden2) == tuple:
-                hidden2, _ = hidden2
-
-            pad_hidden1 = torch.nn.functional.pad(hidden1, (0, 0, 0, 7 - hidden1.shape[0]))
-            pad_hidden2 = torch.nn.functional.pad(hidden2, (0, 0, 0, 7 - hidden2.shape[0]))
-
-            attend1 = self.attend(pad_hidden1)
-            attend2 = self.attend(pad_hidden2)
-            att1_w = self.w_alpha(attend1)
-            att2_w = self.w_alpha(attend2)
-            att1_soft = torch.softmax(att1_w, dim=0)
-            att2_soft = torch.softmax(att2_w, dim=0)
-            att1_head = pad_hidden1 * att1_soft
-            att2_head = pad_hidden2 * att2_soft
-
-            g1 = torch.cat((hidden1[0], hidden1[-1], att1_head.reshape(-1)))
-            g2 = torch.cat((hidden2[0], hidden2[-1], att2_head.reshape(-1)))
-
-            # (1, 6912), (1,6912)
-            span1_span2 = g1 * g2
-
-            # 768 * 2 + 1 = (1, 2304)
-            concat_result = torch.cat((g1, g2, span1_span2.reshape(-1))).reshape(1, -1)
-
-            gold_label = 1 if mention1.coref_chain == mention2.coref_chain else 0
-
-            batch_result.append(concat_result)
-            batch_labels.append(gold_label)
-
-        ret_result = torch.cat(batch_result)
-        ret_golds = torch.tensor(batch_labels)
+    def get_bert_rep(self, batch_features, bert_utils, use_cuda, batch_size=32):
+        mentions1, mentions2 = zip(*batch_features)
+        # (x, 768)
+        hiddens1, first1_tok, last1_tok, ment1_size = zip(*bert_utils.get_mentions_mean_rep(mentions1))
+        hiddens1 = torch.cat(hiddens1).reshape(batch_size, -1)
+        first1_tok = torch.cat(first1_tok).reshape(batch_size, -1)
+        last1_tok = torch.cat(last1_tok).reshape(batch_size, -1)
+        # (x, 768)
+        hiddens2, first2_tok, last2_tok, ment2_size = zip(*bert_utils.get_mentions_mean_rep(mentions2))
+        hiddens2 = torch.cat(hiddens2).reshape(batch_size, -1)
+        first2_tok = torch.cat(first2_tok).reshape(batch_size, -1)
+        last2_tok = torch.cat(last2_tok).reshape(batch_size, -1)
 
         if use_cuda:
-            ret_result = ret_result.cuda()
+            hiddens1 = hiddens1.cuda()
+            hiddens2 = hiddens2.cuda()
+            first1_tok = first1_tok.cuda()
+            first2_tok = first2_tok.cuda()
+            last1_tok = last1_tok.cuda()
+            last2_tok = last2_tok.cuda()
+
+        attend1 = self.attend(hiddens1)
+        attend2 = self.attend(hiddens2)
+        att1_w = self.w_alpha(attend1)
+        att2_w = self.w_alpha(attend2)
+
+        att1_soft = torch.softmax(att1_w, dim=1)
+        att2_soft = torch.softmax(att2_w, dim=1)
+        hidden1_reshape = hiddens1.reshape(batch_size, 7, -1)
+        hidden2_reshape = hiddens2.reshape(batch_size, 7, -1)
+        att1_head = hidden1_reshape * att1_soft.reshape(batch_size, 7, 1)
+        att2_head = hidden2_reshape * att2_soft.reshape(batch_size, 7, 1)
+
+        g1 = torch.cat((first1_tok, last1_tok, att1_head.reshape(batch_size, -1)), dim=1)
+        g2 = torch.cat((first2_tok, last2_tok, att2_head.reshape(batch_size, -1)), dim=1)
+
+        # (1, 6912), (1,6912)
+        span1_span2 = g1 * g2
+
+        # 6912 * 3 = (1, 20736)
+        concat_result = torch.cat((g1, g2, span1_span2), dim=1)
+
+        ret_golds = torch.tensor(self.get_gold_labels(batch_features))
+
+        if use_cuda:
+            concat_result = concat_result.cuda()
             ret_golds = ret_golds.cuda()
 
-        return ret_result, ret_golds
+        return concat_result, ret_golds

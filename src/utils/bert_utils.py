@@ -51,7 +51,8 @@ class BertPretrainedUtils(object):
         last_hidden_span = all_hidden_states[0].view(all_hidden_states[0].shape[1], -1)[
                            ment1_inx_start:ment1_inx_end]
 
-        return last_hidden_span, None
+        last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, (0, 0, 0, 7 - last_hidden_span.shape[0]))
+        return last_hidden_span_pad, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
 
     def mention_feat_to_vec(self, mention):
         cntx_before, ment_span, cntx_after = self.extract_mention_surrounding_context(mention)

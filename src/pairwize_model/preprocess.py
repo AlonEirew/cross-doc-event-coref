@@ -17,13 +17,16 @@ def extract_feature_dict(topics, bert_utils):
         mention_count = len(topic.mentions)
         for mention in topic.mentions:
             start = time.time()
-            hidden, attend = bert_utils.get_mention_full_rep(mention)
+            # hidden, attend = bert_utils.get_mention_full_rep(mention)
+            hidden, first_tok, last_tok, ment_size = bert_utils.get_mention_full_rep(mention)
             end = time.time()
 
-            if attend is not None:
-                result_train[mention.mention_id] = (hidden.cpu(), attend.cpu())
-            else:
-                result_train[mention.mention_id] = (hidden.cpu())
+            result_train[mention.mention_id] = (hidden.cpu(), first_tok.cpu(), last_tok.cpu(), ment_size)
+
+            # if attend is not None:
+            #     result_train[mention.mention_id] = (hidden.cpu(), attend.cpu())
+            # else:
+            #     result_train[mention.mention_id] = (hidden.cpu())
 
             print("To Go: Topics" + str(topic_count) + ", Mentions" + str(mention_count) + ", took-" + str((end - start)))
             mention_count -= 1
@@ -50,7 +53,10 @@ def worker(resource_file):
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Dev_Event_gold_mentions.json',
+    all_files = [str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/ECB_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/ECB_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/ECB_Test_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Dev_Event_gold_mentions.json',
                  str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Train_Event_gold_mentions.json',
                  str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Test_Event_gold_mentions.json'
                  ]
