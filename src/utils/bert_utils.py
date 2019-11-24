@@ -108,3 +108,10 @@ class BertFromFile(object):
 
     def get_mention_full_rep(self, mention):
         return self.embeddings[self.embed_key[mention.mention_id]]
+
+    def get_mentions_mean_rep(self, mentions_list):
+        embed_list = list()
+        for mention in mentions_list:
+            embed_list.append(self.embeddings[self.embed_key[mention.mention_id]])
+
+        return embed_list
