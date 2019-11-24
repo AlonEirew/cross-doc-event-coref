@@ -39,6 +39,20 @@ class BertPretrainedUtils(object):
 
         return span_hidden_last_mean, span_attend_last_mean
 
+    def get_mention_full_rep(self, mention):
+        ment1_ids, ment1_inx_start, ment1_inx_end = self.mention_feat_to_vec(mention)
+        with torch.no_grad():
+            if self.use_cuda:
+                ment1_ids = ment1_ids.cuda()
+
+            all_hidden_states, _ = self._bert(ment1_ids)[-2:]
+
+        # last_attend2 = all_attentions2[0]
+        last_hidden_span = all_hidden_states[0].view(all_hidden_states[0].shape[1], -1)[
+                           ment1_inx_start:ment1_inx_end]
+
+        return last_hidden_span, None
+
     def mention_feat_to_vec(self, mention):
         cntx_before, ment_span, cntx_after = self.extract_mention_surrounding_context(mention)
 
@@ -79,11 +93,18 @@ class BertPretrainedUtils(object):
 
 class BertFromFile(object):
     def __init__(self, files_to_load: list):
-        self.bert_dict = dict()
+        bert_dict = dict()
+
         if files_to_load is not None and len(files_to_load) > 0:
             for file_ in files_to_load:
-                self.bert_dict.update(pickle.load(open(file_, "rb")))
+                bert_dict.update(pickle.load(open(file_, "rb")))
                 logger.info("Bert representation loaded-" + file_)
 
+        self.embeddings = list(bert_dict.values())
+        self.embed_key = {k: i for i, k in enumerate(bert_dict.keys())}
+
     def get_mention_mean_rep(self, mention):
-        return self.bert_dict[mention.mention_id]
+        return self.embeddings[self.embed_key[mention.mention_id]]
+
+    def get_mention_full_rep(self, mention):
+        return self.embeddings[self.embed_key[mention.mention_id]]

@@ -43,7 +43,7 @@ def get_feat(data_file, alpha, dataset):
     else:
         positive_, negative_ = create_pos_neg_pairs_wec(topics_, alpha)
 
-    if dataset == DATASET.ECB:
+    if dataset == DATASET.ECB and alpha > 0:
         if len(negative_) > (len(positive_) * alpha):
             negative_ = negative_[0:len(positive_) * alpha]
 

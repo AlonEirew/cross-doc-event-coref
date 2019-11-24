@@ -11,10 +11,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
-    context_set = "final_set_clean_min"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Train_Event_gold_mentions.json"
+    context_set = "single_sent_clean_mean"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Dev_Event_gold_mentions.json"
 
-    positive_, negative_ = get_feat(event_validation_file, 1, SPLIT.Train, DATASET.ECB)
+    positive_, negative_ = get_feat(event_validation_file, 16, DATASET.WEC)
     features = create_features_from_pos_neg(positive_, negative_)
     accuracy_on_dataset(features)
 
@@ -30,12 +30,7 @@ def accuracy_on_dataset(features):
 
     all_labels = torch.tensor(labels).bool()
     all_predictions = torch.tensor(predictions).bool()
-    accuracy, precision, recall, f1 = get_measurements(all_labels, all_predictions)
-
-    dev_report = "%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" % \
-                 ("Dev-Acc", accuracy.item(), precision, recall, f1)
-
-    logger.info(dev_report)
+    get_measurements("ECB-Test", -1, all_labels, all_predictions)
 
 
 if __name__ == '__main__':
