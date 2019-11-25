@@ -1,3 +1,4 @@
+import math
 import torch
 
 from torch import nn
@@ -96,8 +97,12 @@ class PairWiseModelKenton(PairWiseModel):
 
         attend1 = self.attend(hiddens1)
         attend2 = self.attend(hiddens2)
+
         att1_w = self.w_alpha(attend1)
         att2_w = self.w_alpha(attend2)
+
+        # Clean attention on padded tokens
+        self.clean_attnd_on_zero(att1_w, ment1_size, att2_w, ment2_size)
 
         att1_soft = torch.softmax(att1_w, dim=1)
         att2_soft = torch.softmax(att2_w, dim=1)
@@ -122,3 +127,20 @@ class PairWiseModelKenton(PairWiseModel):
             ret_golds = ret_golds.cuda()
 
         return concat_result, ret_golds
+
+    def clean_attnd_on_zero(self, attend1, ment_size1, attend2, ment_size2):
+        for i, vals in enumerate(list(zip(ment_size1, ment_size2))):
+            val1, val2 = vals
+            if val1 > 7:
+                val1 = 7
+
+            if val2 > 7:
+                val2 = 7
+
+            attend1_fx = attend1[i:i + 1, 0:val1]
+            attend1_fx = torch.nn.functional.pad(attend1_fx, [0, 7 - val1, 0, 0], value=-math.inf)
+            attend1[i:i + 1] = attend1_fx
+
+            attend2_fx = attend2[i:i + 1, 0:val2]
+            attend2_fx = torch.nn.functional.pad(attend2_fx, [0, 7 - val2, 0, 0], value=-math.inf)
+            attend2[i:i + 1] = attend2_fx

@@ -1,5 +1,6 @@
 import enum
 import logging
+from itertools import combinations
 
 import random
 import re
@@ -41,9 +42,9 @@ def get_feat(data_file, alpha, dataset):
     if dataset == DATASET.ECB:
         positive_, negative_ = create_pos_neg_pairs_ecb(from_subtopic_to_topic(topics_))
     else:
-        positive_, negative_ = create_pos_neg_pairs_wec(topics_, alpha)
+        positive_, negative_ = create_pos_neg_pairs_wec(topics_)
 
-    if dataset == DATASET.ECB and alpha > 0:
+    if alpha > 0:
         if len(negative_) > (len(positive_) * alpha):
             negative_ = negative_[0:len(positive_) * alpha]
 
@@ -52,36 +53,23 @@ def get_feat(data_file, alpha, dataset):
     return positive_, negative_
 
 
-def create_pos_neg_pairs_wec(topics, alpha):
+def create_pos_neg_pairs_wec(topics):
     positives_map = dict()
     positive_pairs = list()
     clusters = convert_to_clusters(topics)
 
     # create positive examples
+    all_mentions = list()
     for _, mentions_list in clusters.items():
+        all_mentions.append(mentions_list[0])
         for mention1 in mentions_list:
             for mention2 in mentions_list:
                 if mention1.mention_id != mention2.mention_id:
                     check_and_add_pair(positives_map, positive_pairs, mention1, mention2)
 
     # create WEC negative challenging examples
-    negative_map = dict()
-    negative_pairs = list()
-    condition = True
-    index = -1
-    while condition:
-        index += 1
-        condition = False
-        for _, mentions_list1 in clusters.items():
-            if len(negative_pairs) < (len(positive_pairs) * alpha):
-                for _, mentions_list2 in clusters.items():
-                    if len(mentions_list1) > index and len(mentions_list2) > index and \
-                            mentions_list1[index].coref_chain != mentions_list2[index].coref_chain:
-                        if check_and_add_pair(negative_map, negative_pairs, mentions_list1[index], mentions_list2[index]):
-                            condition = True
-            else:
-                condition = False
-                break
+    sample = random.sample(all_mentions, 4000)
+    negative_pairs = list(combinations(sample, 2))
 
     return positive_pairs, negative_pairs
 

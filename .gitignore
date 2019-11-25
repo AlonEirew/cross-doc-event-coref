@@ -2,6 +2,7 @@
 *.pyc
 output
 saved_models
+saved_models_bkp
 .vscode
 scorer
 resources

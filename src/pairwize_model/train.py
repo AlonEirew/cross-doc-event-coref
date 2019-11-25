@@ -17,6 +17,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
                    lr=1e-5, use_cuda=True, save_model=False, model_out=None, best_model_to_save=0.1):
     loss_func = torch.nn.CrossEntropyLoss()
     # loss_func = torch.nn.BCEWithLogitsLoss()
+    # optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
     optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
     dataset_size = len(train)
     accum_count_btch = 0
@@ -53,7 +54,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
                 report = "%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch)
                 logger.info(report)
 
-            interval = 10000
+            interval = 1000
             if count_btch % interval == 0:
                 pairwize_model.eval()
                 # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
@@ -62,40 +63,39 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
                 pairwize_model.train()
 
                 if best_result_for_save < dev_f1:
-                    # if save_model:
-                    #     logger.info("Found better model saving")
-                    #     torch.save(pairwize_model, model_out)
-                    logger.info("Found better model")
-                    best_result_for_save = dev_f1
-                    non_improved_epoch_count = 0
-                    improvement_seen = True
+                    if save_model:
+                        logger.info("Found better model saving")
+                        torch.save(pairwize_model, model_out)
+                        improvement_seen = True
+                        best_result_for_save = dev_f1
+                        non_improved_epoch_count = 0
                 elif improvement_seen:
-                    if non_improved_epoch_count == 5:
+                    if non_improved_epoch_count == 10:
                         logger.info("No Improvement for 5 ephochs, ending test...")
                         return best_result_for_save
                     else:
                         non_improved_epoch_count += 1
 
-        # pairwize_model.eval()
+        pairwize_model.eval()
         # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-        # _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, bert_utils, pairwize_model, validation, use_cuda)
-        # # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
-        # pairwize_model.train()
-        #
-        # if best_result_for_save < dev_f1:
-        #     # if save_model:
-        #     #     logger.info("Found better model saving")
-        #     #     torch.save(pairwize_model, model_out)
-        #     logger.info("Found better model")
-        #     best_result_for_save = dev_f1
-        #     non_improved_epoch_count = 0
-        #     improvement_seen = True
-        # elif improvement_seen:
-        #     if non_improved_epoch_count == 5:
-        #         logger.info("No Improvement for 5 ephochs, ending test...")
-        #         break
-        #     else:
-        #         non_improved_epoch_count += 1
+        _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, bert_utils, pairwize_model, validation, use_cuda)
+        # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
+        pairwize_model.train()
+
+        if best_result_for_save < dev_f1:
+            # if save_model:
+            #     logger.info("Found better model saving")
+            #     torch.save(pairwize_model, model_out)
+            logger.info("Found better model")
+            best_result_for_save = dev_f1
+            non_improved_epoch_count = 0
+            improvement_seen = True
+        elif improvement_seen:
+            if non_improved_epoch_count == 10:
+                logger.info("No Improvement for 5 ephochs, ending test...")
+                break
+            else:
+                non_improved_epoch_count += 1
 
     return best_result_for_save
 
@@ -166,15 +166,19 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
         logger.info("Loading model to fine tune-" + model_in)
         pairwize_model = torch.load(model_in)
     else:
-        pairwize_model = PairWiseModelKenton(20736, 250, 2)
-        # pairwize_model = PairWiseModelKenton(20736, 250, 2)
+        pairwize_model = PairWiseModelKenton(20736, 150, 2)
 
     event_train_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions.json"
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.json"
     event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Test_Event_gold_mentions.json"
 
     train_feat = load_datasets(event_train_file, alpha, train_dataset)
-    validation_feat = load_datasets(event_validation_file, 16, dev_dataset)
+
+    if dev_dataset == DATASET.ECB:
+        validation_feat = load_datasets(event_validation_file, -1, dev_dataset)
+    else:
+        validation_feat = load_datasets(event_validation_file, 16, dev_dataset)
+
     test_feat = load_datasets(event_test_file, 0, dev_dataset)
 
     if use_cuda:
@@ -186,16 +190,16 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
 
 
 if __name__ == '__main__':
-    _train_dataset = DATASET.ECB
+    _train_dataset = DATASET.WEC
     _dev_dataset = DATASET.ECB
     _context_set = "single_sent_clean_kenton"
 
     _lr = 1e-7
     _batch_size = 32
-    _alpha = 11
-    _iterations = 10
+    _alpha = 1
+    _iterations = 5
     _use_cuda = True
-    _save_model = False
+    _save_model = True
     _fine_tune = False
 
     log_params_str = "train_ds" + _train_dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + \
