@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 if __name__ == '__main__':
     _use_cuda = True
 
-    _train_dataset = [DATASET.WEC, DATASET.ECB]
+    _train_dataset = [DATASET.WEC]
     _dev_dataset = [DATASET.WEC, DATASET.ECB]
     _context_set = "single_sent_clean_kenton"
 
-    _lrs = [1e-7]
+    _lrs = [1e-6]
     _batch_sizes = [32]
-    _alphas = [1, 2, 4, 6, 8, 10, 12, 14]
+    _alphas = [4, 6, 8, 10, 12, 14]
     _iterations = 30
     _prcs = [100]
     _use_cuda = True
@@ -31,10 +31,7 @@ if __name__ == '__main__':
             for _batch_size in _batch_sizes:
                 for _alpha in _alphas:
                     for _prc in _prcs:
-                        if _train_dataset == DATASET.ECB:
-                            _lr = 1e-6
-                        else:
-                            _lr = 1e-7
+                        _lr = 1e-6
 
                         _model_out = str(LIBRARY_ROOT) + \
                                      "/saved_models/" + tds.name + "_" + \

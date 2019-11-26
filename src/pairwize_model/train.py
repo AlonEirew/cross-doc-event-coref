@@ -21,7 +21,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
     optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
     dataset_size = len(train)
 
-    INTERVAL = 1000
+    INTERVAL = 10000
     accum_count_btch = 0
     best_result_for_save = best_model_to_save
     improvement_seen = False
@@ -72,7 +72,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
                         non_improved_epoch_count = 0
                 elif improvement_seen:
                     if non_improved_epoch_count == 10:
-                        logger.info("No Improvement for 5 ephochs, ending test...")
+                        logger.info("No Improvement for 10 ephochs, ending test...")
                         return best_result_for_save
                     else:
                         non_improved_epoch_count += 1
@@ -84,16 +84,15 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
         pairwize_model.train()
 
         if best_result_for_save < dev_f1:
-            # if save_model:
-            #     logger.info("Found better model saving")
-            #     torch.save(pairwize_model, model_out)
-            logger.info("Found better model")
-            best_result_for_save = dev_f1
-            non_improved_epoch_count = 0
-            improvement_seen = True
+            if save_model:
+                logger.info("Found better model saving")
+                torch.save(pairwize_model, model_out)
+                best_result_for_save = dev_f1
+                non_improved_epoch_count = 0
+                improvement_seen = True
         elif improvement_seen:
             if non_improved_epoch_count == 10:
-                logger.info("No Improvement for 5 ephochs, ending test...")
+                logger.info("No Improvement for 10 ephochs, ending test...")
                 break
             else:
                 non_improved_epoch_count += 1
