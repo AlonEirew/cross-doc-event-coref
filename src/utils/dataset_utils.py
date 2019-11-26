@@ -1,5 +1,7 @@
 import enum
 import logging
+import multiprocessing
+import pickle
 from itertools import combinations
 
 import random
@@ -27,6 +29,22 @@ class DATASET(enum.Enum):
     WEC = 2
 
 
+def load_pos_neg_pickle(pos_file, neg_file, alpha):
+    logger.info("Loading pos file-" + pos_file)
+    logger.info("Loading neg file-" + neg_file)
+
+    pos_pairs = pickle.load(open(pos_file, "rb"))
+    neg_pairs = pickle.load(open(neg_file, "rb"))
+
+    if alpha > 0:
+        if len(neg_pairs) > (len(pos_pairs) * alpha):
+            neg_pairs = neg_pairs[0:len(pos_pairs) * alpha]
+
+    logger.info('pos-' + str(len(pos_pairs)))
+    logger.info('neg-' + str(len(neg_pairs)))
+    return create_features_from_pos_neg(pos_pairs, neg_pairs)
+
+
 def load_datasets(split_file, alpha, dataset):
     logger.info('Create Features:' + dataset.name)
     positive_, negative_ = get_feat(split_file, alpha, dataset)
@@ -34,7 +52,7 @@ def load_datasets(split_file, alpha, dataset):
     return split_feat
 
 
-def get_feat(data_file, alpha, dataset):
+def get_feat(data_file, alpha, dataset, multiprocess=False):
     topics_ = Topics()
     topics_.create_from_file(data_file, keep_order=True)
 
@@ -42,7 +60,9 @@ def get_feat(data_file, alpha, dataset):
     if dataset == DATASET.ECB:
         positive_, negative_ = create_pos_neg_pairs_ecb(from_subtopic_to_topic(topics_))
     else:
-        positive_, negative_ = create_pos_neg_pairs_wec(topics_)
+        clusters = convert_to_clusters(topics_)
+        positive_ = create_pos_pairs_wec(clusters)
+        negative_ = create_neg_pairs_wec(clusters, multiprocess)
 
     if alpha > 0:
         if len(negative_) > (len(positive_) * alpha):
@@ -53,25 +73,64 @@ def get_feat(data_file, alpha, dataset):
     return positive_, negative_
 
 
-def create_pos_neg_pairs_wec(topics):
+def create_pos_pairs_wec(clusters):
     positives_map = dict()
     positive_pairs = list()
-    clusters = convert_to_clusters(topics)
 
     # create positive examples
-    all_mentions = list()
     for _, mentions_list in clusters.items():
-        all_mentions.append(mentions_list[0])
         for mention1 in mentions_list:
             for mention2 in mentions_list:
                 if mention1.mention_id != mention2.mention_id:
                     check_and_add_pair(positives_map, positive_pairs, mention1, mention2)
 
-    # create WEC negative challenging examples
-    sample = random.sample(all_mentions, 4000)
-    negative_pairs = list(combinations(sample, 2))
+    return positive_pairs
 
-    return positive_pairs, negative_pairs
+
+def create_neg_pairs_wec(clusters, multiprocess):
+    all_mentions = []
+    index = -1
+    all_ment_index = -1
+    found = True
+    while found:
+        found = False
+        index += 1
+        all_mentions.append([])
+        all_ment_index += 1
+        for _, mentions_list in clusters.items():
+            if len(mentions_list) > index:
+                all_mentions[all_ment_index].append(mentions_list[index])
+                found = True
+
+
+    # create WEC negative challenging examples
+    multiprocessing.set_start_method('spawn')
+    list_combined_pairs = list()
+    pool = []
+    for mention_list in all_mentions:
+        if multiprocess:
+            combined = multiprocessing.Process(target=create_combinations, args=(mention_list, 2, list_combined_pairs))
+            combined.start()
+            pool.append(combined)
+            print()
+        else:
+            create_combinations(mention_list, 2, list_combined_pairs)
+
+    for worker in pool:
+        worker.join()
+
+    return list_combined_pairs
+
+
+def create_combinations(mentions, r, list_combined_pairs):
+    name = multiprocessing.current_process().name
+    print(name, 'Starting')
+    MAX_SELECT = 500000
+    pair_list = list(combinations(mentions, r))
+    if len(pair_list) > MAX_SELECT:
+        pair_list = random.sample(pair_list, MAX_SELECT)
+
+    list_combined_pairs.extend(pair_list)
 
 
 def check_clusters_for_pairs(mentions_list1, mentions_list2, index, condition):

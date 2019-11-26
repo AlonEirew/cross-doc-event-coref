@@ -7,7 +7,7 @@ import torch
 from src import LIBRARY_ROOT
 from src.pairwize_model.model import PairWiseModel, PairWiseModelKenton
 from src.utils.bert_utils import BertFromFile
-from src.utils.dataset_utils import SPLIT, DATASET, load_datasets
+from src.utils.dataset_utils import SPLIT, DATASET, load_datasets, load_pos_neg_pickle
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,8 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
     # optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
     optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
     dataset_size = len(train)
+
+    INTERVAL = 1000
     accum_count_btch = 0
     best_result_for_save = best_model_to_save
     improvement_seen = False
@@ -48,17 +50,16 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
             cum_loss += loss.item()
             end_index += batch_size
             count_btch += 1
-            accum_count_btch += 1
 
             if count_btch % 100 == 0:
                 report = "%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch)
                 logger.info(report)
 
-            interval = 1000
-            if count_btch % interval == 0:
+            if count_btch % INTERVAL == 0:
+                accum_count_btch += 1
                 pairwize_model.eval()
                 # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-                _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, bert_utils, pairwize_model, validation, use_cuda)
+                _, _, _, dev_f1 = accuracy_on_dataset("Dev", accum_count_btch, bert_utils, pairwize_model, validation, use_cuda)
                 # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
                 pairwize_model.train()
 
@@ -156,8 +157,7 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
     np.random.seed(1)
 
     bert_files = [str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Test_Event_gold_mentions.pickle"
+                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.pickle"
                   ]
 
     bert_utils = BertFromFile(bert_files)
@@ -168,38 +168,37 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
     else:
         pairwize_model = PairWiseModelKenton(20736, 150, 2)
 
-    event_train_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions.json"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.json"
-    event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Test_Event_gold_mentions.json"
+    event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_PosPairs.pickle"
+    event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_NegPairs.pickle"
+    event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions_PosPairs.pickle"
+    event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions_NegPairs.pickle"
 
-    train_feat = load_datasets(event_train_file, alpha, train_dataset)
+    train_feat = load_pos_neg_pickle(event_train_file_pos, event_train_file_neg, alpha)
 
     if dev_dataset == DATASET.ECB:
-        validation_feat = load_datasets(event_validation_file, -1, dev_dataset)
+        validation_feat = load_pos_neg_pickle(event_validation_file_pos, event_validation_file_neg, -1)
     else:
-        validation_feat = load_datasets(event_validation_file, 16, dev_dataset)
-
-    test_feat = load_datasets(event_test_file, 0, dev_dataset)
+        validation_feat = load_pos_neg_pickle(event_validation_file_pos, event_validation_file_neg, 16)
 
     if use_cuda:
         # print(torch.cuda.get_device_name(1))
         torch.cuda.manual_seed(1)
         pairwize_model.cuda()
 
-    return train_feat, validation_feat, test_feat, bert_utils, pairwize_model
+    return train_feat, validation_feat, bert_utils, pairwize_model
 
 
 if __name__ == '__main__':
-    _train_dataset = DATASET.WEC
+    _train_dataset = DATASET.ECB
     _dev_dataset = DATASET.ECB
     _context_set = "single_sent_clean_kenton"
 
     _lr = 1e-7
     _batch_size = 32
-    _alpha = 1
+    _alpha = 7
     _iterations = 5
     _use_cuda = True
-    _save_model = True
+    _save_model = False
     _fine_tune = False
 
     log_params_str = "train_ds" + _train_dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + \
@@ -215,7 +214,7 @@ if __name__ == '__main__':
     logger.info("train_set=" + _train_dataset.name + ", dev_set=" + _dev_dataset.name + ", lr=" + str(_lr) + ", bs=" +
                 str(_batch_size) + ", ratio=1:" + str(_alpha) + ", itr=" + str(_iterations))
 
-    _event_train_feat, _event_validation_feat, _event_test_feat, _bert_utils, _pairwize_model = \
+    _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = \
         init_basic_training_resources(_context_set, _train_dataset, _dev_dataset, _alpha, _use_cuda, fine_tune=_fine_tune, model_in=_model_in)
 
     train_pairwise(_bert_utils, _pairwize_model, _event_train_feat, _event_validation_feat, _batch_size, _iterations, _lr

@@ -22,38 +22,42 @@ if __name__ == '__main__':
     _use_cuda = True
     _save_model = True
 
-    log_params_str = "hptunning_learn_curve_train_set_" + _train_dataset.name + "_test_set_" + _dev_dataset.name
+    log_params_str = "hptunning_learn_train_set_ALL_dev_set_ALL"
     create_logger_with_fh(log_params_str)
 
-    best_save_thresh = 0.2
+    best_save_thresh = 0.1
     for tds in _train_dataset:
         for dds in _dev_dataset:
-            for _lr in _lrs:
-                for _batch_size in _batch_sizes:
-                    for _alpha in _alphas:
-                        for _prc in _prcs:
-                            _model_out = str(LIBRARY_ROOT) + \
-                                         "/saved_models/" + tds.name + "_" + \
-                                         dds.name + "_best_trained_model_a" + str(_alpha)
+            for _batch_size in _batch_sizes:
+                for _alpha in _alphas:
+                    for _prc in _prcs:
+                        if _train_dataset == DATASET.ECB:
+                            _lr = 1e-6
+                        else:
+                            _lr = 1e-7
 
-                            _event_train_feat, _event_validation_feat, _event_test_feat, _bert_utils, _pairwize_model = \
-                                init_basic_training_resources(_context_set, tds, dds, _alpha, _use_cuda)
+                        _model_out = str(LIBRARY_ROOT) + \
+                                     "/saved_models/" + tds.name + "_" + \
+                                     dds.name + "_best_trained_model_a" + str(_alpha)
 
-                            # cut_train = int((len(_event_train_feat) * _prc) / 100)
-                            train_feat = _event_train_feat#_event_train_feat[0:cut_train]
-                            logger.info("final train size (pos+neg)=" + str(len(train_feat)))
+                        _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = \
+                            init_basic_training_resources(_context_set, tds, dds, _alpha, _use_cuda)
 
-                            logger.info("train_set=" + tds.name + ", dev_set" + dds.name + ", lr=" + str(_lr) + ", bs=" +
-                                        str(_batch_size) + ", ratio=1:" + str(_alpha) + ", itr=" + str(_iterations) + ", percent=" + str(_prc))
+                        # cut_train = int((len(_event_train_feat) * _prc) / 100)
+                        train_feat = _event_train_feat#_event_train_feat[0:cut_train]
+                        logger.info("final train size (pos+neg)=" + str(len(train_feat)))
 
-                            train_pairwise(_bert_utils, _pairwize_model, train_feat,
-                                                              _event_validation_feat, _batch_size,
-                                                              _iterations, _lr , _use_cuda, save_model=_save_model,
-                                                              model_out=_model_out, best_model_to_save=best_save_thresh)
+                        logger.info("train_set=" + tds.name + ", dev_set=" + dds.name + ", lr=" + str(_lr) + ", bs=" +
+                                    str(_batch_size) + ", ratio=1:" + str(_alpha) + ", itr=" + str(_iterations) + ", percent=" + str(_prc))
 
-                            # logger.info("************* EXPERIMENT TEST RESULTS **************")
-                            # _pairwize_model.eval()
-                            # accuracy_on_dataset("TEST", -1, _bert_utils, _pairwize_model, _event_test_feat, _use_cuda)
-                            # logger.info("************* EXPERIMENT TEST RESULTS **************")
+                        train_pairwise(_bert_utils, _pairwize_model, train_feat,
+                                                          _event_validation_feat, _batch_size,
+                                                          _iterations, _lr , _use_cuda, save_model=_save_model,
+                                                          model_out=_model_out, best_model_to_save=best_save_thresh)
+
+                        # logger.info("************* EXPERIMENT TEST RESULTS **************")
+                        # _pairwize_model.eval()
+                        # accuracy_on_dataset("TEST", -1, _bert_utils, _pairwize_model, _event_test_feat, _use_cuda)
+                        # logger.info("************* EXPERIMENT TEST RESULTS **************")
 
     logger.info("Process Done!")
