@@ -53,12 +53,12 @@ def worker(resource_file):
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/ECB_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/ECB_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/ECB_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/single_sent_clean_kenton/WEC_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + '/resources/final_dataset/ECB_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_dataset/ECB_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_dataset/ECB_Test_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Event_gold_mentions.json',
+                 str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Event_gold_mentions.json'
                  ]
 
     jobs = list()

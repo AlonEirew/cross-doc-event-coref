@@ -3,32 +3,46 @@ import logging
 import torch
 
 from src import LIBRARY_ROOT
-from src.pairwize_model.train import get_bert_rep, accuracy_on_dataset
+from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.bert_utils import BertFromFile
-from src.utils.dataset_utils import SPLIT, DATASET, get_feat, create_features_from_pos_neg
+from src.utils.dataset_utils import SPLIT, DATASET, get_feat, create_features_from_pos_neg, load_pos_neg_pickle
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
 
 
-def accuracy_on_dataset_local(bert_utils, pairwize_model, features, use_cuda):
+def accuracy_on_dataset_local(message, itr, bert_utils, pairwize_model, features, use_cuda):
     dataset_size = len(features)
     batch_size = 10000
     end_index = batch_size
     labels = list()
     predictions = list()
+    pairs_tp = list()
+    pairs_fp = list()
+    pairs_tn = list()
+    pairs_fn = list()
     for start_index in range(0, dataset_size, batch_size):
         if end_index > dataset_size:
             end_index = dataset_size
 
         batch_features = features[start_index:end_index].copy()
-        batch, batch_label = get_bert_rep(batch_features, bert_utils, use_cuda)
+        bs = end_index - start_index
+        batch, batch_label = pairwize_model.get_bert_rep(batch_features, bert_utils, use_cuda, bs)
         batch_predictions = pairwize_model.predict(batch)
 
         for i in range(0, len(batch_features)):
-            if batch_predictions[i] == 1 and batch_label[i] == 0:
+            if batch_predictions[i] == 1 and batch_label[i] == 1:
                 mention1, mention2 = batch_features[i]
-                logger.info(mention1.tokens_str + "=" + mention2.tokens_str)
+                pairs_tp.append(mention1.tokens_str + "=" + mention2.tokens_str)
+            elif batch_predictions[i] == 0 and batch_label[i] == 0:
+                mention1, mention2 = batch_features[i]
+                pairs_tn.append(mention1.tokens_str + "=" + mention2.tokens_str)
+            elif batch_predictions[i] == 1 and batch_label[i] == 0:
+                mention1, mention2 = batch_features[i]
+                pairs_fp.append(mention1.tokens_str + "=" + mention2.tokens_str)
+            elif batch_predictions[i] == 0 and batch_label[i] == 1:
+                mention1, mention2 = batch_features[i]
+                pairs_fn.append(mention1.tokens_str + "=" + mention2.tokens_str)
 
         predictions.append(batch_predictions)
         labels.append(batch_label)
@@ -58,23 +72,29 @@ def accuracy_on_dataset_local(bert_utils, pairwize_model, features, use_cuda):
         recall = tp / tpfn
     if precision != 0 or recall != 0:
         f1 = (2 * precision * recall) / (precision + recall)
-    return accuracy, precision, recall, f1
+
+    return accuracy, precision, recall, f1, pairs_tp, pairs_fp, pairs_tn, pairs_fn
 
 
 if __name__ == '__main__':
     dataset = DATASET.ECB
-    split = SPLIT.Dev
+    split = SPLIT.Test
     alpha = -1
-    context_set = "single_sent_clean_mean"
+    context_set = "single_sent_clean_kenton"
 
     log_param_str = "inference_" + dataset.name + ".log"
     create_logger_with_fh(log_param_str)
 
-    _event_test_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.json"
-    positive_, negative_ = get_feat(_event_test_file, alpha, dataset)
+    _event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_PosPairs.pickle"
+    _event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_NegPairs.pickle"
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model"
+    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model2_per80"
     _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
+
+    # pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/__pairs_eval/TP_WEC_" + dataset.name + "_" + split.name + "_paris.txt"
+    # pairs_fp_out_file = str(LIBRARY_ROOT) + "/reports/__pairs_eval/FP_WEC_" + dataset.name + "_" + split.name + "_paris.txt"
+    # pairs_tn_out_file = str(LIBRARY_ROOT) + "/reports/__pairs_eval/TN_WEC_" + dataset.name + "_" + split.name + "_paris.txt"
+    # pairs_fn_out_file = str(LIBRARY_ROOT) + "/reports/__pairs_eval/FN_WEC_" + dataset.name + "_" + split.name + "_paris.txt"
 
     print("Loading the model to-" + _model_in)
     _pairwize_model = torch.load(_model_in)
@@ -90,5 +110,22 @@ if __name__ == '__main__':
     # logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
-    split_feat = create_features_from_pos_neg(positive_, negative_)
-    test_accuracy, test_precision, test_recall, test_f1 = accuracy_on_dataset_local(_bert_utils, _pairwize_model, split_feat, _use_cuda)
+    split_feat = load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, alpha)
+    # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset("", 0, _bert_utils, _pairwize_model, split_feat, use_cuda=_use_cuda)
+    accuracy_on_dataset("", 0, _bert_utils, _pairwize_model, split_feat, use_cuda=_use_cuda)
+
+    # with open(pairs_tp_out_file, 'w') as f:
+    #     for item in pairs_tp:
+    #         f.write("%s\n" % item)
+    #
+    # with open(pairs_fp_out_file, 'w') as f:
+    #     for item in pairs_fp:
+    #         f.write("%s\n" % item)
+
+    # with open(pairs_tn_out_file, 'w') as f:
+    #     for item in pairs_tn:
+    #         f.write("%s\n" % item)
+    #
+    # with open(pairs_tp_out_file, 'w') as f:
+    #     for item in pairs_tp:
+    #         f.write("%s\n" % item)

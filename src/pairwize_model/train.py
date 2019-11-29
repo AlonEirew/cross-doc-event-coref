@@ -5,9 +5,9 @@ import random
 import torch
 
 from src import LIBRARY_ROOT
-from src.pairwize_model.model import PairWiseModel, PairWiseModelKenton
+from src.pairwize_model.model import PairWiseModelKenton
 from src.utils.bert_utils import BertFromFile
-from src.utils.dataset_utils import SPLIT, DATASET, load_datasets, load_pos_neg_pickle
+from src.utils.dataset_utils import DATASET, load_pos_neg_pickle
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
     optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
     dataset_size = len(train)
 
-    INTERVAL = 10000
+    INTERVAL = 5000000
     accum_count_btch = 0
     best_result_for_save = best_model_to_save
     improvement_seen = False
@@ -188,23 +188,23 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
 
 
 if __name__ == '__main__':
-    _train_dataset = DATASET.ECB
+    _train_dataset = DATASET.WEC
     _dev_dataset = DATASET.ECB
     _context_set = "single_sent_clean_kenton"
 
     _lr = 1e-7
     _batch_size = 32
-    _alpha = 7
-    _iterations = 5
+    _alpha = 30
+    _iterations = 3
     _use_cuda = True
-    _save_model = False
+    _save_model = True
     _fine_tune = False
 
     log_params_str = "train_ds" + _train_dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + \
                      str(_alpha) + "_itr" + str(_iterations)
     create_logger_with_fh(log_params_str)
 
-    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_best_trained_model"
+    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_best_trained_model_a" + str(_alpha)
     _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_1"
 
     if _save_model and _fine_tune and _model_out == _model_in:

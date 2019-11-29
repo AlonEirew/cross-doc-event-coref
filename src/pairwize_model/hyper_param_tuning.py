@@ -11,18 +11,18 @@ if __name__ == '__main__':
     _use_cuda = True
 
     _train_dataset = [DATASET.WEC]
-    _dev_dataset = [DATASET.WEC, DATASET.ECB]
+    _dev_dataset = [DATASET.ECB]
     _context_set = "single_sent_clean_kenton"
 
-    _lrs = [1e-6]
+    # _lrs = [1e-7]
     _batch_sizes = [32]
-    _alphas = [4, 6, 8, 10, 12, 14]
-    _iterations = 30
-    _prcs = [100]
+    _alphas = [4]
+    _iterations = 40
+    _prcs = [10, 20, 40, 60, 80]
     _use_cuda = True
     _save_model = True
 
-    log_params_str = "hptunning_learn_train_set_ALL_dev_set_ALL"
+    log_params_str = "hptunning_curve_learn_train_set_ECB_dev_set_ECB"
     create_logger_with_fh(log_params_str)
 
     best_save_thresh = 0.1
@@ -35,13 +35,14 @@ if __name__ == '__main__':
 
                         _model_out = str(LIBRARY_ROOT) + \
                                      "/saved_models/" + tds.name + "_" + \
-                                     dds.name + "_best_trained_model_a" + str(_alpha)
+                                     dds.name + "_best_trained_model2_per" + str(_prc)
 
                         _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = \
                             init_basic_training_resources(_context_set, tds, dds, _alpha, _use_cuda)
 
-                        # cut_train = int((len(_event_train_feat) * _prc) / 100)
-                        train_feat = _event_train_feat#_event_train_feat[0:cut_train]
+                        cut_train = int((len(_event_train_feat) * _prc) / 100)
+                        train_feat = _event_train_feat[0:cut_train]
+                        # train_feat = _event_train_feat
                         logger.info("final train size (pos+neg)=" + str(len(train_feat)))
 
                         logger.info("train_set=" + tds.name + ", dev_set=" + dds.name + ", lr=" + str(_lr) + ", bs=" +

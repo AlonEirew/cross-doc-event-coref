@@ -4,18 +4,17 @@ import torch
 
 from src import LIBRARY_ROOT
 from src.pairwize_model.train import get_measurements
-from src.utils.dataset_utils import get_feat, DATASET, SPLIT, create_features_from_pos_neg
+from src.utils.dataset_utils import get_feat, DATASET, SPLIT, create_features_from_pos_neg, load_datasets
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
-    context_set = "single_sent_clean_mean"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Dev_Event_gold_mentions.json"
+    context_set = "validated"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_CLEAN_JOIN.json"
 
-    positive_, negative_ = get_feat(event_validation_file, 16, DATASET.WEC)
-    features = create_features_from_pos_neg(positive_, negative_)
+    features = load_datasets(event_validation_file, -1, DATASET.WEC)
     accuracy_on_dataset(features)
 
 

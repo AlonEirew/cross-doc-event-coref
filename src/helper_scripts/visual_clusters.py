@@ -1,6 +1,10 @@
+import random
 from heapq import heappush, heappop
 
 import spacy
+
+from src import LIBRARY_ROOT
+from src.dataobjs.topics import Topics
 
 
 class VisualCluster(object):
@@ -18,14 +22,18 @@ def from_topics_to_clusters(all_topics):
     running_num = 0
     for top in all_topics.topics_list:
         for mention in top.mentions:
-            mention_cluster = mention.topic_id + mention.coref_chain
-            if mention_cluster in cluster_id_to_num:
-                mention_int_cluster_id = cluster_id_to_num[mention_cluster]
-                clusters[mention_int_cluster_id].append(mention)
-            else:
-                cluster_id_to_num[mention_cluster] = running_num
-                clusters[running_num] = [mention]
-                running_num += 1
+            if mention.coref_chain not in clusters:
+                clusters[mention.coref_chain] = list()
+            clusters[mention.coref_chain].append(mention)
+
+            # mention_cluster = mention.topic_id + mention.coref_chain
+            # if mention_cluster in cluster_id_to_num:
+            #     mention_int_cluster_id = cluster_id_to_num[mention_cluster]
+            #     clusters[mention_int_cluster_id].append(mention)
+            # else:
+            #     cluster_id_to_num[mention_cluster] = running_num
+            #     clusters[running_num] = [mention]
+            #     running_num += 1
 
     return clusters
 
@@ -47,13 +55,14 @@ def print_num_of_mentions_in_cluster(clusters):
 
 def main(entity_file, event_file):
     print('Done Loading all pairs, loading topics')
-    entity_topics, event_topics = load_mentions_from_file(entity_file, event_file)
+    event_topics = Topics()
+    event_topics.create_from_file(event_file, keep_order=True)
     print('Done Loading topics, create stats')
-    entity_clusters = from_topics_to_clusters(entity_topics)
+    # entity_clusters = from_topics_to_clusters(entity_topics)
     event_clusters = from_topics_to_clusters(event_topics)
 
     print('Entity cluster distribution')
-    print_num_of_mentions_in_cluster(entity_clusters)
+    # print_num_of_mentions_in_cluster(entity_clusters)
 
     print()
     print('Event cluster distribution')
@@ -64,7 +73,11 @@ def main(entity_file, event_file):
 
 def visualize_clusters(clusters):
     dispacy_obj = list()
-    for cluster_id, cluster_ments in clusters.items():
+
+    clus_keys = list(clusters.keys())
+    random.shuffle(clus_keys)
+    for cluster_id in clus_keys:
+        cluster_ments = clusters.get(cluster_id)
         if len(cluster_ments) == 1:
             continue
 
@@ -123,6 +136,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Event_gold_mentions.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/bkp_full_context/WEC_Dev_Event_gold_mentions.json'
     _entity_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'
     main(_entity_file, _event_file)
