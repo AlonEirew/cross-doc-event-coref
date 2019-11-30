@@ -2,14 +2,15 @@ import math
 import torch
 
 from torch import nn
-from transformers import BertForSequenceClassification
 
 
 class PairWiseModel(nn.Module):
-    def __init__(self, f_in_dim, f_hid_dim, f_out_dim):
+    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda=True):
         super(PairWiseModel, self).__init__()
         self.W = nn.Linear(f_hid_dim, f_out_dim)
         self.pairwize = PairWiseModel.get_sequential(f_in_dim, f_hid_dim)
+        self.bert_utils = bert_utils
+        self.use_cuda = use_cuda
 
     @staticmethod
     def get_sequential(ind, hidd):
@@ -23,27 +24,28 @@ class PairWiseModel(nn.Module):
             # nn.Dropout(0.2)
         )
 
-    def forward(self, features):
-        output = self.W(self.pairwize(features))
-        return output
+    def forward(self, batch_features, bs):
+        embeded_features, gold_labels = self.get_bert_rep(batch_features, bs)
+        prediction = self.W(self.pairwize(embeded_features))
+        return prediction, gold_labels
 
-    def predict(self, features):
-        output = self.__call__(features)
+    def predict(self, batch_features, bs):
+        output, gold_labels = self.__call__(batch_features, bs)
         output = torch.softmax(output, dim=1)
         _, prediction = torch.max(output, dim=1)
         # output = torch.sigmoid(output)
         # prediction = torch.round(output)
-        return prediction
+        return prediction, gold_labels
 
-    def get_bert_rep(self, batch_features, bert_utils, use_cuda, bs=None):
+    def get_bert_rep(self, batch_features, bs=None):
         # for mention1, mention2 in batch_features:
         mentions1, mentions2 = zip(*batch_features)
         # (1, 768), (1, 169)
-        hiddens1 = bert_utils.get_mentions_mean_rep(mentions1)
+        hiddens1 = self.bert_utils.get_mentions_mean_rep(mentions1)
         hiddens1, _ = zip(*hiddens1)
         hiddens1 = torch.cat(hiddens1)
         # (1, 768)
-        hiddens2 = bert_utils.get_mentions_mean_rep(mentions2)
+        hiddens2 = self.bert_utils.get_mentions_mean_rep(mentions2)
         hiddens2, _ = zip(*hiddens2)
         hiddens2 = torch.cat(hiddens2)
 
@@ -55,7 +57,7 @@ class PairWiseModel(nn.Module):
 
         ret_golds = torch.tensor(self.get_gold_labels(batch_features))
 
-        if use_cuda:
+        if self.use_cuda:
             concat_result = concat_result.cuda()
             ret_golds = ret_golds.cuda()
 
@@ -70,25 +72,25 @@ class PairWiseModel(nn.Module):
 
 
 class PairWiseModelKenton(PairWiseModel):
-    def __init__(self, f_in_dim, f_hid_dim, f_out_dim):
-        super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim)
+    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda):
+        super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda)
         self.attend = PairWiseModel.get_sequential(5376, f_hid_dim)
         self.w_alpha = nn.Linear(f_hid_dim, 7)
 
-    def get_bert_rep(self, batch_features, bert_utils, use_cuda, batch_size=32):
+    def get_bert_rep(self, batch_features, batch_size=32):
         mentions1, mentions2 = zip(*batch_features)
         # (x, 768)
-        hiddens1, first1_tok, last1_tok, ment1_size = zip(*bert_utils.get_mentions_rep(mentions1))
+        hiddens1, first1_tok, last1_tok, ment1_size = zip(*self.bert_utils.get_mentions_rep(mentions1))
         hiddens1 = torch.cat(hiddens1).reshape(batch_size, -1)
         first1_tok = torch.cat(first1_tok).reshape(batch_size, -1)
         last1_tok = torch.cat(last1_tok).reshape(batch_size, -1)
         # (x, 768)
-        hiddens2, first2_tok, last2_tok, ment2_size = zip(*bert_utils.get_mentions_rep(mentions2))
+        hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.bert_utils.get_mentions_rep(mentions2))
         hiddens2 = torch.cat(hiddens2).reshape(batch_size, -1)
         first2_tok = torch.cat(first2_tok).reshape(batch_size, -1)
         last2_tok = torch.cat(last2_tok).reshape(batch_size, -1)
 
-        if use_cuda:
+        if self.use_cuda:
             hiddens1 = hiddens1.cuda()
             hiddens2 = hiddens2.cuda()
             first1_tok = first1_tok.cuda()
@@ -123,7 +125,7 @@ class PairWiseModelKenton(PairWiseModel):
 
         ret_golds = torch.tensor(self.get_gold_labels(batch_features))
 
-        if use_cuda:
+        if self.use_cuda:
             concat_result = concat_result.cuda()
             ret_golds = ret_golds.cuda()
 
@@ -145,9 +147,3 @@ class PairWiseModelKenton(PairWiseModel):
             attend2_fx = attend2[i:i + 1, 0:val2]
             attend2_fx = torch.nn.functional.pad(attend2_fx, [0, 7 - val2, 0, 0], value=-math.inf)
             attend2[i:i + 1] = attend2_fx
-
-
-class PairWiseModelKentonFinetuen(PairWiseModelKenton):
-    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_model):
-        super(PairWiseModelKentonFinetuen, self).__init__(f_in_dim, f_hid_dim, f_out_dim)
-        self.bert_model = bert_model

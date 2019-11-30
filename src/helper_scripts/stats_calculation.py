@@ -19,19 +19,23 @@ def calc_longest_mention_context(split_list, message):
 def calc_singletons(split_list, message):
     result_dict = dict()
     singletons_count = 0
+    mentions_length = 0.0
     for mention in split_list:
         if mention.coref_chain in result_dict:
             result_dict[mention.coref_chain] += 1
         else:
             result_dict[mention.coref_chain] = 1
+        mentions_length += len(mention.tokens_number)
 
     for key, value in result_dict.items():
         if value == 1:
             singletons_count += 1
 
+    average_length = mentions_length / len(split_list)
     print(message + '_Singletons=' + str(singletons_count))
     print(message + '_Mentions=' + str(len(split_list)))
     print(message + '_Clusters=' + str(len(result_dict.keys())))
+    print(message + '_Average Length=' + str(average_length))
 
 
 def cal_head_lemma_pairs(data_file, message, alpha, dataset):
@@ -89,17 +93,17 @@ def calc_tp_fp_pairs_lemma():
 
 
 if __name__ == '__main__':
-    # _event_train = str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC_Train_Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/validated/WEC_CLEAN_JOIN.json'
+    _event_train = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Event_gold_mentions.json'
+    # _event_dev = str(LIBRARY_ROOT) + '/resources/validated/WEC_CLEAN_JOIN.json'
     # _event_test = str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC_Test_Event_gold_mentions.json'
 
-    # _train_list = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
+    _train_list = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
     # _dev_list = MentionData.read_mentions_json_to_mentions_data_list(_event_dev)
     # _test_list = MentionData.read_mentions_json_to_mentions_data_list(_event_test)
 
     # cal_head_lemma_pairs(_event_dev, "DEV", 1, DATASET.WEC)
 
-    # calc_singletons(_train_list, "Train")
+    calc_singletons(_train_list, "Train")
     # calc_singletons(_dev_list, "Dev")
     # calc_singletons(_test_list, "Test")
 
@@ -107,4 +111,4 @@ if __name__ == '__main__':
     # calc_longest_mention_context(_dev_list, "Dev")
     # calc_longest_mention_context(_test_list, "Test")
 
-    calc_tp_fp_pairs_lemma()
+    # calc_tp_fp_pairs_lemma()
