@@ -1,8 +1,6 @@
 import logging
 import multiprocessing
 
-from allennlp.predictors import Predictor
-
 from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.min_span_mention import set_mina_span

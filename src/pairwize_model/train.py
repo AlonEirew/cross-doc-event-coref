@@ -3,10 +3,11 @@ import logging
 import numpy as np
 import random
 import torch
+from transformers import BertForSequenceClassification
 
 from src import LIBRARY_ROOT
-from src.pairwize_model.model import PairWiseModelKenton
-from src.utils.bert_utils import BertFromFile
+from src.pairwize_model.model import PairWiseModelKenton, PairWiseModelKentonFinetuen
+from src.utils.bert_utils import BertFromFile, BertPretrainedUtils
 from src.utils.dataset_utils import DATASET, load_pos_neg_pickle
 from src.utils.log_utils import create_logger_with_fh
 
@@ -159,13 +160,18 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
                   str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.pickle"
                   ]
 
-    bert_utils = BertFromFile(bert_files)
+    _bert = BertForSequenceClassification.from_pretrained('bert-base-cased',
+                                                               output_hidden_states=True,
+                                                               output_attentions=True)
+
+    # bert_utils = BertFromFile(bert_files)
+    bert_utils = BertPretrainedUtils(-1, True, _bert, True)
 
     if fine_tune:
         logger.info("Loading model to fine tune-" + model_in)
         pairwize_model = torch.load(model_in)
     else:
-        pairwize_model = PairWiseModelKenton(20736, 150, 2)
+        pairwize_model = PairWiseModelKentonFinetuen(20736, 150, 2, _bert)
 
     event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_PosPairs.pickle"
     event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_NegPairs.pickle"
@@ -188,23 +194,23 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
 
 
 if __name__ == '__main__':
-    _train_dataset = DATASET.WEC
+    _train_dataset = DATASET.ECB
     _dev_dataset = DATASET.ECB
-    _context_set = "single_sent_clean_kenton"
+    _context_set = "final_dataset"
 
-    _lr = 1e-7
+    _lr = 1e-5
     _batch_size = 32
-    _alpha = 30
-    _iterations = 3
+    _alpha = 4
+    _iterations = 30
     _use_cuda = True
-    _save_model = True
+    _save_model = False
     _fine_tune = False
 
     log_params_str = "train_ds" + _train_dataset.name + "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + \
                      str(_alpha) + "_itr" + str(_iterations)
     create_logger_with_fh(log_params_str)
 
-    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_best_trained_model_a" + str(_alpha)
+    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_new_a" + str(_alpha)
     _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_1"
 
     if _save_model and _fine_tune and _model_out == _model_in:

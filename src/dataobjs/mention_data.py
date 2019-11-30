@@ -226,11 +226,11 @@ class MentionData(MentionDataLight):
 
     @staticmethod
     def read_sqlite_mention_data_line_v9(mention_line, gen_lemma=True, extract_valid_sent=True):
-        mention_data = MentionData.read_sqlite_mention_data_line_v8(mention_line, gen_lemma, False)
+        mention_data_full_context = MentionData.read_sqlite_mention_data_line_v8(mention_line, gen_lemma, False)
         token_start = mention_line[2]
         token_end = mention_line[3]
         mention_context = mention_line[5]
-        mention_data.tokens_number = list()
+        mention_data_full_context.tokens_number = list()
 
         context_json = json.loads(mention_context)
         final_context = list()
@@ -241,26 +241,46 @@ class MentionData(MentionDataLight):
                     token_str, token_index = list(token_dict.items())[0]
                     final_context.append(token_str)
                     if token_start <= token_index <= token_end:
-                        mention_data.tokens_number.append(token_index)
-                        mention_data.sent_id = sent_id
+                        mention_data_full_context.tokens_number.append(token_index)
+                        mention_data_full_context.sent_id = sent_id
 
                 sent_id += 1
 
+        mention_data_full_context.mention_context = final_context
+
+        mention_data_single_sent = MentionData(mention_data_full_context.mention_id,
+                                               mention_data_full_context.topic_id,
+                                               mention_data_full_context.doc_id,
+                                               mention_data_full_context.sent_id,
+                                               [tok for tok in mention_data_full_context.tokens_number],
+                                               mention_data_full_context.tokens_str,
+                                               mention_data_full_context.mention_context,
+                                               mention_data_full_context.mention_head,
+                                               mention_data_full_context.mention_head_lemma,
+                                               mention_data_full_context.coref_chain,
+                                               mention_data_full_context.mention_type,
+                                               mention_data_full_context.is_continuous,
+                                               mention_data_full_context.is_singleton,
+                                               mention_data_full_context.score,
+                                               mention_data_full_context.predicted_coref_chain,
+                                               mention_data_full_context.mention_head_pos,
+                                               mention_data_full_context.mention_ner,
+                                               mention_data_full_context.mention_index)
         if extract_valid_sent:
-            tmp_context = context_json[mention_data.sent_id]
+            tmp_context = context_json[mention_data_single_sent.sent_id]
             sentence_start_token = tmp_context[0]
             sentence_start_token_str, sentence_start_token_index = list(sentence_start_token.items())[0]
-            for i in range(len(mention_data.tokens_number)):
-                mention_data.tokens_number[i] = mention_data.tokens_number[i] - sentence_start_token_index
+            for i in range(len(mention_data_single_sent.tokens_number)):
+                mention_data_single_sent.tokens_number[i] = mention_data_single_sent.tokens_number[i] - sentence_start_token_index
 
             final_context = list()
             for sentence_tokens in tmp_context:
                 token_str, token_index = list(sentence_tokens.items())[0]
                 final_context.append(token_str)
 
-        mention_data.mention_context = final_context
+            mention_data_single_sent.mention_context = final_context
 
-        return mention_data
+        return mention_data_full_context, mention_data_single_sent
 
     def get_tokens(self):
         return self.tokens_number

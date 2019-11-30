@@ -35,35 +35,33 @@ def extract_feature_dict(topics, bert_utils):
     return result_train
 
 
-def worker(resource_file):
+def worker(resource_file, res_folder):
     name = multiprocessing.current_process().name
-    print(name, 'Starting')
+    print(name, "Starting")
     bert_utils = BertPretrainedUtils(-1)
 
     topics = Topics()
     topics.create_from_file(resource_file, keep_order=True)
     train_feat = extract_feature_dict(topics, bert_utils)
     basename = path.basename(path.splitext(resource_file)[0])
-    pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/single_sent_clean_kenton/" +
+    pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/" + res_folder + "/" +
                                  basename + ".pickle", "w+b"))
 
     print("Done with -" + basename)
 
 
 if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn')
+    multiprocessing.set_start_method("spawn")
+    _res_folder = "final_dataset"
 
-    all_files = [str(LIBRARY_ROOT) + '/resources/final_dataset/ECB_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_dataset/ECB_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_dataset/ECB_Test_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Event_gold_mentions.json',
-                 str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Event_gold_mentions.json'
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Dev_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Test_Event_gold_mentions.json",
+                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Train_Event_gold_mentions.json",
                  ]
 
     jobs = list()
     for _resource_file in all_files:
-        job = multiprocessing.Process(target=worker, args=(_resource_file,))
+        job = multiprocessing.Process(target=worker, args=(_resource_file, _res_folder))
         jobs.append(job)
         job.start()
 

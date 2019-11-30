@@ -2,6 +2,7 @@ import math
 import torch
 
 from torch import nn
+from transformers import BertForSequenceClassification
 
 
 class PairWiseModel(nn.Module):
@@ -77,12 +78,12 @@ class PairWiseModelKenton(PairWiseModel):
     def get_bert_rep(self, batch_features, bert_utils, use_cuda, batch_size=32):
         mentions1, mentions2 = zip(*batch_features)
         # (x, 768)
-        hiddens1, first1_tok, last1_tok, ment1_size = zip(*bert_utils.get_mentions_mean_rep(mentions1))
+        hiddens1, first1_tok, last1_tok, ment1_size = zip(*bert_utils.get_mentions_rep(mentions1))
         hiddens1 = torch.cat(hiddens1).reshape(batch_size, -1)
         first1_tok = torch.cat(first1_tok).reshape(batch_size, -1)
         last1_tok = torch.cat(last1_tok).reshape(batch_size, -1)
         # (x, 768)
-        hiddens2, first2_tok, last2_tok, ment2_size = zip(*bert_utils.get_mentions_mean_rep(mentions2))
+        hiddens2, first2_tok, last2_tok, ment2_size = zip(*bert_utils.get_mentions_rep(mentions2))
         hiddens2 = torch.cat(hiddens2).reshape(batch_size, -1)
         first2_tok = torch.cat(first2_tok).reshape(batch_size, -1)
         last2_tok = torch.cat(last2_tok).reshape(batch_size, -1)
@@ -144,3 +145,9 @@ class PairWiseModelKenton(PairWiseModel):
             attend2_fx = attend2[i:i + 1, 0:val2]
             attend2_fx = torch.nn.functional.pad(attend2_fx, [0, 7 - val2, 0, 0], value=-math.inf)
             attend2[i:i + 1] = attend2_fx
+
+
+class PairWiseModelKentonFinetuen(PairWiseModelKenton):
+    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_model):
+        super(PairWiseModelKentonFinetuen, self).__init__(f_in_dim, f_hid_dim, f_out_dim)
+        self.bert_model = bert_model
