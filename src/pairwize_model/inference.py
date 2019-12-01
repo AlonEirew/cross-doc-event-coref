@@ -78,8 +78,8 @@ def accuracy_on_dataset_local(message, itr, bert_utils, pairwize_model, features
 
 if __name__ == '__main__':
     dataset = DATASET.ECB
-    split = SPLIT.Test
-    alpha = -1
+    split = SPLIT.Train
+    alpha = 4
     context_set = "single_sent_clean_kenton"
 
     log_param_str = "inference_" + dataset.name + ".log"
@@ -88,8 +88,8 @@ if __name__ == '__main__':
     _event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_PosPairs.pickle"
     _event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_NegPairs.pickle"
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model2_per80"
-    _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
+    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_finetune_a4"
+    # _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
 
     # pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/__pairs_eval/TP_WEC_" + dataset.name + "_" + split.name + "_paris.txt"
     # pairs_fp_out_file = str(LIBRARY_ROOT) + "/reports/__pairs_eval/FP_WEC_" + dataset.name + "_" + split.name + "_paris.txt"
@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
     split_feat = load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, alpha)
     # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset("", 0, _bert_utils, _pairwize_model, split_feat, use_cuda=_use_cuda)
-    accuracy_on_dataset("", 0, _bert_utils, _pairwize_model, split_feat, use_cuda=_use_cuda)
+    accuracy_on_dataset("", 0, _pairwize_model, split_feat)
 
     # with open(pairs_tp_out_file, 'w') as f:
     #     for item in pairs_tp:
