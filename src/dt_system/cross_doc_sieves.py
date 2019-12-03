@@ -1,8 +1,8 @@
 import logging
 from typing import List
 
-from src.obj.cluster import Clusters
-from src.obj.topics import Topics
+from src.dataobjs.cluster import Clusters
+from src.dataobjs.topics import Topics
 from src.dt_system.run_sieve_system import get_run_system
 from src.dt_system.sieves_container_init import SievesContainerInitialization
 

@@ -11,10 +11,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
-    context_set = "validated"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_CLEAN_JOIN.json"
+    context_set = "final_dataset"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Dev_Event_gold_mentions.json"
 
-    features = load_datasets(event_validation_file, -1, DATASET.WEC)
+    features = load_datasets(event_validation_file, 20, DATASET.WEC)
     accuracy_on_dataset(features)
 
 
@@ -22,7 +22,7 @@ def accuracy_on_dataset(features):
     labels = list()
     predictions = list()
     for mention1, mention2 in features:
-        pred = 1 if mention1.mention_head == mention2.mention_head else 0
+        pred = 1 if mention1.mention_head_lemma.lower() == mention2.mention_head_lemma.lower() else 0
         gold_label = 1 if mention1.coref_chain == mention2.coref_chain else 0
         labels.append(pred)
         predictions.append(gold_label)

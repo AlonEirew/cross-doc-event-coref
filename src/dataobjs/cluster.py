@@ -45,7 +45,7 @@ class Cluster(object):
 class Clusters(object):
     cluster_coref_chain = 1
 
-    def __init__(self, topic_id: str, mentions = None) -> None:
+    def __init__(self, topic_id: str, mentions=None) -> None:
         """
 
         Args:
@@ -64,7 +64,7 @@ class Clusters(object):
                 The initial mentions to create the clusters from
 
         """
-        if mentions:
+        if mentions is not None:
             for mention in mentions:
                 cluster = Cluster(Clusters.cluster_coref_chain)
                 cluster.add_mention(mention)
@@ -108,6 +108,8 @@ class Clusters(object):
                 all_mentions.extend(cluster.mentions)
 
         all_mentions.sort(key=lambda mention: mention.mention_index)
+
+        print(str(len(all_mentions)))
 
         return all_mentions
 

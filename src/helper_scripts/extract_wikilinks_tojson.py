@@ -60,7 +60,7 @@ def get_root_of_mention(root, mention):
 def clean_long_mentions(mentions_to_clean):
     new_mentions = list()
     for mention in mentions_to_clean:
-        if len(mention.tokens_number) <= 7:
+        if len(mention.tokens_number) <= 7 and len(mention.mention_context) <= 75:
             new_mentions.append(mention)
 
     print("Total mentions with exceeding span or context cleaned-" + str(len(mentions_to_clean) - len(new_mentions)))

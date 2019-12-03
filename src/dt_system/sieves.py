@@ -1,15 +1,15 @@
 import logging
 from typing import Tuple
 
-from src.ext_resources.relations.relation_extraction import RelationExtraction
-from src.ext_resources.relations.relation_types_enums import RelationType
-from src.obj.cluster import Cluster
+from src.dataobjs.cluster import Cluster
+from src.dt_system.relation_extraction import RelationExtraction
+from src.dt_system.relation_type_enum import RelationTypeEnum
 
 logger = logging.getLogger(__name__)
 
 
 class SieveClusterMerger(object):
-    def __init__(self, excepted_relation: Tuple[RelationType, float],
+    def __init__(self, excepted_relation: Tuple[RelationTypeEnum, float],
                  relation_extractor: RelationExtraction):
         """
         Args:

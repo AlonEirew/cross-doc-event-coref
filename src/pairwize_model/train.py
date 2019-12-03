@@ -13,7 +13,7 @@ from src.utils.log_utils import create_logger_with_fh
 logger = logging.getLogger(__name__)
 
 
-def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, epochs=4,
+def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
                    lr=1e-5, save_model=False, model_out=None, best_model_to_save=0.1):
     loss_func = torch.nn.CrossEntropyLoss()
     # loss_func = torch.nn.BCEWithLogitsLoss()
@@ -59,7 +59,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
                 accum_count_btch += 1
                 pairwize_model.eval()
                 # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-                _, _, _, dev_f1 = accuracy_on_dataset("Dev", accum_count_btch, bert_utils, pairwize_model, validation)
+                _, _, _, dev_f1 = accuracy_on_dataset("Dev", accum_count_btch, pairwize_model, validation)
                 # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
                 pairwize_model.train()
 
@@ -102,7 +102,7 @@ def train_pairwise(bert_utils, pairwize_model, train, validation, batch_size, ep
 
 def accuracy_on_dataset(testset, epoch, pairwize_model, features):
     dataset_size = len(features)
-    batch_size = 32
+    batch_size = 10000
     end_index = batch_size
     labels = list()
     predictions = list()
@@ -158,8 +158,8 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
                   str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.pickle"
                   ]
 
-    # bert_utils = BertFromFile(bert_files)
-    bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
+    bert_utils = BertFromFile(bert_files)
+    # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
 
     if fine_tune:
         logger.info("Loading model to fine tune-" + model_in)
@@ -174,11 +174,7 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
     event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions_NegPairs.pickle"
 
     train_feat = load_pos_neg_pickle(event_train_file_pos, event_train_file_neg, alpha)
-
-    if dev_dataset == DATASET.ECB:
-        validation_feat = load_pos_neg_pickle(event_validation_file_pos, event_validation_file_neg, -1)
-    else:
-        validation_feat = load_pos_neg_pickle(event_validation_file_pos, event_validation_file_neg, 16)
+    validation_feat = load_pos_neg_pickle(event_validation_file_pos, event_validation_file_neg, -1)
 
     if use_cuda:
         # print(torch.cuda.get_device_name(1))
@@ -189,13 +185,13 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
 
 
 if __name__ == '__main__':
-    _train_dataset = DATASET.WEC
+    _train_dataset = DATASET.ECB
     _dev_dataset = DATASET.ECB
     _context_set = "final_dataset"
 
     _lr = 1e-6
     _batch_size = 32
-    _alpha = 6
+    _alpha = 4
     _iterations = 20
     _use_cuda = True
     _save_model = True
@@ -206,7 +202,7 @@ if __name__ == '__main__':
                      str(_alpha) + "_itr" + str(_iterations)
     create_logger_with_fh(log_params_str)
 
-    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_finetune_a" + str(_alpha)
+    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_final_a" + str(_alpha)
     _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_1"
 
     if _save_model and _fine_tune and _model_out == _model_in:

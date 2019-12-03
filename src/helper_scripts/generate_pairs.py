@@ -8,8 +8,9 @@ from src.utils.dataset_utils import get_feat, DATASET
 
 def generate_pairs():
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _res_file + ".json"
-    positive_, negative_ = get_feat(event_validation_file, 50, DATASET.WEC)
+    positive_, negative_ = get_feat(event_validation_file, -1, DATASET.ECB)
 
+    validate_pairs(positive_, negative_)
     basename = path.basename(path.splitext(event_validation_file)[0])
     print("Positives=" + str(len(positive_)))
     pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs.pickle", "w+b"))
@@ -18,9 +19,7 @@ def generate_pairs():
     print("Done with " + event_validation_file)
 
 
-def validate_pairs():
-    neg_pairs, pos_pairs = get_pairs()
-
+def validate_pairs(pos_pairs, neg_pairs):
     for men1, men2 in neg_pairs:
         if men1.coref_chain == men2.coref_chain:
             print("NEG BUG!!!!!!!!!!")
@@ -59,7 +58,7 @@ def output_examples():
 
 if __name__ == '__main__':
     _res_folder = "final_dataset"
-    _res_file = "WEC_Test_Event_gold_mentions"
+    _res_file = "WEC_Dev_Event_gold_mentions"
     generate_pairs()
     # validate_pairs()
     # output_examples()

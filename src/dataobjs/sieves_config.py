@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from src.ext_resources.relations.relation_types_enums import RelationType
+from src.dt_system.relation_type_enum import RelationTypeEnum
 
 
 class SievesConfiguration(object):
@@ -27,7 +27,7 @@ class SievesConfiguration(object):
         return self.__sieves_order
 
     @sieves_order.setter
-    def sieves_order(self, sieves_order: List[Tuple[RelationType, float]]):
+    def sieves_order(self, sieves_order: List[Tuple[RelationTypeEnum, float]]):
         self.__sieves_order = sieves_order
 
     @property
@@ -47,19 +47,7 @@ class EventSievesConfiguration(SievesConfiguration):
         self.run_evaluation = True
 
         self.sieves_order = [
-            (RelationType.SAME_HEAD_LEMMA, 1.0),
-            (RelationType.EXACT_STRING, 1.0),
-            (RelationType.WIKIPEDIA_DISAMBIGUATION, 0.1),
-            (RelationType.WORD_EMBEDDING_MATCH, 0.7),
-            (RelationType.WIKIPEDIA_REDIRECT_LINK, 0.1),
-            (RelationType.FUZZY_HEAD_FIT, 0.5),
-            (RelationType.FUZZY_FIT, 1.0),
-            (RelationType.WITHIN_DOC_COREF, 1.0),
-            (RelationType.WIKIPEDIA_TITLE_PARENTHESIS, 0.1),
-            (RelationType.WIKIPEDIA_BE_COMP, 0.1),
-            (RelationType.WIKIPEDIA_CATEGORY, 0.1),
-            (RelationType.VERBOCEAN_MATCH, 0.1),
-            (RelationType.WORDNET_DERIVATIONALLY, 1.0)
+            (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
         ]
 
 
@@ -70,18 +58,5 @@ class EntitySievesConfiguration(SievesConfiguration):
         self.run_evaluation = True
 
         self.sieves_order = [
-            (RelationType.SAME_HEAD_LEMMA, 1.0),
-            (RelationType.EXACT_STRING, 1.0),
-            (RelationType.FUZZY_FIT, 1.0),
-            (RelationType.WIKIPEDIA_REDIRECT_LINK, 0.1),
-            (RelationType.WIKIPEDIA_DISAMBIGUATION, 0.1),
-            (RelationType.WORD_EMBEDDING_MATCH, 0.7),
-            (RelationType.WORDNET_PARTIAL_SYNSET_MATCH, 0.1),
-            (RelationType.FUZZY_HEAD_FIT, 0.5),
-            (RelationType.WIKIPEDIA_CATEGORY, 0.1),
-            (RelationType.WITHIN_DOC_COREF, 1.0),
-            (RelationType.WIKIPEDIA_BE_COMP, 0.1),
-            (RelationType.WIKIPEDIA_TITLE_PARENTHESIS, 0.1),
-            (RelationType.WORDNET_SAME_SYNSET, 1.0),
-            (RelationType.REFERENT_DICT, 0.5)
+            (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
         ]

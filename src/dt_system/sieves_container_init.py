@@ -1,8 +1,8 @@
 import logging
 from typing import List
 
-from src.ext_resources.relations.relation_extraction import RelationExtraction
-from src.obj.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
+from src.dataobjs.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
+from src.dt_system.relation_extraction import RelationExtraction
 
 logger = logging.getLogger(__name__)
 

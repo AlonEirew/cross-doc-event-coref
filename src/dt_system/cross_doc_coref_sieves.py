@@ -2,66 +2,47 @@ import logging
 from typing import List
 
 from src import LIBRARY_ROOT
-from src.ext_resources.relations.computed_relation_extraction import ComputedRelationExtraction
-from src.ext_resources.relations.relation_types_enums import RelationType, WikipediaSearchMethod
+from src.dataobjs.cluster import Clusters
+from src.dataobjs.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
+from src.dataobjs.topics import Topics
+from src.dt_system.computed_relation_extraction import ComputedRelationExtraction
 from src.dt_system.cross_doc_sieves import run_event_coref, run_entity_coref
-from src.obj.cluster import Clusters
-from src.obj.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
-from src.obj.sieves_resource import SievesResources
-from src.obj.topics import Topics
+from src.dt_system.relation_type_enum import RelationTypeEnum
 from src.dt_system.sieves_container_init import SievesContainerInitialization
 from src.utils.io_utils import write_coref_scorer_results
 
 
 def run_example(cdc_settings):
-    event_mentions_topics = Topics()
-    event_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'corpora' / 'wiki' / 'gold_json' / 'WIKI_DEV_Event_gold_mentions.json'), True)
-
     event_clusters = None
     if cdc_settings.event_config.run_evaluation:
+        event_mentions_topics = Topics()
+        event_mentions_topics.create_from_file(
+            str(LIBRARY_ROOT) + "/resources/final_dataset/WEC_Dev_Event_gold_mentions.json", True)
         logger.info('Running event coreference resolution')
         event_clusters = run_event_coref(event_mentions_topics, cdc_settings)
 
-    entity_mentions_topics = Topics()
-    entity_mentions_topics.create_from_file(str(LIBRARY_ROOT / 'resources' / 'corpora' / 'ecb' / 'gold_json' / 'ECB_Test_Entity_gold_mentions.json'), True)
     entity_clusters = None
     if cdc_settings.entity_config.run_evaluation:
+        entity_mentions_topics = Topics()
+        entity_mentions_topics.create_from_file(
+            str(LIBRARY_ROOT / 'resources' / 'corpora' / 'ecb' / 'gold_json' / 'ECB_Test_Entity_gold_mentions.json'), True)
         logger.info('Running entity coreference resolution')
         entity_clusters = run_entity_coref(entity_mentions_topics, cdc_settings)
 
     return event_clusters, entity_clusters
 
 
-def load_modules(cdc_resources):
-    models = list()
-    # models.append(WikipediaRelationExtraction(ext_resources.wiki_search_method,
-    #                                           wiki_file=ext_resources.wiki_folder,
-    #                                           host=ext_resources.elastic_host,
-    #                                           port=ext_resources.elastic_port,
-    #                                           index=ext_resources.elastic_index))
-    # models.append(WordEmbeddingRelationExtraction(ext_resources.embed_search_method,
-    #                                               glove_file=ext_resources.glove_file,
-    #                                               elmo_file=ext_resources.elmo_file,
-    #                                               cos_accepted_dist=0.75))
-    # models.append(ReferentDictRelationExtraction(ext_resources.referent_dict_method,
-    #                                              ext_resources.referent_dict_file))
-    models.append(ComputedRelationExtraction())
-    return models
-
-
 def create_example_settings():
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        (RelationType.EXACT_STRING, 1.0),
-        (RelationType.SAME_HEAD_LEMMA, 1.0)
+        (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
     ]
 
     event_config.run_evaluation = True
 
     entity_config = EntitySievesConfiguration()
     entity_config.sieves_order = [
-        (RelationType.EXACT_STRING, 1.0),
-        (RelationType.SAME_HEAD_LEMMA, 1.0)
+        (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
     ]
 
     entity_config.run_evaluation = False
@@ -70,10 +51,7 @@ def create_example_settings():
     # (using the defaults values in this example), use to configure attributes
     # such as resources files location, output directory, resources init methods and other.
     # check in class and see if any attributes require change in your set-up
-    resource_location = SievesResources()
-    resource_location.wiki_search_method = WikipediaSearchMethod.ELASTIC
-    return SievesContainerInitialization(event_config, entity_config,
-                                         load_modules(resource_location))
+    return SievesContainerInitialization(event_config, entity_config, [ComputedRelationExtraction()])
 
 
 def run_cdc_pipeline(print_method):
@@ -107,7 +85,7 @@ def print_results(clusters: List[Clusters], type: str):
 
 def print_scorer_results(all_clusters, eval_type):
     if eval_type == 'Event':
-        out_file = str(LIBRARY_ROOT / 'output' / 'event_scorer_results.txt')
+        out_file = str(LIBRARY_ROOT) + "/output/event_scorer_results.txt"
     else:
         out_file = str(LIBRARY_ROOT / 'output' / 'entity_scorer_results.txt')
 
@@ -123,3 +101,11 @@ if __name__ == '__main__':
     print_method = print_scorer_results
 
     run_cdc_pipeline(print_method)
+
+################################## CREATE GOLD BASE LINE ################################
+    # mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json')
+    # for ment in mentions:
+    #     ment.predicted_coref_chain = ment.coref_chain
+    #
+    # write_coref_scorer_results(sorted(mentions, key=lambda ment: ment.coref_chain, reverse=False),
+    #                            str(LIBRARY_ROOT) + "/resources/gold_scorer/wec/CD_dev_event_mention_based.txt")

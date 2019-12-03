@@ -40,7 +40,7 @@ class MentionData(MentionDataLight):
                  is_continuous: bool = True, is_singleton: bool = False, score: float = float(-1),
                  predicted_coref_chain: str = None, mention_pos: str = None,
                  mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False,
-                 min_span_str: str = None, min_span_ids: List[int] = None) -> None:
+                 min_span_str: str = None, min_span_ids: List[int] = None, manual_score: int = -1) -> None:
         """
         Object represent a mention
 
@@ -78,6 +78,7 @@ class MentionData(MentionDataLight):
         self.mention_id = str(mention_id)
         self.min_span_str = min_span_str
         self.min_span_ids = min_span_ids
+        self.manual_score = manual_score
 
         if self.mention_id is None:
             self.mention_id = self.gen_mention_id()
@@ -113,6 +114,7 @@ class MentionData(MentionDataLight):
             mention_index = -1
             min_span_str = None
             min_span_ids = None
+            manual_score = -1
 
             mention_text = mention_line['tokens_str']
 
@@ -173,12 +175,16 @@ class MentionData(MentionDataLight):
             if 'min_span_ids' in mention_line:
                 min_span_ids = mention_line['min_span_ids']
 
+            if 'manual_score' in mention_line:
+                manual_score = mention_line['manual_score']
+
             mention_data = MentionData(mention_id, topic_id, doc_id, sent_id, tokens_numbers, mention_text,
                                        mention_context,
                                        mention_head, mention_head_lemma,
                                        coref_chain, mention_type, is_continue, is_singleton, score,
                                        predicted_coref_chain, mention_pos, mention_ner,
-                                       mention_index, min_span_str=min_span_str, min_span_ids=min_span_ids)
+                                       mention_index, min_span_str=min_span_str, min_span_ids=min_span_ids,
+                                       manual_score=manual_score)
         except Exception:
             print('Unexpected error:', sys.exc_info()[0])
             raise Exception('failed reading json line-' + str(mention_line))

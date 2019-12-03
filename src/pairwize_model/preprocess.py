@@ -38,14 +38,14 @@ def extract_feature_dict(topics, bert_utils):
 def worker(resource_file, res_folder):
     name = multiprocessing.current_process().name
     print(name, "Starting")
-    bert_utils = BertPretrainedUtils(-1, pad=True)
+    bert_utils = BertPretrainedUtils(max_surrounding_contx=-1, finetune=False, use_cuda=True, pad=False)
 
     topics = Topics()
     topics.create_from_file(resource_file, keep_order=True)
     train_feat = extract_feature_dict(topics, bert_utils)
     basename = path.basename(path.splitext(resource_file)[0])
     pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/" + res_folder + "/" +
-                                 basename + "_pad.pickle", "w+b"))
+                                 basename + ".pickle", "w+b"))
 
     print("Done with -" + basename)
 
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     _res_folder = "final_dataset"
 
     all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Dev_Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Test_Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Train_Event_gold_mentions.json",
+                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Test_Event_gold_mentions.json",
+                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Train_Event_gold_mentions.json",
                  ]
 
     jobs = list()

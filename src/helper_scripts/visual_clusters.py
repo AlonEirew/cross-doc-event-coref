@@ -53,7 +53,7 @@ def print_num_of_mentions_in_cluster(clusters):
         print(str(key) + ': ' + str(value))
 
 
-def main(entity_file, event_file):
+def main(event_file):
     print('Done Loading all pairs, loading topics')
     event_topics = Topics()
     event_topics.create_from_file(event_file, keep_order=True)
@@ -78,18 +78,18 @@ def visualize_clusters(clusters):
     random.shuffle(clus_keys)
     for cluster_id in clus_keys:
         cluster_ments = clusters.get(cluster_id)
-        if len(cluster_ments) == 1:
-            continue
-
         context_mentions = dict()
         unique_mentions_head = set()
+        cluster_ments_count = 0
         for mention in cluster_ments:
-            unique_mentions_head.add(mention.tokens_str.lower())
-            context, start, end = get_context_start_end(mention)
-            if context not in context_mentions:
-                context_mentions[context] = list()
+            if mention.manual_score in threash:
+                cluster_ments_count += 1
+                unique_mentions_head.add(mention.tokens_str.lower())
+                context, start, end = get_context_start_end(mention)
+                if context not in context_mentions:
+                    context_mentions[context] = list()
 
-            heappush(context_mentions[context], (start, end, mention.mention_id, str(cluster_id)))
+                heappush(context_mentions[context], (start, end, mention.mention_id, str(cluster_id)))
 
         cluster_context = ""
         ents = list()
@@ -104,14 +104,15 @@ def visualize_clusters(clusters):
 
             cluster_context = cluster_context + '\n' + context
 
-        clust_title = str(cluster_id) + '(mentions:' + str(len(cluster_ments)) \
-                      + ', unique:' + str(len(unique_mentions_head)) + ')'
+        if cluster_ments_count > 0:
+            clust_title = str(cluster_id) + '(mentions:' + str(len(cluster_ments)) \
+                          + ', unique:' + str(len(unique_mentions_head)) + ')'
 
-        dispacy_obj.append({
-            'text': cluster_context,
-            'ents': ents,
-            'title': clust_title
-        })
+            dispacy_obj.append({
+                'text': cluster_context,
+                'ents': ents,
+                'title': clust_title
+            })
 
     spacy.displacy.serve(dispacy_obj, style='ent', manual=True)
 
@@ -136,6 +137,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/bkp_full_context/WEC_Dev_Event_gold_mentions.json'
-    _entity_file = 'data/interim/kian/gold_mentions_with_context/ECB_Dev_Entity_gold_mentions.json'
-    main(_entity_file, _event_file)
+    _event_file = str(LIBRARY_ROOT) + '/resources/validated/WEC_Dev_Full_Event_gold_mentions.json'
+    threash = [-1]
+    main(_event_file)

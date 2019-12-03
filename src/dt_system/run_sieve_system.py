@@ -1,8 +1,8 @@
 import logging
 import time
 
-from src.obj.cluster import Clusters
-from src.obj.topics import Topic
+from src.dataobjs.cluster import Clusters
+from src.dataobjs.topics import Topic
 from src.dt_system.sieves import SieveClusterMerger
 from src.dt_system.sieves_container_init import SievesContainerInitialization
 
