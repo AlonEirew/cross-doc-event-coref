@@ -78,7 +78,9 @@ class MentionData(MentionDataLight):
         self.mention_id = str(mention_id)
         self.min_span_str = min_span_str
         self.min_span_ids = min_span_ids
-        self.manual_score = manual_score
+
+        if manual_score > 0:
+            self.manual_score = manual_score
 
         if self.mention_id is None:
             self.mention_id = self.gen_mention_id()

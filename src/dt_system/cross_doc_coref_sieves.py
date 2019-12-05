@@ -4,67 +4,56 @@ from typing import List
 from src import LIBRARY_ROOT
 from src.dataobjs.cluster import Clusters
 from src.dataobjs.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
-from src.dataobjs.topics import Topics
+from src.dataobjs.topics import Topics, Topic
+from src.dt_system import pairwize_relation_extraction
 from src.dt_system.computed_relation_extraction import ComputedRelationExtraction
 from src.dt_system.cross_doc_sieves import run_event_coref, run_entity_coref
+from src.dt_system.pairwize_relation_extraction import PairWizeRelationExtraction
 from src.dt_system.relation_type_enum import RelationTypeEnum
 from src.dt_system.sieves_container_init import SievesContainerInitialization
+from src.pairwize_model import configuration
+from src.utils.dataset_utils import to_single_topic
 from src.utils.io_utils import write_coref_scorer_results
 
 
-def run_example(cdc_settings):
+def run_example(cdc_settings, event_mentions_topics):
     event_clusters = None
     if cdc_settings.event_config.run_evaluation:
-        event_mentions_topics = Topics()
-        event_mentions_topics.create_from_file(
-            str(LIBRARY_ROOT) + "/resources/final_dataset/WEC_Dev_Event_gold_mentions.json", True)
         logger.info('Running event coreference resolution')
         event_clusters = run_event_coref(event_mentions_topics, cdc_settings)
 
-    entity_clusters = None
-    if cdc_settings.entity_config.run_evaluation:
-        entity_mentions_topics = Topics()
-        entity_mentions_topics.create_from_file(
-            str(LIBRARY_ROOT / 'resources' / 'corpora' / 'ecb' / 'gold_json' / 'ECB_Test_Entity_gold_mentions.json'), True)
-        logger.info('Running entity coreference resolution')
-        entity_clusters = run_entity_coref(entity_mentions_topics, cdc_settings)
-
-    return event_clusters, entity_clusters
+    return event_clusters
 
 
 def create_example_settings():
+    model_file = configuration.load_model_file
+    bert_file = configuration.bert_dt_file
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
+        (RelationTypeEnum.PAIRWISE, 1.0)
+        # (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
     ]
+    sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
+        PairWizeRelationExtraction(model_file, bert_file)
+        # ComputedRelationExtraction()
+    ])
 
     event_config.run_evaluation = True
-
-    entity_config = EntitySievesConfiguration()
-    entity_config.sieves_order = [
-        (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
-    ]
-
-    entity_config.run_evaluation = False
 
     # CDCResources hold default attribute values that might need to be change,
     # (using the defaults values in this example), use to configure attributes
     # such as resources files location, output directory, resources init methods and other.
     # check in class and see if any attributes require change in your set-up
-    return SievesContainerInitialization(event_config, entity_config, [ComputedRelationExtraction()])
+    return sieves_container
 
 
-def run_cdc_pipeline(print_method):
+def run_cdc_pipeline(print_method, event_mentions_topics):
     cdc_settings = create_example_settings()
-    event_clusters, entity_clusters = run_example(cdc_settings)
+    event_clusters = run_example(cdc_settings, event_mentions_topics)
 
     print('-=Cross Document Coref Results=-')
     if cdc_settings.event_config.run_evaluation:
         print_method(event_clusters, 'Event')
-
-    print('################################')
-    if cdc_settings.entity_config.run_evaluation:
-        print_method(entity_clusters, 'Entity')
 
 
 def print_results(clusters: List[Clusters], type: str):
@@ -84,13 +73,8 @@ def print_results(clusters: List[Clusters], type: str):
 
 
 def print_scorer_results(all_clusters, eval_type):
-    if eval_type == 'Event':
-        out_file = str(LIBRARY_ROOT) + "/output/event_scorer_results.txt"
-    else:
-        out_file = str(LIBRARY_ROOT / 'output' / 'entity_scorer_results.txt')
-
     all_mentions = Clusters.from_clusters_to_mentions_list(all_clusters)
-    write_coref_scorer_results(all_mentions, out_file)
+    write_coref_scorer_results(all_mentions, configuration.scorer_out_file)
 
 
 if __name__ == '__main__':
@@ -100,7 +84,13 @@ if __name__ == '__main__':
     # print_method = print_results
     print_method = print_scorer_results
 
-    run_cdc_pipeline(print_method)
+    _event_mentions_topics = Topics()
+    _event_mentions_topics.create_from_file(configuration.dt_input_file, True)
+
+    if configuration.cluster_topics and len(_event_mentions_topics.topics_list) > 1:
+        _event_mentions_topics = to_single_topic(_event_mentions_topics)
+
+    run_cdc_pipeline(print_method, _event_mentions_topics)
 
 ################################## CREATE GOLD BASE LINE ################################
     # mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json')

@@ -100,9 +100,9 @@ def extract_on_head(batch_features, batch_label, batch_predictions, pairs_fn, pa
 
 
 if __name__ == '__main__':
-    dataset = DATASET.WEC
+    dataset = DATASET.ECB
     split = SPLIT.Dev
-    alpha = 20
+    alpha = -1
     context_set = "final_dataset"
 
     log_param_str = "inference_" + dataset.name + ".log"
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     _event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_PosPairs.pickle"
     _event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_NegPairs.pickle"
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model_val_a4"
+    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model_val_a20"
     _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
 
     basename = path.basename(path.splitext(_model_in)[0])

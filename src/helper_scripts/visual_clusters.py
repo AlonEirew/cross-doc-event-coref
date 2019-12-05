@@ -82,7 +82,8 @@ def visualize_clusters(clusters):
         unique_mentions_head = set()
         cluster_ments_count = 0
         for mention in cluster_ments:
-            if mention.manual_score in threash:
+            if not hasattr(mention, "manual_score"):
+            # if mention.manual_score in threash:
                 cluster_ments_count += 1
                 unique_mentions_head.add(mention.tokens_str.lower())
                 context, start, end = get_context_start_end(mention)
@@ -137,6 +138,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/validated/WEC_Dev_Full_Event_gold_mentions.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/validated/validation _for_test.json'
     threash = [-1]
     main(_event_file)

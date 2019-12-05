@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class SievesContainerInitialization(object):
-    def __init__(self, event_coref_config: EventSievesConfiguration,
-                 entity_coref_config: EntitySievesConfiguration,
-                 sieves_model_list: List[RelationExtraction]):
+    def __init__(self, event_coref_config: EventSievesConfiguration = None,
+                 entity_coref_config: EntitySievesConfiguration = None,
+                 sieves_model_list: List[RelationExtraction] = None):
         self.sieves_model_list = sieves_model_list
         self.event_config = event_coref_config
         self.entity_config = entity_coref_config

@@ -1,50 +1,62 @@
 import spacy
 
+from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
-from src.utils.sqlite_utils import select_from_validation, create_connection
+from src.utils.sqlite_utils import create_connection
 
 
-def visualize_clusters(clusters, read_mention_line_method):
-    dispacy_obj = list()
-    for cluster_ments in clusters.values():
-        ents = list()
-        cluster_context = ''
-        cluster_title = ''
-        cluster_id = ''
-        for mention in cluster_ments:
-            mention_data = read_mention_line_method(mention, gen_lemma=False, extract_valid_sent=False)
-            cluster_title = mention[7]
-            cluster_id = mention_data.coref_chain
-            context_spl = mention_data.mention_context
-            real_tok_start = len(cluster_context) + 1
-            for i in range(mention_data.tokens_number[0]):
-                real_tok_start += len(context_spl[i]) + 1
+def extract_clusters(rows):
+    clusters = dict()
+    for mention in rows:
+        cluster_id = mention[0]
+        if cluster_id not in clusters:
+            clusters[cluster_id] = list()
 
-            real_tok_end = real_tok_start
-            for i in range(mention_data.tokens_number[0], mention_data.tokens_number[-1] + 1):
-                if i < len(context_spl):
-                    real_tok_end += len(context_spl[i]) + 1
+        clusters[cluster_id].append(mention)
+    return clusters
 
-            ents.append({'start': real_tok_start, 'end': real_tok_end, 'label': str(cluster_id)})
-            cluster_context = cluster_context + '\n\n' + ' '.join(mention_data.mention_context)
 
-        clust_title = cluster_title + ' (' + str(cluster_id) + '); Mentions:' + str(len(cluster_ments))
+def select_from_validation(conn, table_name):
+    """
+    Query all rows in the tasks table
+    :param conn: the Connection object
+    :param split: the validation table split
+    :param coref_types: list of types to extract (default is None)
+    :param limit: limit the number for rows to extract
+    :return:
+    """
+    fields = 'coreChainId, mentionText, tokenStart, tokenEnd, extractedFromPage, ' \
+             'context, PartOfSpeech, corefValue, mentionsCount, corefType, mentionId, split'
 
-        dispacy_obj.append({
-            'text': cluster_context,
-            'ents': ents,
-            'title': clust_title
-        })
+    query = "SELECT " + fields + " from " + table_name + " INNER JOIN CorefChains ON " \
+                                 + table_name + ".coreChainId=CorefChains.corefId"
 
-    spacy.displacy.serve(dispacy_obj, style='ent', manual=True)
+    cur = conn.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    return extract_clusters(rows)
 
 
 def run_process():
-    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
-    read_mention_line_menthon = MentionData.read_sqlite_mention_data_line_v9
+    event_file1 = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json'
+    event_file2 = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Event_gold_mentions.json'
+    event_file3 = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Event_gold_mentions.json'
+
+    mentions = MentionData.read_mentions_json_to_mentions_data_list(event_file1)
+    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(event_file2))
+    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(event_file3))
+    connection = create_connection(str(LIBRARY_ROOT) + "/resources/EnWikiLinks_v9.db")
+    clusters = None
     if connection is not None:
-        clusters = select_from_validation(connection, 'VALIDATION', coref_type=["2"])
-        visualize_clusters(clusters, read_mention_line_menthon)
+        clusters = select_from_validation(connection, 'VALIDATION3')
+
+    ment_id_cat = list()
+    for mention in mentions:
+        for clus_ment in clusters[mention.coref_chain]:
+            if mention.mention_id == clus_ment[10]:
+                ment_id_cat.append((mention.mention_id, clus_ment[9]))
+
 
 
 if __name__ == '__main__':

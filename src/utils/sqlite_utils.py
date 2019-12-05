@@ -6,12 +6,12 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 
-def select_from_validation(conn, table_name, split: str, coref_type: List[str] = None, limit: int = -1):
+def select_from_validation(conn, table_name, split: str, coref_types: List[str] = None, limit: int = -1):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
     :param split: the validation table split
-    :param coref_type: list of types to extract (default is None)
+    :param coref_types: list of types to extract (default is None)
     :param limit: limit the number for rows to extract
     :return:
     """
@@ -20,8 +20,8 @@ def select_from_validation(conn, table_name, split: str, coref_type: List[str] =
 
     query = "SELECT " + fields + " from " + table_name + " INNER JOIN CorefChains ON " \
                                  + table_name + ".coreChainId=CorefChains.corefId WHERE split=\"" + split + "\""
-    if coref_type is not None:
-        coref_types = ','.join(coref_type)
+    if coref_types is not None:
+        coref_types = ','.join(coref_types)
         query += " and corefType in (" + coref_types + ")"
     if limit != -1:
         query += " limit " + str(limit)

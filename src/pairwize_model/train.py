@@ -5,6 +5,7 @@ import random
 import torch
 
 from src import LIBRARY_ROOT
+from src.pairwize_model import configuration
 from src.pairwize_model.model import PairWiseModelKenton
 from src.utils.bert_utils import BertPretrainedUtils, BertFromFile
 from src.utils.dataset_utils import DATASET, load_pos_neg_pickle
@@ -18,11 +19,10 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
     loss_func = torch.nn.CrossEntropyLoss()
     # loss_func = torch.nn.BCEWithLogitsLoss()
     # optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
-    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
+    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=configuration.weight_decay)
     # optimizer = AdamW(pairwize_model.parameters(), lr)
     dataset_size = len(train)
 
-    INTERVAL = 5000000
     accum_count_btch = 0
     best_result_for_save = best_model_to_save
     improvement_seen = False
@@ -54,28 +54,6 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
             if count_btch % 100 == 0:
                 report = "%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch)
                 logger.info(report)
-
-            if count_btch % INTERVAL == 0:
-                accum_count_btch += 1
-                pairwize_model.eval()
-                # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-                _, _, _, dev_f1 = accuracy_on_dataset("Dev", accum_count_btch, pairwize_model, validation)
-                # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
-                pairwize_model.train()
-
-                if best_result_for_save < dev_f1:
-                    if save_model:
-                        logger.info("Found better model saving")
-                        torch.save(pairwize_model, model_out)
-                        improvement_seen = True
-                        best_result_for_save = dev_f1
-                        non_improved_epoch_count = 0
-                elif improvement_seen:
-                    if non_improved_epoch_count == 10:
-                        logger.info("No Improvement for 10 ephochs, ending test...")
-                        return best_result_for_save
-                    else:
-                        non_improved_epoch_count += 1
 
         pairwize_model.eval()
         # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
@@ -148,35 +126,25 @@ def get_measurements(testset, epoch, all_labels, all_predictions):
     return accuracy, precision, recall, f1
 
 
-def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha,
-                                  use_cuda=True, fine_tune=False, model_in=None):
+def init_basic_training_resources():
     torch.manual_seed(1)
     random.seed(1)
     np.random.seed(1)
 
-    bert_files = [str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions.pickle",
-                  str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.pickle"
-                  ]
-
-    bert_utils = BertFromFile(bert_files)
+    bert_utils = BertFromFile(configuration.bert_files)
     # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
 
-    if fine_tune:
-        logger.info("Loading model to fine tune-" + model_in)
-        pairwize_model = torch.load(model_in)
+    if configuration.fine_tune:
+        logger.info("Loading model to fine tune-" + configuration.load_model_file)
+        pairwize_model = torch.load(configuration.load_model_file)
     else:
         # pairwize_model = PairWiseModelKenton(20736, 150, 2)
-        pairwize_model = PairWiseModelKenton(20736, 150, 2, bert_utils, use_cuda)
+        pairwize_model = PairWiseModelKenton(20736, configuration.hidden_n, 2, bert_utils, configuration.use_cuda)
 
-    event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_PosPairs.pickle"
-    event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_NegPairs.pickle"
-    event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions_PosPairs.pickle"
-    event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions_NegPairs.pickle"
+    train_feat = load_pos_neg_pickle(configuration.event_train_file_pos, configuration.event_train_file_neg, configuration.ratio)
+    validation_feat = load_pos_neg_pickle(configuration.event_validation_file_pos, configuration.event_validation_file_neg, -1)
 
-    train_feat = load_pos_neg_pickle(event_train_file_pos, event_train_file_neg, alpha)
-    validation_feat = load_pos_neg_pickle(event_validation_file_pos, event_validation_file_neg, -1)
-
-    if use_cuda:
+    if configuration.use_cuda:
         # print(torch.cuda.get_device_name(1))
         torch.cuda.manual_seed(1)
         pairwize_model.cuda()
@@ -185,34 +153,23 @@ def init_basic_training_resources(context_set, train_dataset, dev_dataset, alpha
 
 
 if __name__ == '__main__':
-    _train_dataset = DATASET.ECB
-    _dev_dataset = DATASET.ECB
-    _context_set = "final_dataset"
 
-    _lr = 1e-6
-    _batch_size = 32
-    _alpha = 4
-    _iterations = 20
-    _use_cuda = True
-    _save_model = True
-    _fine_tune = False
-
-    log_params_str = "train_ds" + _train_dataset.name + "_dev_ds" + _dev_dataset.name + \
-                     "_lr" + str(_lr) + "_bs" + str(_batch_size) + "_a" + \
-                     str(_alpha) + "_itr" + str(_iterations)
+    log_params_str = "train_ds" + configuration.train_dataset.name + "_dev_ds" + configuration.dev_dataset.name + \
+                     "_lr" + str(configuration.learning_rate) + "_bs" + str(configuration.batch_size) + "_a" + \
+                     str(configuration.ratio) + "_itr" + str(configuration.iterations)
     create_logger_with_fh(log_params_str)
 
-    _model_out = str(LIBRARY_ROOT) + "/saved_models/" + _train_dataset.name + "_" + _dev_dataset.name + "_final_a" + str(_alpha)
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_1"
-
-    if _save_model and _fine_tune and _model_out == _model_in:
+    if configuration.save_model and configuration.fine_tune and \
+            configuration.save_model_file == configuration.load_model_file:
         raise Exception('Fine Tune & Save model set with same model file for in & out')
 
-    logger.info("train_set=" + _train_dataset.name + ", dev_set=" + _dev_dataset.name + ", lr=" + str(_lr) + ", bs=" +
-                str(_batch_size) + ", ratio=1:" + str(_alpha) + ", itr=" + str(_iterations))
+    logger.info("train_set=" + configuration.train_dataset.name + ", dev_set=" + configuration.dev_dataset.name +
+                ", lr=" + str(configuration.learning_rate) + ", bs=" + str(configuration.batch_size) +
+                ", ratio=1:" + str(configuration.ratio) + ", itr=" + str(configuration.iterations) +
+                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay" + str(configuration.weight_decay))
 
-    _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = \
-        init_basic_training_resources(_context_set, _train_dataset, _dev_dataset, _alpha, _use_cuda, fine_tune=_fine_tune, model_in=_model_in)
+    _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
 
-    train_pairwise(_bert_utils, _pairwize_model, _event_train_feat, _event_validation_feat, _batch_size, _iterations, _lr
-                   , save_model=_save_model, model_out=_model_out, best_model_to_save=0.3)
+    train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, configuration.batch_size,
+                   configuration.iterations, configuration.learning_rate , save_model=configuration.save_model_file,
+                   model_out=configuration.save_model_file, best_model_to_save=0.3)

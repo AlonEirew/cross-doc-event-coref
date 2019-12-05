@@ -1,11 +1,21 @@
 import logging
 
 from src import LIBRARY_ROOT
+from src.pairwize_model import configuration
 from src.pairwize_model.train import init_basic_training_resources, train_pairwise, accuracy_on_dataset
 from src.utils.dataset_utils import DATASET
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
+
+
+def set_experiment_configuration(context_set, tds, dds, ration):
+    configuration.context_set = context_set
+    configuration.train_dataset = tds
+    configuration.dev_dataset = dds
+    configuration.ratio = ration
+    configuration.reload()
+
 
 if __name__ == '__main__':
     _use_cuda = True
@@ -14,37 +24,38 @@ if __name__ == '__main__':
     _dev_dataset = [DATASET.WEC]
     _context_set = "final_dataset"
 
-    _lrs = [1e-4, 1e-5]
+    _lrs = [1e-5]
     _batch_sizes = [32]
-    _alphas = [30]
-    _iterations = 20
+    _alphas = [50, 60, 80]
+    _iterations = 2
     _prcs = [100]
     _use_cuda = True
     _save_model = True
 
-    log_params_str = "hptunning_train_set_ECB_dev_set_WEC_validated"
+    log_params_str = "hptunning_train_set_" + _train_dataset[0].name + "_dev_set_" + _dev_dataset[0].name + "_validated"
     create_logger_with_fh(log_params_str)
 
     best_save_thresh = 0.1
-    for tds in _train_dataset:
-        for dds in _dev_dataset:
+    for _tds in _train_dataset:
+        for _dds in _dev_dataset:
             for _batch_size in _batch_sizes:
                 for _alpha in _alphas:
                     for _prc in _prcs:
                         for _lr in _lrs:
                             _model_out = str(LIBRARY_ROOT) + \
-                                         "/saved_models/" + tds.name + "_" + \
-                                         dds.name + "_best_trained_model_val_a" + str(_alpha)
+                                         "/saved_models/" + _tds.name + "_" + \
+                                         _dds.name + "_best_trained_model_val_a" + str(_alpha)
 
-                            _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = \
-                                init_basic_training_resources(_context_set, tds, dds, _alpha, _use_cuda)
+                            set_experiment_configuration(_context_set, _tds, _dds, _alpha)
+
+                            _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
 
                             # cut_train = int((len(_event_train_feat) * _prc) / 100)
                             # train_feat = _event_train_feat[0:cut_train]
                             train_feat = _event_train_feat
                             logger.info("final train size (pos+neg)=" + str(len(train_feat)))
 
-                            logger.info("train_set=" + tds.name + ", dev_set=" + dds.name + ", lr=" + str(_lr) + ", bs=" +
+                            logger.info("train_set=" + _tds.name + ", dev_set=" + _dds.name + ", lr=" + str(_lr) + ", bs=" +
                                         str(_batch_size) + ", ratio=1:" + str(_alpha) + ", itr=" + str(_iterations) + ", percent=" + str(_prc))
 
                             train_pairwise(_pairwize_model, train_feat,

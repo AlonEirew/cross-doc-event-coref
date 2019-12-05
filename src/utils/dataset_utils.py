@@ -52,13 +52,25 @@ def load_datasets(split_file, alpha, dataset):
     return split_feat
 
 
+def to_single_topic(topics):
+    new_topic = Topic(-1)
+
+    for topic in topics.topics_list:
+        for ment in topic.mentions:
+            new_topic.mentions.append(ment)
+
+    topics.topics_list.clear()
+    topics.topics_list.append(new_topic)
+    return topics
+
+
 def get_feat(data_file, alpha, dataset, multiprocess=False):
     topics_ = Topics()
     topics_.create_from_file(data_file, keep_order=True)
 
     logger.info('Create pos/neg examples')
     if dataset == DATASET.ECB:
-        positive_, negative_ = create_pos_neg_pairs_ecb(from_subtopic_to_topic(topics_))
+        positive_, negative_ = create_pos_neg_pairs_ecb(topics_)
     else:
         clusters = convert_to_clusters(topics_)
         positive_ = create_pos_pairs_wec(clusters)

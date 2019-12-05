@@ -3,6 +3,7 @@ import logging
 import torch
 
 from src import LIBRARY_ROOT
+from src.helper_scripts.generate_pairs import get_feat_alternative
 from src.pairwize_model.train import get_measurements
 from src.utils.dataset_utils import get_feat, DATASET, SPLIT, create_features_from_pos_neg, load_datasets
 
@@ -12,9 +13,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 def main():
     context_set = "final_dataset"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Dev_Event_gold_mentions.json"
-
-    features = load_datasets(event_validation_file, 20, DATASET.WEC)
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Dev_Event_gold_mentions.json"
+    ################ NO TOPICS ######################
+    # positive_, negative_ = get_feat_alternative(event_validation_file)
+    # logger.info('pos-' + str(len(positive_)))
+    # logger.info('neg-' + str(len(negative_)))
+    # features = create_features_from_pos_neg(positive_, negative_)
+    ################ NO TOPICS ######################
+    features = load_datasets(event_validation_file, -1, DATASET.ECB)
     accuracy_on_dataset(features)
 
 
