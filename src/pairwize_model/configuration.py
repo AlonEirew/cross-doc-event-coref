@@ -14,9 +14,9 @@ def reload():
     load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_trained_model_1"
 
     event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
-                           train_dataset.name + "_Train_Event_gold_mentions_PosPairs.pickle"
+                           train_dataset.name + "_Train_Event_gold_mentions_PosPairs_NoTopicClust.pickle"
     event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
-                           train_dataset.name + "_Train_Event_gold_mentions_NegPairs.pickle"
+                           train_dataset.name + "_Train_Event_gold_mentions_NegPairs_NoTopicClust.pickle"
     event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
                                 dev_dataset.name + "_Dev_Event_gold_mentions_PosPairs.pickle"
     event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
@@ -28,18 +28,19 @@ def reload():
 
 ########################## Train Model Params ################################
 train_dataset = DATASET.ECB
-dev_dataset = DATASET.ECB
+dev_dataset = DATASET.WEC
 context_set = "final_dataset"
 
 learning_rate = 1e-5
 batch_size = 32
-ratio = 15
-iterations = 5
+ratio = 80
+iterations = 1
 use_cuda = True
-save_model = False
+save_model = True
+save_model_threshold = 0.1
 fine_tune = False
 weight_decay = 0.01
-hidden_n = 250
+hidden_n = 150
 
 ########################## Determenistic System ################################
 cluster_topics = False

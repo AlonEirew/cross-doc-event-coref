@@ -9,17 +9,17 @@ from src.utils.dataset_utils import get_feat, DATASET, create_pairs, from_subtop
     check_and_add_pair
 
 
-def generate_pairs():
+def generate_pairs(data_set):
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _res_file + ".json"
-    positive_, negative_ = get_feat(event_validation_file, -1, DATASET.WEC)
-    # positive_, negative_ = get_feat_alternative(event_validation_file)
+    # positive_, negative_ = get_feat(event_validation_file, -1, data_set)
+    positive_, negative_ = get_feat_alternative(event_validation_file)
 
     validate_pairs(positive_, negative_)
     basename = path.basename(path.splitext(event_validation_file)[0])
     print("Positives=" + str(len(positive_)))
-    # pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs2.pickle", "w+b"))
+    pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs.pickle", "w+b"))
     print("Negative=" + str(len(negative_)))
-    # pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs2.pickle", "w+b"))
+    pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs.pickle", "w+b"))
     print("Done with " + event_validation_file)
 
 
@@ -79,7 +79,8 @@ def output_examples():
 
 if __name__ == '__main__':
     _res_folder = "final_dataset"
-    _res_file = "WEC_Train_Event_gold_mentions"
-    generate_pairs()
+    _res_file = "ECB_Train_Event_gold_mentions"
+    _data_set = DATASET.ECB
+    generate_pairs(_data_set)
     # validate_pairs()
     # output_examples()

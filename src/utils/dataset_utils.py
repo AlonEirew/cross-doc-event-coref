@@ -64,7 +64,7 @@ def to_single_topic(topics):
     return topics
 
 
-def get_feat(data_file, alpha, dataset, multiprocess=False):
+def get_feat(data_file, alpha, dataset):
     topics_ = Topics()
     topics_.create_from_file(data_file, keep_order=True)
 
@@ -74,7 +74,7 @@ def get_feat(data_file, alpha, dataset, multiprocess=False):
     else:
         clusters = convert_to_clusters(topics_)
         positive_ = create_pos_pairs_wec(clusters)
-        negative_ = create_neg_pairs_wec(clusters, multiprocess)
+        negative_ = create_neg_pairs_wec(clusters)
 
     if alpha > 0:
         if len(negative_) > (len(positive_) * alpha):
@@ -99,7 +99,7 @@ def create_pos_pairs_wec(clusters):
     return positive_pairs
 
 
-def create_neg_pairs_wec(clusters, multiprocess):
+def create_neg_pairs_wec(clusters):
     all_mentions = []
     index = -1
     all_ment_index = -1
@@ -116,29 +116,16 @@ def create_neg_pairs_wec(clusters, multiprocess):
 
 
     # create WEC negative challenging examples
-    multiprocessing.set_start_method('spawn')
     list_combined_pairs = list()
-    pool = []
     for mention_list in all_mentions:
-        if multiprocess:
-            combined = multiprocessing.Process(target=create_combinations, args=(mention_list, 2, list_combined_pairs))
-            combined.start()
-            pool.append(combined)
-            print()
-        else:
-            create_combinations(mention_list, 2, list_combined_pairs)
-
-    for worker in pool:
-        worker.join()
+        create_combinations(mention_list, list_combined_pairs)
 
     return list_combined_pairs
 
 
-def create_combinations(mentions, r, list_combined_pairs):
-    name = multiprocessing.current_process().name
-    print(name, 'Starting')
-    MAX_SELECT = 500000
-    pair_list = list(combinations(mentions, r))
+def create_combinations(mentions, list_combined_pairs):
+    MAX_SELECT = 1000000
+    pair_list = list(combinations(mentions, 2))
     if len(pair_list) > MAX_SELECT:
         pair_list = random.sample(pair_list, MAX_SELECT)
 

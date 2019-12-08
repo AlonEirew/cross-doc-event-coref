@@ -100,7 +100,7 @@ def visualize_clusters(clusters):
                 ment_pair = heappop(mentions_heap)
                 real_start = len(cluster_context) + 1 + ment_pair[0]
                 real_end = len(cluster_context) + 1 + ment_pair[1]
-                ent_label = ment_pair[2] + '(' + ment_pair[3] + ')'
+                ent_label = "" #ment_pair[2] + '(' + ment_pair[3] + ')'
                 ents.append({'start': real_start, 'end': real_end, 'label': ent_label})
 
             cluster_context = cluster_context + '\n' + context
@@ -138,6 +138,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/validated/validation _for_test.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/validated/validation_for_test.json'
     threash = [-1]
     main(_event_file)

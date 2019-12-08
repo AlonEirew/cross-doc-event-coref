@@ -26,9 +26,9 @@ if __name__ == '__main__':
 
     _lrs = [1e-5]
     _batch_sizes = [32]
-    _alphas = [50, 60, 80]
-    _iterations = 2
-    _prcs = [100]
+    _alphas = [25]
+    _iterations = 5
+    _prcs = [50]
     _use_cuda = True
     _save_model = True
 
@@ -44,19 +44,23 @@ if __name__ == '__main__':
                         for _lr in _lrs:
                             _model_out = str(LIBRARY_ROOT) + \
                                          "/saved_models/" + _tds.name + "_" + \
-                                         _dds.name + "_best_trained_model_val_a" + str(_alpha)
+                                         _dds.name + "_hptuned_p" + str(_prc)
 
                             set_experiment_configuration(_context_set, _tds, _dds, _alpha)
 
                             _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
 
-                            # cut_train = int((len(_event_train_feat) * _prc) / 100)
-                            # train_feat = _event_train_feat[0:cut_train]
-                            train_feat = _event_train_feat
+                            cut_train = int((len(_event_train_feat) * _prc) / 100)
+                            train_feat = _event_train_feat[0:cut_train]
+                            # train_feat = _event_train_feat
                             logger.info("final train size (pos+neg)=" + str(len(train_feat)))
 
-                            logger.info("train_set=" + _tds.name + ", dev_set=" + _dds.name + ", lr=" + str(_lr) + ", bs=" +
-                                        str(_batch_size) + ", ratio=1:" + str(_alpha) + ", itr=" + str(_iterations) + ", percent=" + str(_prc))
+                            logger.info(
+                                "train_set=" + configuration.train_dataset.name + ", dev_set=" + configuration.dev_dataset.name +
+                                ", lr=" + str(configuration.learning_rate) + ", bs=" + str(configuration.batch_size) +
+                                ", ratio=1:" + str(configuration.ratio) + ", itr=" + str(configuration.iterations) +
+                                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay=" + str(
+                                    configuration.weight_decay))
 
                             train_pairwise(_pairwize_model, train_feat,
                                                               _event_validation_feat, _batch_size,

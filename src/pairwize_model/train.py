@@ -23,7 +23,6 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
     # optimizer = AdamW(pairwize_model.parameters(), lr)
     dataset_size = len(train)
 
-    accum_count_btch = 0
     best_result_for_save = best_model_to_save
     improvement_seen = False
     non_improved_epoch_count = 0
@@ -61,13 +60,13 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
         # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
         pairwize_model.train()
 
-        if best_result_for_save < dev_f1:
-            if save_model:
-                logger.info("Found better model saving")
-                torch.save(pairwize_model, model_out)
-                best_result_for_save = dev_f1
-                non_improved_epoch_count = 0
-                improvement_seen = True
+        # if best_result_for_save < dev_f1:
+        if save_model:
+            logger.info("Found better model saving")
+            torch.save(pairwize_model, model_out + "a" + str(epoch + 1))
+            best_result_for_save = dev_f1
+            non_improved_epoch_count = 0
+            improvement_seen = True
         elif improvement_seen:
             if non_improved_epoch_count == 10:
                 logger.info("No Improvement for 10 ephochs, ending test...")
@@ -166,10 +165,10 @@ if __name__ == '__main__':
     logger.info("train_set=" + configuration.train_dataset.name + ", dev_set=" + configuration.dev_dataset.name +
                 ", lr=" + str(configuration.learning_rate) + ", bs=" + str(configuration.batch_size) +
                 ", ratio=1:" + str(configuration.ratio) + ", itr=" + str(configuration.iterations) +
-                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay" + str(configuration.weight_decay))
+                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay=" + str(configuration.weight_decay))
 
     _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
 
     train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, configuration.batch_size,
-                   configuration.iterations, configuration.learning_rate , save_model=configuration.save_model_file,
-                   model_out=configuration.save_model_file, best_model_to_save=0.3)
+                   configuration.iterations, configuration.learning_rate , save_model=configuration.save_model,
+                   model_out=configuration.save_model_file, best_model_to_save=configuration.save_model_threshold)

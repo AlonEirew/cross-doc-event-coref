@@ -111,14 +111,14 @@ if __name__ == '__main__':
     _event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_PosPairs.pickle"
     _event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_NegPairs.pickle"
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_best_trained_model_val_a20"
+    _model_in = str(LIBRARY_ROOT) + "/final_saved_models/ECB_ECB_final_not_partitioned_a80a1"
     _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
 
     basename = path.basename(path.splitext(_model_in)[0])
-    pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_eval/TP_" + basename + "_" + split.name + "_paris.txt"
-    pairs_fp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_eval/FP_" + basename + "_" + split.name + "_paris.txt"
-    pairs_tn_out_file = str(LIBRARY_ROOT) + "/reports/pairs_eval/TN_" + basename + "_" + split.name + "_paris.txt"
-    pairs_fn_out_file = str(LIBRARY_ROOT) + "/reports/pairs_eval/FN_" + basename + "_" + split.name + "_paris.txt"
+    pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TP_" + basename + "_" + split.name + "_paris.txt"
+    pairs_fp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/FP_" + basename + "_" + split.name + "_paris.txt"
+    pairs_tn_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TN_" + basename + "_" + split.name + "_paris.txt"
+    pairs_fn_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/FN_" + basename + "_" + split.name + "_paris.txt"
 
     print("Loading the model to-" + _model_in)
     _pairwize_model = torch.load(_model_in)
@@ -136,22 +136,22 @@ if __name__ == '__main__':
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
     split_feat = load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, alpha)
-    # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
-    #                                                                                split_feat, extract_on_head)
-    accuracy_on_dataset("", 0, _pairwize_model, split_feat)
+    _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
+                                                                                   split_feat, extract_on_mention)
+    # accuracy_on_dataset("", 0, _pairwize_model, split_feat)
 
-    # with open(pairs_tp_out_file, 'w') as f:
-    #     for item in pairs_tp:
-    #         f.write("%s\n" % item)
-    #
-    # with open(pairs_fp_out_file, 'w') as f:
-    #     for item in pairs_fp:
-    #         f.write("%s\n" % item)
-    #
-    # with open(pairs_tn_out_file, 'w') as f:
-    #     for item in pairs_tn:
-    #         f.write("%s\n" % item)
-    #
-    # with open(pairs_fn_out_file, 'w') as f:
-    #     for item in pairs_fn:
-    #         f.write("%s\n" % item)
+    with open(pairs_tp_out_file, 'w') as f:
+        for item in pairs_tp:
+            f.write("%s\n" % item)
+
+    with open(pairs_fp_out_file, 'w') as f:
+        for item in pairs_fp:
+            f.write("%s\n" % item)
+
+    with open(pairs_tn_out_file, 'w') as f:
+        for item in pairs_tn:
+            f.write("%s\n" % item)
+
+    with open(pairs_fn_out_file, 'w') as f:
+        for item in pairs_fn:
+            f.write("%s\n" % item)
