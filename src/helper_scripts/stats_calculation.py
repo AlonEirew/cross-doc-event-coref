@@ -53,6 +53,14 @@ def calc_cluster_head_lemma(ment_file, message, clus_size_thresh):
     print(output_str)
 
 
+def extract_tp_lemma_pairs():
+    readlines = open(str(LIBRARY_ROOT) + "/reports/pairs_final/TP_WEC_WEC_final_a35a3_Dev_paris.txt",
+                     "r").readlines()
+
+    sample = random.sample(readlines, 10)
+    print("".join(sample))
+
+
 def calc_singletons(split_list, message, only_validated=False):
     result_dict = dict()
     singletons_count = 0
@@ -60,7 +68,7 @@ def calc_singletons(split_list, message, only_validated=False):
     final_mentions_list = list()
     for mention in split_list:
         if only_validated:
-            if mention.manual_score >= 4:
+            if hasattr(mention, "manual_score") and mention.manual_score >= 4:
                 final_mentions_list.append(mention)
         else:
             final_mentions_list.append(mention)
@@ -93,13 +101,13 @@ def cal_head_lemma_pairs(data_file, message, alpha, dataset):
     same_head_pos, same_head_neg = (0, 0)
     not_same_head_pos, not_same_head_neg = (0, 0)
     for mention1, mention2 in positives:
-        if mention1.mention_head == mention2.mention_head:
+        if mention1.mention_head_lemma == mention2.mention_head_lemma:
             same_head_pos += 1
         else:
             not_same_head_pos += 1
 
     for mention1, mention2 in negatives:
-        if mention1.mention_head == mention2.mention_head:
+        if mention1.mention_head_lemma == mention2.mention_head_lemma:
             same_head_neg += 1
         else:
             not_same_head_neg += 1
@@ -111,7 +119,7 @@ def cal_head_lemma_pairs(data_file, message, alpha, dataset):
 
 
 def calc_tp_fp_pairs_lemma():
-    f_tp = open(str(LIBRARY_ROOT) + "/reports/pairs_final/TP_WEC_ECB_final_a50_Dev_paris_head.txt", "r")
+    f_tp = open(str(LIBRARY_ROOT) + "/reports/pairs_final/TP_WEC_WEC_final_a35a3_Dev_paris_head.txt", "r")
     tp_diff_string, tp_same_string, tp_total = generate_pair_score(f_tp)
 
     print("TP_TOTAL=" + str(tp_total))
@@ -119,7 +127,7 @@ def calc_tp_fp_pairs_lemma():
     print("TP_DIFF_STRING=" + str(tp_diff_string))
     print("#######################################")
 
-    f_fp = open(str(LIBRARY_ROOT) + "/reports/pairs_final/FP_WEC_ECB_final_a50_Dev_paris_head.txt", "r")
+    f_fp = open(str(LIBRARY_ROOT) + "/reports/pairs_final/FP_WEC_WEC_final_a35a3_Dev_paris_head.txt", "r")
     fp_diff_string, fp_same_string, fp_total = generate_pair_score(f_fp)
 
     print("FP_TOTAL=" + str(fp_total))
@@ -127,7 +135,7 @@ def calc_tp_fp_pairs_lemma():
     print("FP_DIFF_STRING=" + str(fp_diff_string))
     print("#######################################")
 
-    f_fn = open(str(LIBRARY_ROOT) + "/reports/pairs_final/FN_WEC_ECB_final_a50_Dev_paris_head.txt", "r")
+    f_fn = open(str(LIBRARY_ROOT) + "/reports/pairs_final/FN_WEC_WEC_final_a35a3_Dev_paris_head.txt", "r")
     fn_diff_string, fn_same_string, fn_total = generate_pair_score(f_fn)
 
     print("FN_TOTAL=" + str(fn_total))
@@ -135,7 +143,7 @@ def calc_tp_fp_pairs_lemma():
     print("FN_DIFF_STRING=" + str(fn_diff_string))
     print("#######################################")
 
-    f_tn = open(str(LIBRARY_ROOT) + "/reports/pairs_final/TN_WEC_ECB_final_a50_Dev_paris_head.txt", "r")
+    f_tn = open(str(LIBRARY_ROOT) + "/reports/pairs_final/TN_WEC_WEC_final_a35a3_Dev_paris_head.txt", "r")
     tn_diff_string, tn_same_string, tn_total = generate_pair_score(f_tn)
 
     print("TN_TOTAL=" + str(tn_total))
@@ -161,23 +169,24 @@ def generate_pair_score(f):
 
 
 if __name__ == '__main__':
-    _event_train = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json'
+    _event_train = str(LIBRARY_ROOT) + '/resources/validated/WEC_Test_Full_Event_gold_mentions_reduced.json'
     # _event_dev = str(LIBRARY_ROOT) + '/resources/validated/WEC_CLEAN_JOIN.json'
     # _event_test = str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC_Test_Event_gold_mentions.json'
 
-    # _train_list = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
+    _train_list = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
     # _dev_list = MentionData.read_mentions_json_to_mentions_data_list(_event_dev)
     # _test_list = MentionData.read_mentions_json_to_mentions_data_list(_event_test)
 
     # cal_head_lemma_pairs(_event_train, "DEV", 1, DATASET.WEC)
 
-    # calc_singletons(_train_list, "Train", False)
+    calc_singletons(_train_list, "Train", only_validated=False)
     # calc_singletons(_dev_list, "Dev")
     # calc_singletons(_test_list, "Test")
-    # calc_cluster_head_lemma(_event_train, "Train", 5)
+    calc_cluster_head_lemma(_event_train, "Train", 1)
 
     # calc_longest_mention_context(_train_list, "Train")
     # calc_longest_mention_context(_dev_list, "Dev")
     # calc_longest_mention_context(_test_list, "Test")
 
-    calc_tp_fp_pairs_lemma()
+    # calc_tp_fp_pairs_lemma()
+    # extract_tp_lemma_pairs()

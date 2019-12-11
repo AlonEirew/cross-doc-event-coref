@@ -11,8 +11,8 @@ from src.utils.dataset_utils import get_feat, DATASET, create_pairs, from_subtop
 
 def generate_pairs(data_set):
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _res_file + ".json"
-    # positive_, negative_ = get_feat(event_validation_file, -1, data_set)
-    positive_, negative_ = get_feat_alternative(event_validation_file)
+    positive_, negative_ = get_feat(event_validation_file, -1, data_set)
+    # positive_, negative_ = get_feat_alternative(event_validation_file)
 
     validate_pairs(positive_, negative_)
     basename = path.basename(path.splitext(event_validation_file)[0])
@@ -79,7 +79,7 @@ def output_examples():
 
 if __name__ == '__main__':
     _res_folder = "final_dataset"
-    _res_file = "ECB_Train_Event_gold_mentions"
+    _res_file = "WEC_Test_Event_gold_mentions"
     _data_set = DATASET.ECB
     generate_pairs(_data_set)
     # validate_pairs()

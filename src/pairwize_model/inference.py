@@ -87,21 +87,21 @@ def extract_on_head(batch_features, batch_label, batch_predictions, pairs_fn, pa
     for i in range(0, len(batch_features)):
         if batch_predictions[i] == 1 and batch_label[i] == 1:
             mention1, mention2 = batch_features[i]
-            pairs_tp.append(mention1.mention_head + "=" + mention2.mention_head)
+            pairs_tp.append(mention1.mention_head_lemma + "=" + mention2.mention_head_lemma)
         elif batch_predictions[i] == 0 and batch_label[i] == 0:
             mention1, mention2 = batch_features[i]
-            pairs_tn.append(mention1.mention_head + "=" + mention2.mention_head)
+            pairs_tn.append(mention1.mention_head_lemma + "=" + mention2.mention_head_lemma)
         elif batch_predictions[i] == 1 and batch_label[i] == 0:
             mention1, mention2 = batch_features[i]
-            pairs_fp.append(mention1.mention_head + "=" + mention2.mention_head)
+            pairs_fp.append(mention1.mention_head_lemma + "=" + mention2.mention_head_lemma)
         elif batch_predictions[i] == 0 and batch_label[i] == 1:
             mention1, mention2 = batch_features[i]
-            pairs_fn.append(mention1.mention_head + "=" + mention2.mention_head)
+            pairs_fn.append(mention1.mention_head_lemma + "=" + mention2.mention_head_lemma)
 
 
 if __name__ == '__main__':
-    dataset = DATASET.ECB
-    split = SPLIT.Dev
+    dataset = DATASET.WEC
+    split = SPLIT.Test
     alpha = -1
     context_set = "final_dataset"
 
@@ -136,22 +136,22 @@ if __name__ == '__main__':
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
     split_feat = load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, alpha)
-    _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
-                                                                                   split_feat, extract_on_mention)
-    # accuracy_on_dataset("", 0, _pairwize_model, split_feat)
+    # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
+    #                                                                                split_feat, extract_on_mention)
+    accuracy_on_dataset("", 0, _pairwize_model, split_feat)
 
-    with open(pairs_tp_out_file, 'w') as f:
-        for item in pairs_tp:
-            f.write("%s\n" % item)
-
-    with open(pairs_fp_out_file, 'w') as f:
-        for item in pairs_fp:
-            f.write("%s\n" % item)
-
-    with open(pairs_tn_out_file, 'w') as f:
-        for item in pairs_tn:
-            f.write("%s\n" % item)
-
-    with open(pairs_fn_out_file, 'w') as f:
-        for item in pairs_fn:
-            f.write("%s\n" % item)
+    # with open(pairs_tp_out_file, 'w') as f:
+    #     for item in pairs_tp:
+    #         f.write("%s\n" % item)
+    #
+    # with open(pairs_fp_out_file, 'w') as f:
+    #     for item in pairs_fp:
+    #         f.write("%s\n" % item)
+    #
+    # with open(pairs_tn_out_file, 'w') as f:
+    #     for item in pairs_tn:
+    #         f.write("%s\n" % item)
+    #
+    # with open(pairs_fn_out_file, 'w') as f:
+    #     for item in pairs_fn:
+    #         f.write("%s\n" % item)

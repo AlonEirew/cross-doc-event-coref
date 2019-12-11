@@ -26,16 +26,16 @@ def run_example(cdc_settings, event_mentions_topics):
 
 
 def create_example_settings():
-    model_file = configuration.load_model_file
+    model_file = configuration.dt_load_model_file
     bert_file = configuration.bert_dt_file
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        (RelationTypeEnum.PAIRWISE, 1.0)
-        # (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
+        # (RelationTypeEnum.PAIRWISE, 1.0)
+        (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
     ]
     sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
-        PairWizeRelationExtraction(model_file, bert_file)
-        # ComputedRelationExtraction()
+        # PairWizeRelationExtraction(model_file, bert_file)
+        ComputedRelationExtraction()
     ])
 
     event_config.run_evaluation = True

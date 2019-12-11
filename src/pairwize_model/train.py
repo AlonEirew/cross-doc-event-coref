@@ -50,15 +50,20 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
             end_index += batch_size
             count_btch += 1
 
-            if count_btch % 100 == 0:
+            if count_btch % 1000 == 0:
                 report = "%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch)
                 logger.info(report)
+                pairwize_model.eval()
+                # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
+                _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
+                # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
+                pairwize_model.train()
 
-        pairwize_model.eval()
+        # pairwize_model.eval()
         # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-        _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
+        # _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
         # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
-        pairwize_model.train()
+        # pairwize_model.train()
 
         # if best_result_for_save < dev_f1:
         if save_model:

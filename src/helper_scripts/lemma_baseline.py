@@ -12,8 +12,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
-    context_set = "final_dataset"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Test_Event_gold_mentions.json"
+    context_set = "validated"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/WEC_Test_Full_Event_gold_mentions_validated.json"
     ################ NO TOPICS ######################
     # positive_, negative_ = get_feat_alternative(event_validation_file)
     # logger.info('pos-' + str(len(positive_)))
