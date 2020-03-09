@@ -115,9 +115,9 @@ class BertPretrainedUtils(nn.Module):
             print("FAILD on MentionID=" + mention.mention_id)
             raise
 
+        ment_span = self._tokenizer.encode(ment_span)
         tokens_length = len(cntx_before) + len(cntx_after) + len(ment_span)
         att_mask = [1] * tokens_length
-        ment_span = self._tokenizer.encode(ment_span)
         if self.pad:
             padding_length = 75 - tokens_length
             padding = [0] * padding_length

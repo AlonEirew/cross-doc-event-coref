@@ -5,7 +5,7 @@ from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.min_span_mention import set_mina_span
 from src.utils.json_utils import write_mention_to_json
-from src.utils.sqlite_utils import create_connection, select_from_validation
+from src.utils.sqlite_utils import create_connection, select_from_validation, select_all_from_mentions
 
 logger = logging.getLogger(__name__)
 
@@ -15,11 +15,11 @@ def run_split(split, out_file_full, out_file_single):
     #     "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo-constituency-parser-2018.03.14.tar.gz",
     #     cuda_device=0)
 
-    connection = create_connection(str(LIBRARY_ROOT) + "/resources/EnWikiLinks_v9.db")
+    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
 
     name = multiprocessing.current_process().name
     print(name, 'Starting')
-    mentions_full, mentions_single = extract_from_sql(connection, "Validation3", split)
+    mentions_full, mentions_single = extract_from_sql(connection, "VerbsMentions", split)
     mentions_full = clean_long_mentions(mentions_full)
     mentions_single = clean_long_mentions(mentions_single)
     # extract_constituency_trees(mentions_full, predictor)
@@ -69,7 +69,8 @@ def clean_long_mentions(mentions_to_clean):
 
 def extract_from_sql(connection, table_name, split, limit=-1):
     if connection is not None:
-        clusters = select_from_validation(connection, table_name, split, limit=limit)
+        # clusters = select_from_validation(connection, table_name, split, limit=limit)
+        clusters = select_all_from_mentions(connection, table_name)
         mentions_full_context, mentions_single_sent = gen_mentions(clusters)
         mentions_full_context.sort(key=lambda mention: mention.coref_chain)
         mentions_single_sent.sort(key=lambda mention: mention.coref_chain)
@@ -102,25 +103,28 @@ if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
 
     # Output json files to write to
-    validation_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Full_Event_gold_mentions.json'
-    train_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Full_Event_gold_mentions.json'
-    test_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Full_Event_gold_mentions.json'
+    verb_mentions_out_full = str(LIBRARY_ROOT) + '/resources/dataset/WEC_VERB_Full_Event_gold_mentions.json'
+    # validation_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Full_Event_gold_mentions.json'
+    # train_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Full_Event_gold_mentions.json'
+    # test_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Full_Event_gold_mentions.json'
 
-    validation_out_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Single_Event_gold_mentions.json'
-    train_out_full_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Single_Event_gold_mentions.json'
-    test_out_full_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Single_Event_gold_mentions.json'
+    verb_mentions_out_single = str(LIBRARY_ROOT) + '/resources/dataset/WEC_VERB_Single_Event_gold_mentions.json'
+    # validation_out_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Single_Event_gold_mentions.json'
+    # train_out_full_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Single_Event_gold_mentions.json'
+    # test_out_full_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Single_Event_gold_mentions.json'
 
     # Extract the mentions from the sqlite table
-    val_prc = multiprocessing.Process(target=run_split, args=('VALIDATION', validation_out_full,validation_out_single,))
-    train_prc = multiprocessing.Process(target=run_split, args=('TRAIN', train_out_full, train_out_full_single,))
-    test_prc = multiprocessing.Process(target=run_split, args=('TEST', test_out_full, test_out_full_single,))
+    run_split('VERB', verb_mentions_out_full, verb_mentions_out_single,)
+    # val_prc = multiprocessing.Process(target=run_split, args=('VALIDATION', validation_out_full, validation_out_single,))
+    # train_prc = multiprocessing.Process(target=run_split, args=('TRAIN', train_out_full, train_out_full_single,))
+    # test_prc = multiprocessing.Process(target=run_split, args=('TEST', test_out_full, test_out_full_single,))
 
-    val_prc.start()
-    train_prc.start()
-    test_prc.start()
+    # val_prc.start()
+    # train_prc.start()
+    # test_prc.start()
 
-    val_prc.join()
-    train_prc.join()
-    test_prc.join()
+    # val_prc.join()
+    # train_prc.join()
+    # test_prc.join()
 
     print('DONE!')

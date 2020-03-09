@@ -18,10 +18,8 @@ class PairWiseModel(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(ind, hidd),
             nn.ReLU(),
-            # nn.Dropout(0.2),
             nn.Linear(hidd, hidd),
             nn.ReLU(),
-            # nn.Dropout(0.2)
         )
 
     def forward(self, batch_features, bs):

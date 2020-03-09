@@ -365,6 +365,9 @@ class MentionData(MentionDataLight):
         Returns:
             List[MentionData]
         """
+        if not mentions_json_file:
+            return None
+
         all_mentions_only = load_json_file(mentions_json_file)
 
         mentions = []

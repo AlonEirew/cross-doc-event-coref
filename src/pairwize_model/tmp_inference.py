@@ -3,10 +3,8 @@ import logging
 import torch
 
 from src import LIBRARY_ROOT
-from src.pairwize_model.train import accuracy_on_dataset
+from src.dataobjs.dataset import WecDataSet
 from src.utils.bert_utils import BertFromFile
-from src.utils.dataset_utils import SPLIT, DATASET, get_feat, create_features_from_pos_neg, load_pos_neg_pickle, \
-    load_datasets
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -85,7 +83,7 @@ if __name__ == '__main__':
 
     _use_cuda = True
 
-    split_feat = load_datasets(str(LIBRARY_ROOT) + "/resources/validated/WEC_CLEAN_JOIN.json", -1, DATASET.WEC)
+    split_feat = WecDataSet().load_datasets(str(LIBRARY_ROOT) + "/resources/validated/WEC_CLEAN_JOIN.json", -1)
     accuracy, precision, recall, f1, pairs_tp, pairs_fp = accuracy_on_dataset_local("", 0, _bert_utils, _pairwize_model, split_feat, use_cuda=_use_cuda)
 
     pairs_tp_out_file = str(

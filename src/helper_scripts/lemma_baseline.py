@@ -3,9 +3,9 @@ import logging
 import torch
 
 from src import LIBRARY_ROOT
+from src.dataobjs.dataset import EcbDataSet
 from src.helper_scripts.generate_pairs import get_feat_alternative
 from src.pairwize_model.train import get_measurements
-from src.utils.dataset_utils import get_feat, DATASET, SPLIT, create_features_from_pos_neg, load_datasets
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -20,7 +20,8 @@ def main():
     # logger.info('neg-' + str(len(negative_)))
     # features = create_features_from_pos_neg(positive_, negative_)
     ################ NO TOPICS ######################
-    features = load_datasets(event_validation_file, -1, DATASET.ECB)
+    dataset = EcbDataSet()
+    features = dataset.load_datasets(event_validation_file, -1)
     accuracy_on_dataset(features)
 
 

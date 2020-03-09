@@ -1,9 +1,9 @@
 import logging
 
 from src import LIBRARY_ROOT
+from src.dataobjs.dataset import DATASET_NAME
 from src.pairwize_model import configuration
 from src.pairwize_model.train import init_basic_training_resources, train_pairwise, accuracy_on_dataset
-from src.utils.dataset_utils import DATASET
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,8 @@ def set_experiment_configuration(context_set, tds, dds, ration):
 if __name__ == '__main__':
     _use_cuda = True
 
-    _train_dataset = [DATASET.WEC]
-    _dev_dataset = [DATASET.WEC]
+    _train_dataset = [DATASET_NAME.WEC]
+    _dev_dataset = [DATASET_NAME.WEC]
     _context_set = "final_dataset"
 
     _lrs = [1e-5]

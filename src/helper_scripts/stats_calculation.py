@@ -1,9 +1,9 @@
 import random
 
 from src import LIBRARY_ROOT
+from src.dataobjs.dataset import DataSet, WecDataSet
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
-from src.utils.dataset_utils import get_feat, SPLIT, DATASET, convert_to_clusters
 
 
 def calc_longest_mention_context(split_list, message):
@@ -22,7 +22,7 @@ def calc_longest_mention_context(split_list, message):
 def calc_cluster_head_lemma(ment_file, message, clus_size_thresh):
     topics = Topics()
     topics.create_from_file(ment_file, True)
-    clusters = convert_to_clusters(topics)
+    clusters = topics.convert_to_clusters()
     lemma_clust = dict()
     for clust in clusters.items():
         if len(clust[1]) > clus_size_thresh:
@@ -82,22 +82,22 @@ def calc_singletons(split_list, message, only_validated=False):
 
     avg_in_clust = 0.0
     for key, value in sorted(result_dict.items(), key=lambda kv: kv[1], reverse=True):
-        print(str(key) + "=" + str(value))
+        # print(str(key) + "=" + str(value))
         if value == 1:
             singletons_count += 1
         else:
             avg_in_clust += value
 
     average_length = mentions_length / len(final_mentions_list)
-    print(message + '_Singletons=' + str(singletons_count))
     print(message + '_Mentions=' + str(len(final_mentions_list)))
+    print(message + '_Singletons=' + str(singletons_count))
     print(message + '_Non_singleton_Clusters=' + str(len(result_dict.keys()) - singletons_count))
     print(message + '_Average Length=' + str(average_length))
     print(message + '_Average Ment in Clust=' + str(avg_in_clust / (len(result_dict) - singletons_count)))
 
 
-def cal_head_lemma_pairs(data_file, message, alpha, dataset):
-    positives, negatives = get_feat(data_file, alpha, SPLIT.Train, dataset)
+def cal_head_lemma_pairs(data_file, dataset, message, alpha):
+    positives, negatives = dataset.get_pairwise_feat(data_file, alpha)
     same_head_pos, same_head_neg = (0, 0)
     not_same_head_pos, not_same_head_neg = (0, 0)
     for mention1, mention2 in positives:
@@ -168,25 +168,24 @@ def generate_pair_score(f):
     return diff_string, same_string, total
 
 
+def create_split_stats(mentions_file, dataset, split):
+    mentions_list = MentionData.read_mentions_json_to_mentions_data_list(mentions_file)
+    if mentions_list:
+        print('############# ' + split + ' ###################')
+        calc_singletons(mentions_list, split, only_validated=False)
+        calc_longest_mention_context(mentions_list, split)
+        cal_head_lemma_pairs(mentions_file, dataset, split, 1)
+        calc_cluster_head_lemma(mentions_file, split, 1)
+
+
 if __name__ == '__main__':
-    _event_train = str(LIBRARY_ROOT) + '/resources/validated/WEC_Test_Full_Event_gold_mentions_reduced.json'
-    # _event_dev = str(LIBRARY_ROOT) + '/resources/validated/WEC_CLEAN_JOIN.json'
-    # _event_test = str(LIBRARY_ROOT) + '/resources/final_set_clean_min/WEC_Test_Event_gold_mentions.json'
+    _event_train = str(LIBRARY_ROOT) + '/resources/dataset/WEC_VERB_Single_Event_gold_mentions.json'
+    # _event_dev = str(LIBRARY_ROOT) + '/resources/dataset/ECB_Dev_Event_gold_mentions.json'
+    # _event_test = str(LIBRARY_ROOT) + '/resources/dataset/ECB_Test_Event_gold_mentions.json'
 
-    _train_list = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
-    # _dev_list = MentionData.read_mentions_json_to_mentions_data_list(_event_dev)
-    # _test_list = MentionData.read_mentions_json_to_mentions_data_list(_event_test)
-
-    # cal_head_lemma_pairs(_event_train, "DEV", 1, DATASET.WEC)
-
-    calc_singletons(_train_list, "Train", only_validated=False)
-    # calc_singletons(_dev_list, "Dev")
-    # calc_singletons(_test_list, "Test")
-    calc_cluster_head_lemma(_event_train, "Train", 1)
-
-    # calc_longest_mention_context(_train_list, "Train")
-    # calc_longest_mention_context(_dev_list, "Dev")
-    # calc_longest_mention_context(_test_list, "Test")
+    create_split_stats(_event_train, WecDataSet(), "Train")
+    # create_split_stats(_event_dev, "Dev")
+    # create_split_stats(_event_test, "Test")
 
     # calc_tp_fp_pairs_lemma()
     # extract_tp_lemma_pairs()

@@ -1,18 +1,14 @@
 import logging
 from typing import List
 
-from src import LIBRARY_ROOT
 from src.dataobjs.cluster import Clusters
-from src.dataobjs.sieves_config import EventSievesConfiguration, EntitySievesConfiguration
-from src.dataobjs.topics import Topics, Topic
-from src.dt_system import pairwize_relation_extraction
+from src.dataobjs.sieves_config import EventSievesConfiguration
+from src.dataobjs.topics import Topics
 from src.dt_system.computed_relation_extraction import ComputedRelationExtraction
-from src.dt_system.cross_doc_sieves import run_event_coref, run_entity_coref
-from src.dt_system.pairwize_relation_extraction import PairWizeRelationExtraction
+from src.dt_system.cross_doc_sieves import run_event_coref
 from src.dt_system.relation_type_enum import RelationTypeEnum
 from src.dt_system.sieves_container_init import SievesContainerInitialization
 from src.pairwize_model import configuration
-from src.utils.dataset_utils import to_single_topic
 from src.utils.io_utils import write_coref_scorer_results
 
 
@@ -88,7 +84,7 @@ if __name__ == '__main__':
     _event_mentions_topics.create_from_file(configuration.dt_input_file, True)
 
     if configuration.cluster_topics and len(_event_mentions_topics.topics_list) > 1:
-        _event_mentions_topics = to_single_topic(_event_mentions_topics)
+        _event_mentions_topics = _event_mentions_topics.to_single_topic()
 
     run_cdc_pipeline(print_method, _event_mentions_topics)
 

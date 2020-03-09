@@ -33,7 +33,7 @@ def select_from_validation(conn, table_name, split: str, coref_types: List[str] 
     return extract_clusters(rows)
 
 
-def select_all_from_mentions(conn, limit=-1):
+def select_all_from_mentions(conn, table_name="Mentions", limit=-1):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
@@ -47,10 +47,10 @@ def select_all_from_mentions(conn, limit=-1):
     cur = conn.cursor()
     if limit == -1:
         cur.execute(
-            "SELECT " + fields + " from Mentions INNER JOIN CorefChains ON Mentions.coreChainId=CorefChains.corefId;")
+            "SELECT " + fields + " from " + table_name + " INNER JOIN CorefChains ON " + table_name + ".coreChainId=CorefChains.corefId;")
     else:
         cur.execute(
-            "SELECT " + fields + " from Mentions INNER JOIN CorefChains ON Mentions.coreChainId=CorefChains.corefId"
+            "SELECT " + fields + " from " + table_name + " INNER JOIN CorefChains ON " + table_name + ".coreChainId=CorefChains.corefId"
             " WHERE limit " + str(limit) + ";")
 
     rows = cur.fetchall()

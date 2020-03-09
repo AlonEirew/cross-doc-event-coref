@@ -9,7 +9,6 @@ from src.pairwize_model import configuration
 from src.pairwize_model.model import PairWiseModelKenton
 from src.pairwize_model.train import train_pairwise
 from src.utils.bert_utils import BertFromFile
-from src.utils.dataset_utils import load_pos_neg_pickle
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)

@@ -72,3 +72,23 @@ class Topics(object):
             current_topic_ref.mentions.append(mention)
 
         return topics
+
+    def to_single_topic(self):
+        new_topic = Topic(-1)
+
+        for topic in self.topics_list:
+            for ment in topic.mentions:
+                new_topic.mentions.append(ment)
+
+        self.topics_list.clear()
+        self.topics_list.append(new_topic)
+
+    def convert_to_clusters(self):
+        clusters = dict()
+        for topic in self.topics_list:
+            for mention in topic.mentions:
+                if mention.coref_chain not in clusters:
+                    clusters[mention.coref_chain] = list()
+                clusters[mention.coref_chain].append(mention)
+            # break
+        return clusters

@@ -4,11 +4,10 @@ import numpy as np
 import random
 import torch
 
-from src import LIBRARY_ROOT
+from src.dataobjs.dataset import DataSet
 from src.pairwize_model import configuration
 from src.pairwize_model.model import PairWiseModelKenton
-from src.utils.bert_utils import BertPretrainedUtils, BertFromFile
-from src.utils.dataset_utils import DATASET, load_pos_neg_pickle
+from src.utils.bert_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -50,20 +49,20 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
             end_index += batch_size
             count_btch += 1
 
-            if count_btch % 1000 == 0:
+            if count_btch % 100 == 0:
                 report = "%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch)
                 logger.info(report)
-                pairwize_model.eval()
-                # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-                _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
-                # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
-                pairwize_model.train()
+            #     pairwize_model.eval()
+            #     # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
+            #     _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
+            #     # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
+            #     pairwize_model.train()
 
-        # pairwize_model.eval()
-        # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-        # _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
+        pairwize_model.eval()
+        # accuracy_on_dataset("Train", epoch + 1, pairwize_model, train)
+        _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
         # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
-        # pairwize_model.train()
+        pairwize_model.train()
 
         # if best_result_for_save < dev_f1:
         if save_model:
@@ -134,6 +133,7 @@ def init_basic_training_resources():
     torch.manual_seed(1)
     random.seed(1)
     np.random.seed(1)
+    dataset = DataSet()
 
     bert_utils = BertFromFile(configuration.bert_files)
     # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
@@ -145,8 +145,8 @@ def init_basic_training_resources():
         # pairwize_model = PairWiseModelKenton(20736, 150, 2)
         pairwize_model = PairWiseModelKenton(20736, configuration.hidden_n, 2, bert_utils, configuration.use_cuda)
 
-    train_feat = load_pos_neg_pickle(configuration.event_train_file_pos, configuration.event_train_file_neg, configuration.ratio)
-    validation_feat = load_pos_neg_pickle(configuration.event_validation_file_pos, configuration.event_validation_file_neg, -1)
+    train_feat = dataset.load_pos_neg_pickle(configuration.event_train_file_pos, configuration.event_train_file_neg, configuration.ratio)
+    validation_feat = dataset.load_pos_neg_pickle(configuration.event_validation_file_pos, configuration.event_validation_file_neg, -1)
 
     if configuration.use_cuda:
         # print(torch.cuda.get_device_name(1))

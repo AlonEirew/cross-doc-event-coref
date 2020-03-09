@@ -1,6 +1,5 @@
 from src import LIBRARY_ROOT
-from src.utils.dataset_utils import DATASET
-
+from src.dataobjs.dataset import DATASET_NAME
 
 save_model_file, load_model_file, event_train_file_pos, event_train_file_neg, \
         event_validation_file_pos, event_validation_file_neg, bert_files = None, None, None, None, None, None, None
@@ -27,16 +26,16 @@ def reload():
 
 
 ########################## Train Model Params ################################
-train_dataset = DATASET.WEC
-dev_dataset = DATASET.WEC
-context_set = "final_dataset"
+train_dataset = DATASET_NAME.ECB
+dev_dataset = DATASET_NAME.ECB
+context_set = "dataset"
 
 learning_rate = 1e-5
 batch_size = 32
-ratio = 35
-iterations = 1
+ratio = -1
+iterations = 5
 use_cuda = True
-save_model = True
+save_model = False
 save_model_threshold = 0.1
 fine_tune = False
 weight_decay = 0.01

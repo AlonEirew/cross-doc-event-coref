@@ -3,7 +3,7 @@ import random
 from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics, Topic
-from src.helper_scripts.extract_wikilinks_tojson import clean_long_mentions
+from src.helper_scripts.extract_wec_tojson import clean_long_mentions
 from src.utils import json_utils
 
 # all_mentions = list()
