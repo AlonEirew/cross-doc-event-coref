@@ -8,6 +8,9 @@ from transformers import BertTokenizer, BertForSequenceClassification
 logger = logging.getLogger(__name__)
 
 
+MAX_MENTION_SPAN = 7
+
+
 class BertPretrainedUtils(nn.Module):
     def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
         super(BertPretrainedUtils, self).__init__()
@@ -75,7 +78,7 @@ class BertPretrainedUtils(nn.Module):
                                starts[i]:ends[i]]
 
             # Padding of mention (longest mentions is 7 tokens)
-            last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, 7 - last_hidden_span.shape[0]])
+            last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, MAX_MENTION_SPAN - last_hidden_span.shape[0]])
             all_last_span_pad.append(last_hidden_span_pad)
             all_first.append(last_hidden_span[0])
             all_last.append(last_hidden_span[-1])
@@ -104,18 +107,18 @@ class BertPretrainedUtils(nn.Module):
         return last_hidden_span_pad, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
 
     def mention_feat_to_vec(self, mention):
-        cntx_before, ment_span, cntx_after = self.extract_mention_surrounding_context(mention)
-
+        cntx_before_str, ment_span_str, cntx_after_str = self.extract_mention_surrounding_context(mention)
+        cntx_before, cntx_after = cntx_before_str, cntx_after_str
         try:
-            if len(cntx_before) != 0:
-                cntx_before = self._tokenizer.encode(cntx_before)
-            if len(cntx_after) != 0:
-                cntx_after = self._tokenizer.encode(cntx_after)
+            if len(cntx_before_str) != 0:
+                cntx_before = self._tokenizer.encode(cntx_before_str)[0:-1]
+            if len(cntx_after_str) != 0:
+                cntx_after = self._tokenizer.encode(cntx_after_str)[1:]
         except:
             print("FAILD on MentionID=" + mention.mention_id)
             raise
 
-        ment_span = self._tokenizer.encode(ment_span)
+        ment_span = self._tokenizer.encode(ment_span_str)[1:-1]
         tokens_length = len(cntx_before) + len(cntx_after) + len(ment_span)
         att_mask = [1] * tokens_length
         if self.pad:

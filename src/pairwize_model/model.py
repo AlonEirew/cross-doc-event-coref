@@ -3,6 +3,8 @@ import torch
 
 from torch import nn
 
+from src.utils.bert_utils import MAX_MENTION_SPAN
+
 
 class PairWiseModel(nn.Module):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda=True):
@@ -82,6 +84,7 @@ class PairWiseModelKenton(PairWiseModel):
         hiddens1 = torch.cat(hiddens1).reshape(batch_size, -1)
         first1_tok = torch.cat(first1_tok).reshape(batch_size, -1)
         last1_tok = torch.cat(last1_tok).reshape(batch_size, -1)
+
         # (x, 768)
         hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.bert_utils.get_mentions_rep(mentions2))
         hiddens2 = torch.cat(hiddens2).reshape(batch_size, -1)
@@ -132,16 +135,16 @@ class PairWiseModelKenton(PairWiseModel):
     def clean_attnd_on_zero(self, attend1, ment_size1, attend2, ment_size2):
         for i, vals in enumerate(list(zip(ment_size1, ment_size2))):
             val1, val2 = vals
-            if val1 > 7:
-                val1 = 7
+            if val1 > MAX_MENTION_SPAN:
+                val1 = MAX_MENTION_SPAN
 
-            if val2 > 7:
-                val2 = 7
+            if val2 > MAX_MENTION_SPAN:
+                val2 = MAX_MENTION_SPAN
 
             attend1_fx = attend1[i:i + 1, 0:val1]
-            attend1_fx = torch.nn.functional.pad(attend1_fx, [0, 7 - val1, 0, 0], value=-math.inf)
+            attend1_fx = torch.nn.functional.pad(attend1_fx, [0, MAX_MENTION_SPAN - val1, 0, 0], value=-math.inf)
             attend1[i:i + 1] = attend1_fx
 
             attend2_fx = attend2[i:i + 1, 0:val2]
-            attend2_fx = torch.nn.functional.pad(attend2_fx, [0, 7 - val2, 0, 0], value=-math.inf)
+            attend2_fx = torch.nn.functional.pad(attend2_fx, [0, MAX_MENTION_SPAN - val2, 0, 0], value=-math.inf)
             attend2[i:i + 1] = attend2_fx

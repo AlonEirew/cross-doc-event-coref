@@ -30,12 +30,12 @@ train_dataset = DATASET_NAME.ECB
 dev_dataset = DATASET_NAME.ECB
 context_set = "dataset"
 
-learning_rate = 1e-5
+learning_rate = 1e-4
 batch_size = 32
 ratio = -1
 iterations = 5
 use_cuda = True
-save_model = False
+save_model = True
 save_model_threshold = 0.1
 fine_tune = False
 weight_decay = 0.01
@@ -43,9 +43,9 @@ hidden_n = 150
 
 ########################## Determenistic System ################################
 cluster_topics = False
-dt_input_file = str(LIBRARY_ROOT) + "/resources/validated/WEC_Dev_Full_Event_gold_mentions_reduced.json"
-bert_dt_file = str(LIBRARY_ROOT) + "/resources/final_dataset/WEC_Test_Event_gold_mentions.pickle"
-dt_load_model_file = str(LIBRARY_ROOT) + "/final_saved_models/WEC_WEC_final_a35a3"
-scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_results_lemma_reduce_wec_test_full.txt"
+dt_input_file = str(LIBRARY_ROOT) + "/resources/dataset/ECB_Test_Event_gold_mentions.json"
+bert_dt_file = str(LIBRARY_ROOT) + "/resources/dataset/ECB_Test_Event_gold_mentions.pickle"
+dt_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_final_a-1a3"
+scorer_out_file = str(LIBRARY_ROOT) + "/output/ecb_test_10032020.txt"
 reload()
 ################################################################################

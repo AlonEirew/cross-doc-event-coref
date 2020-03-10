@@ -6,6 +6,7 @@ from src.dataobjs.sieves_config import EventSievesConfiguration
 from src.dataobjs.topics import Topics
 from src.dt_system.computed_relation_extraction import ComputedRelationExtraction
 from src.dt_system.cross_doc_sieves import run_event_coref
+from src.dt_system.pairwize_relation_extraction import PairWizeRelationExtraction
 from src.dt_system.relation_type_enum import RelationTypeEnum
 from src.dt_system.sieves_container_init import SievesContainerInitialization
 from src.pairwize_model import configuration
@@ -26,12 +27,12 @@ def create_example_settings():
     bert_file = configuration.bert_dt_file
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        # (RelationTypeEnum.PAIRWISE, 1.0)
-        (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
+        (RelationTypeEnum.PAIRWISE, 1.0)
+        # (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
     ]
     sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
-        # PairWizeRelationExtraction(model_file, bert_file)
-        ComputedRelationExtraction()
+        PairWizeRelationExtraction(model_file, bert_file)
+        # ComputedRelationExtraction()
     ])
 
     event_config.run_evaluation = True

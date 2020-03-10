@@ -54,9 +54,9 @@ if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     _res_folder = "dataset"
 
-    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Dev_Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Test_Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Train_Event_gold_mentions.json",
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Dev_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Test_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Train_Event_gold_mentions.json",
                  ]
 
     jobs = list()

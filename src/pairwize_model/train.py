@@ -64,19 +64,19 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
         # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
         pairwize_model.train()
 
-        # if best_result_for_save < dev_f1:
-        if save_model:
-            logger.info("Found better model saving")
-            torch.save(pairwize_model, model_out + "a" + str(epoch + 1))
-            best_result_for_save = dev_f1
-            non_improved_epoch_count = 0
-            improvement_seen = True
-        elif improvement_seen:
-            if non_improved_epoch_count == 10:
-                logger.info("No Improvement for 10 ephochs, ending test...")
-                break
-            else:
-                non_improved_epoch_count += 1
+        if best_result_for_save < dev_f1:
+            if save_model:
+                logger.info("Found better model saving")
+                torch.save(pairwize_model, model_out + "iter_" + str(epoch + 1))
+                best_result_for_save = dev_f1
+                non_improved_epoch_count = 0
+                improvement_seen = True
+            elif improvement_seen:
+                if non_improved_epoch_count == 10:
+                    logger.info("No Improvement for 10 ephochs, ending test...")
+                    break
+                else:
+                    non_improved_epoch_count += 1
 
     return best_result_for_save
 

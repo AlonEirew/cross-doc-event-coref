@@ -22,3 +22,6 @@ Generate the pairs pickle file from the pairwize model to train on <br/>
 ##### `train.py`
 Main model train file, all training configuration are at `src/pairwize_model/configuration.py`, this will train Mandar pariwise model<br/>
 * Input: NegPairs.pickle & PosPairs.pickle
+
+##### `inference.py`
+Run inference on a split from the data using a pre-trained model that will be loaded.

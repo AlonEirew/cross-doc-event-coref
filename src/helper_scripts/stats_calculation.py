@@ -179,7 +179,7 @@ def create_split_stats(mentions_file, dataset, split):
 
 
 if __name__ == '__main__':
-    _event_train = str(LIBRARY_ROOT) + '/resources/dataset/WEC_VERB_Single_Event_gold_mentions.json'
+    _event_train = str(LIBRARY_ROOT) + '/resources/dataset/WEC_Test_Event_gold_mentions.json'
     # _event_dev = str(LIBRARY_ROOT) + '/resources/dataset/ECB_Dev_Event_gold_mentions.json'
     # _event_test = str(LIBRARY_ROOT) + '/resources/dataset/ECB_Test_Event_gold_mentions.json'
 
