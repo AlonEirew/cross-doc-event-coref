@@ -6,11 +6,12 @@ from src.utils.bert_utils import BertFromFile
 
 
 class PairWizeRelationExtraction(RelationExtraction):
-    def __init__(self, pairwize_file, bert_pickle):
+    def __init__(self, pairwize_file, bert_pickle, pairthreshold=1):
         super(PairWizeRelationExtraction, self).__init__()
         self.pairwize_model = torch.load(pairwize_file)
         self.pairwize_model.bert_utils = BertFromFile([bert_pickle])
         self.pairwize_model.eval()
+        self.pairthreshold = pairthreshold
 
     def extract_sub_relations(self, mention_x, mention_y, relation):
         key1 = mention_x.mention_id + "_" + mention_y.mention_id
@@ -21,7 +22,7 @@ class PairWizeRelationExtraction(RelationExtraction):
             return self.cache[key2]
 
         prediction, gold_labels = self.pairwize_model.predict(zip([mention_x], [mention_y]), bs=1)
-        if prediction == 1:
+        if prediction.item() > self.pairthreshold:
             self.cache[key1] = RelationTypeEnum.PAIRWISE
             return RelationTypeEnum.PAIRWISE
 

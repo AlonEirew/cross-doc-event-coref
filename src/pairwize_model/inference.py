@@ -5,6 +5,7 @@ import torch
 
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import DATASET_NAME, SPLIT, DataSet
+from src.pairwize_model import configuration
 from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.bert_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
@@ -100,19 +101,19 @@ def extract_on_head(batch_features, batch_label, batch_predictions, pairs_fn, pa
 
 
 if __name__ == '__main__':
-    dataset = DATASET_NAME.ECB
-    split = SPLIT.Test
-    alpha = -1
-    context_set = "dataset"
+    dataset = configuration.inference_dataset
+    split = configuration.inference_split
+    ratio = configuration.inference_ratio
+    context_set = configuration.inference_context_set
+    _model_in = configuration.inference_model
 
     log_param_str = "inference_" + dataset.name + ".log"
     create_logger_with_fh(log_param_str)
 
-    _event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_PosPairs.pickle"
-    _event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions_NegPairs.pickle"
+    _event_test_file_pos = configuration.inference_event_test_file_pos
+    _event_test_file_neg = configuration.inference_event_test_file_neg
 
-    _model_in = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_final_a-1a3"
-    _bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dataset.name + "_" + split.name + "_Event_gold_mentions.pickle"])
+    _bert_utils = configuration.inference_bert
 
     basename = path.basename(path.splitext(_model_in)[0])
     pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TP_" + basename + "_" + split.name + "_paris.txt"
@@ -135,7 +136,7 @@ if __name__ == '__main__':
     # logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
-    split_feat = DataSet().load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, alpha)
+    split_feat = DataSet().load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, ratio)
     # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
     #                                                                                split_feat, extract_on_mention)
     accuracy_on_dataset("", 0, _pairwize_model, split_feat)

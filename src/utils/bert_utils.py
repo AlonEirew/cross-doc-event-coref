@@ -142,13 +142,13 @@ class BertPretrainedUtils(nn.Module):
         if self.max_surrounding_contx != -1:
             context_before = start_mention_id - self.max_surrounding_contx
             context_after = end_mention_id + self.max_surrounding_contx
+            if context_before < 0:
+                context_before = 0
+
+            if context_after > len(context):
+                context_after = len(context)
         else:
             context_before = 0
-            context_after = len(context)
-
-        if context_before < 0:
-            context_before = 0
-        if context_after > len(context):
             context_after = len(context)
 
         ret_context_before = context[context_before:start_mention_id]

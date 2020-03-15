@@ -15,16 +15,16 @@ logger = logging.getLogger(__name__)
 
 def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
                    lr=1e-5, save_model=False, model_out=None, best_model_to_save=0.1):
-    loss_func = torch.nn.CrossEntropyLoss()
-    # loss_func = torch.nn.BCEWithLogitsLoss()
-    # optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=0.01)
-    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=configuration.weight_decay)
+    # loss_func = torch.nn.CrossEntropyLoss()
+    loss_func = torch.nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=configuration.train_weight_decay)
     # optimizer = AdamW(pairwize_model.parameters(), lr)
     dataset_size = len(train)
 
     best_result_for_save = best_model_to_save
     improvement_seen = False
     non_improved_epoch_count = 0
+
     for epoch in range(epochs):
         pairwize_model.train()
         end_index = batch_size
@@ -41,7 +41,7 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
             bs = end_index - start_index
             prediction, gold_labels = pairwize_model(batch_features, bs)
 
-            loss = loss_func(prediction, gold_labels)
+            loss = loss_func(prediction, gold_labels.reshape(-1, 1).float())
             loss.backward()
             optimizer.step()
 
@@ -52,14 +52,9 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
             if count_btch % 100 == 0:
                 report = "%d: %d: loss: %.10f:" % (epoch + 1, end_index, cum_loss / count_btch)
                 logger.info(report)
-            #     pairwize_model.eval()
-            #     # accuracy_on_dataset("Train", epoch + 1, bert_utils, pairwize_model, train, use_cuda)
-            #     _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
-            #     # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
-            #     pairwize_model.train()
 
         pairwize_model.eval()
-        # accuracy_on_dataset("Train", epoch + 1, pairwize_model, train)
+        accuracy_on_dataset("Train", epoch + 1, pairwize_model, train)
         _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
         # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
         pairwize_model.train()
@@ -94,19 +89,19 @@ def accuracy_on_dataset(testset, epoch, pairwize_model, features):
         batch_features = features[start_index:end_index].copy()
         batch_size = end_index - start_index
         batch_predictions, batch_label = pairwize_model.predict(batch_features, batch_size)
-
-        predictions.append(batch_predictions)
-        labels.append(batch_label)
+        batch_predictions = torch.round(batch_predictions.reshape(-1)).long()
+        predictions.append(batch_predictions.detach())
+        labels.append(batch_label.detach())
         end_index += batch_size
 
-    all_labels = torch.cat(labels).bool()
-    all_predictions = torch.cat(predictions).bool()
+    all_labels = torch.cat(labels).cpu()
+    all_predictions = torch.cat(predictions).cpu()
 
-    measurements = get_measurements(testset, epoch, all_labels, all_predictions)
+    measurements = get_measurements_bool_clasification(testset, epoch, all_labels, all_predictions)
     return measurements
 
 
-def get_measurements(testset, epoch, all_labels, all_predictions):
+def get_measurements_bool_clasification(testset, epoch, all_labels, all_predictions):
     accuracy = torch.mean((all_labels == all_predictions).float())
 
     tp = torch.sum(all_labels & all_predictions).float().item()
@@ -135,18 +130,18 @@ def init_basic_training_resources():
     np.random.seed(1)
     dataset = DataSet()
 
-    bert_utils = BertFromFile(configuration.bert_files)
+    bert_utils = BertFromFile(configuration.train_bert_files)
     # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
 
-    if configuration.fine_tune:
-        logger.info("Loading model to fine tune-" + configuration.load_model_file)
-        pairwize_model = torch.load(configuration.load_model_file)
+    if configuration.train_fine_tune:
+        logger.info("Loading model to fine tune-" + configuration.train_load_model_file)
+        pairwize_model = torch.load(configuration.train_load_model_file)
     else:
         # pairwize_model = PairWiseModelKenton(20736, 150, 2)
-        pairwize_model = PairWiseModelKenton(20736, configuration.hidden_n, 2, bert_utils, configuration.use_cuda)
+        pairwize_model = PairWiseModelKenton(20736, configuration.train_hidden_n, 1, bert_utils, configuration.use_cuda)
 
-    train_feat = dataset.load_pos_neg_pickle(configuration.event_train_file_pos, configuration.event_train_file_neg, configuration.ratio)
-    validation_feat = dataset.load_pos_neg_pickle(configuration.event_validation_file_pos, configuration.event_validation_file_neg, -1)
+    train_feat = dataset.load_pos_neg_pickle(configuration.train_event_train_file_pos, configuration.train_event_train_file_neg, configuration.train_ratio)
+    validation_feat = dataset.load_pos_neg_pickle(configuration.train_event_validation_file_pos, configuration.train_event_validation_file_neg, -1)
 
     if configuration.use_cuda:
         # print(torch.cuda.get_device_name(1))
@@ -159,21 +154,21 @@ def init_basic_training_resources():
 if __name__ == '__main__':
 
     log_params_str = "train_ds" + configuration.train_dataset.name + "_dev_ds" + configuration.dev_dataset.name + \
-                     "_lr" + str(configuration.learning_rate) + "_bs" + str(configuration.batch_size) + "_a" + \
-                     str(configuration.ratio) + "_itr" + str(configuration.iterations)
+                     "_lr" + str(configuration.train_learning_rate) + "_bs" + str(configuration.train_batch_size) + "_a" + \
+                     str(configuration.train_ratio) + "_itr" + str(configuration.train_iterations)
     create_logger_with_fh(log_params_str)
 
-    if configuration.save_model and configuration.fine_tune and \
-            configuration.save_model_file == configuration.load_model_file:
+    if configuration.train_save_model and configuration.train_fine_tune and \
+            configuration.train_save_model_file == configuration.train_load_model_file:
         raise Exception('Fine Tune & Save model set with same model file for in & out')
 
     logger.info("train_set=" + configuration.train_dataset.name + ", dev_set=" + configuration.dev_dataset.name +
-                ", lr=" + str(configuration.learning_rate) + ", bs=" + str(configuration.batch_size) +
-                ", ratio=1:" + str(configuration.ratio) + ", itr=" + str(configuration.iterations) +
-                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay=" + str(configuration.weight_decay))
+                ", lr=" + str(configuration.train_learning_rate) + ", bs=" + str(configuration.train_batch_size) +
+                ", ratio=1:" + str(configuration.train_ratio) + ", itr=" + str(configuration.train_iterations) +
+                ", hidden_n=" + str(configuration.train_hidden_n) + ", weight_decay=" + str(configuration.train_weight_decay))
 
     _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
 
-    train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, configuration.batch_size,
-                   configuration.iterations, configuration.learning_rate , save_model=configuration.save_model,
-                   model_out=configuration.save_model_file, best_model_to_save=configuration.save_model_threshold)
+    train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, configuration.train_batch_size,
+                   configuration.train_iterations, configuration.train_learning_rate, save_model=configuration.train_save_model,
+                   model_out=configuration.train_save_model_file, best_model_to_save=configuration.train_save_model_threshold)

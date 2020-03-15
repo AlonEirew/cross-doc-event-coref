@@ -49,12 +49,12 @@ class DataSet(object):
         return cls.create_features_from_pos_neg(pos_pairs, neg_pairs)
 
     @classmethod
-    def get_pairwise_feat(cls, data_file, ratio):
+    def get_pairwise_feat(cls, data_file, ratio, sub_topics=False):
         topics_ = Topics()
         topics_.create_from_file(data_file, keep_order=True)
         logger.info('Create pos/neg examples')
         # Create positive and negative pair within the same ECB+ topic
-        positive_, negative_ = cls.create_pos_neg_pairs(topics_)
+        positive_, negative_ = cls.create_pos_neg_pairs(topics_, sub_topics)
 
         if ratio > 0:
             if len(negative_) > (len(positive_) * ratio):
@@ -65,7 +65,7 @@ class DataSet(object):
         return positive_, negative_
 
     @classmethod
-    def create_pos_neg_pairs(cls, topics):
+    def create_pos_neg_pairs(cls, topics, sub_topic):
         raise NotImplementedError("Method implemented only in subclasses")
 
     @classmethod
@@ -104,13 +104,15 @@ class EcbDataSet(DataSet):
         super(EcbDataSet, self).__init__()
 
     @classmethod
-    def create_pos_neg_pairs(cls, topics):
+    def create_pos_neg_pairs(cls, topics, sub_topic):
         # topic = topics.topics_list[0]
-        new_topics = cls.from_ecb_subtopic_to_topic(topics)
+        if not sub_topic:
+            topics = cls.from_ecb_subtopic_to_topic(topics)
+
         # create positive examples
-        positive_pairs = cls.create_pairs(new_topics, POLARITY.POSITIVE)
+        positive_pairs = cls.create_pairs(topics, POLARITY.POSITIVE)
         # create negative examples
-        negative_pairs = cls.create_pairs(new_topics, POLARITY.NEGATIVE)
+        negative_pairs = cls.create_pairs(topics, POLARITY.NEGATIVE)
         random.shuffle(negative_pairs)
 
         return positive_pairs, negative_pairs
@@ -155,7 +157,7 @@ class WecDataSet(DataSet):
         super(WecDataSet, self).__init__()
 
     @classmethod
-    def create_pos_neg_pairs(cls, topics):
+    def create_pos_neg_pairs(cls, topics, sub_topics):
         clusters = topics.convert_to_clusters()
         positive_pairs = cls.create_pos_pairs_wec(clusters)
         negative_pairs = cls.create_neg_pairs_wec(clusters)

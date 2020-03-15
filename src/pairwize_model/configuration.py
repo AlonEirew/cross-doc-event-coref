@@ -1,51 +1,74 @@
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import DATASET_NAME
+from src.dataobjs.dataset import DATASET_NAME, SPLIT
+from src.utils.bert_utils import BertFromFile
 
-save_model_file, load_model_file, event_train_file_pos, event_train_file_neg, \
-        event_validation_file_pos, event_validation_file_neg, bert_files = None, None, None, None, None, None, None
+train_save_model_file, train_load_model_file, train_event_train_file_pos, train_event_train_file_neg, \
+train_event_validation_file_pos, train_event_validation_file_neg, train_bert_files = None, None, None, None, None, None, None
 
 
 def reload():
-    global save_model_file, load_model_file, event_train_file_pos, event_train_file_neg, \
-        event_validation_file_pos, event_validation_file_neg, bert_files
+    global train_save_model_file, train_load_model_file, train_event_train_file_pos, train_event_train_file_neg, \
+        train_event_validation_file_pos, train_event_validation_file_neg, train_bert_files
 
-    save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + train_dataset.name + "_" + dev_dataset.name + "_final_a" + str(ratio)
-    load_model_file = str(LIBRARY_ROOT) + "/final_saved_models/WEC_WEC_final_a35a3"
+    train_save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + train_dataset.name + "_" + dev_dataset.name + "_140320_2_" + str(train_ratio)
+    train_load_model_file = str(LIBRARY_ROOT) + "/final_saved_models/WEC_WEC_final_a35a3"
 
-    event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
-                           train_dataset.name + "_Train_Event_gold_mentions_PosPairs.pickle"
-    event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
-                           train_dataset.name + "_Train_Event_gold_mentions_NegPairs.pickle"
-    event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
-                                dev_dataset.name + "_Dev_Event_gold_mentions_PosPairs.pickle"
-    event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + \
-                                dev_dataset.name + "_Dev_Event_gold_mentions_NegPairs.pickle"
+    train_event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + \
+                                 train_dataset.name + "_Train_Event_gold_mentions_PosPairs_Subtopic.pickle"
+    train_event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + \
+                                 train_dataset.name + "_Train_Event_gold_mentions_NegPairs_Subtopic.pickle"
+    train_event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + \
+                                      dev_dataset.name + "_Dev_Event_gold_mentions_PosPairs_Subtopic.pickle"
+    train_event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + \
+                                      dev_dataset.name + "_Dev_Event_gold_mentions_NegPairs_Subtopic.pickle"
 
-    bert_files = [str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions.pickle",
-                      str(LIBRARY_ROOT) + "/resources/" + context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions.pickle"]
+    train_bert_files = [str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + train_dataset.name + "_Train_Full_Event_gold_mentions_bert.pickle",
+                        str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + dev_dataset.name + "_Dev_Full_Event_gold_mentions_bert.pickle"]
 
 
 ########################## Train Model Params ################################
 train_dataset = DATASET_NAME.ECB
 dev_dataset = DATASET_NAME.ECB
-context_set = "dataset"
+train_context_set = "dataset_full"
 
-learning_rate = 1e-4
-batch_size = 32
-ratio = -1
-iterations = 5
+train_learning_rate = 1e-4
+train_batch_size = 32
+train_ratio = -1
+train_iterations = 30
 use_cuda = True
-save_model = True
-save_model_threshold = 0.1
-fine_tune = False
-weight_decay = 0.01
-hidden_n = 150
+train_save_model = True
+train_save_model_threshold = 0.1
+train_fine_tune = False
+train_weight_decay = 0.01
+train_hidden_n = 150
 
-########################## Determenistic System ################################
+########################## Inference Model Params ################################
+inference_dataset = DATASET_NAME.ECB
+inference_split = SPLIT.Test
+inference_ratio = -1
+inference_context_set = "dataset_full"
+inference_model = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_140320_1-1iter_5"
+
+inference_event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + inference_context_set + "/" + \
+                                inference_dataset.name + "_" + inference_split.name + "_Event_gold_mentions_PosPairs_Subtopic.pickle"
+inference_event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + inference_context_set + \
+                                "/" + inference_dataset.name + "_" + inference_split.name + "_Event_gold_mentions_NegPairs_Subtopic.pickle"
+inference_bert = BertFromFile([str(LIBRARY_ROOT) + "/resources/" + inference_context_set +
+                               "/" + inference_dataset.name + "_" + inference_split.name + "_Full_Event_gold_mentions_bert.pickle"])
+
+########################## Determenistic/Cluster System ################################
 cluster_topics = False
-dt_input_file = str(LIBRARY_ROOT) + "/resources/dataset/ECB_Test_Event_gold_mentions.json"
-bert_dt_file = str(LIBRARY_ROOT) + "/resources/dataset/ECB_Test_Event_gold_mentions.pickle"
-dt_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_final_a-1a3"
-scorer_out_file = str(LIBRARY_ROOT) + "/output/ecb_test_10032020.txt"
+dt_dataset = DATASET_NAME.ECB
+dt_context_set = "dataset_full"
+
+dt_input_file = str(LIBRARY_ROOT) + "/resources/" + dt_context_set + "/" + dt_dataset.name + \
+                "_Test_Full_Event_gold_mentions.json"
+dt_bert_file = str(LIBRARY_ROOT) + "/resources/" + dt_context_set + "/" + dt_dataset.name + \
+               "_Test_Full_Event_gold_mentions_bert.pickle"
+
+dt_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_140320_1-1iter_5"
+scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_results_ecb_test_14032020_lemma.txt"
+dt_pair_thresh = 0.3
+dt_average_link_thresh = 1.0
 reload()
 ################################################################################

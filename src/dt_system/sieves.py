@@ -21,7 +21,7 @@ class SieveClusterMerger(object):
         self.threshold = excepted_relation[1]
         self.relation_extractor = relation_extractor
 
-        logger.info('init Sieve, for relation-%s with threshold=%.1f',
+        logger.info('init Sieve, for relation-%s with threshold=%.4f',
                     self.excepted_relation.name, self.threshold)
 
     def run_sieve(self, cluster_i: Cluster, cluster_j: Cluster) -> bool:

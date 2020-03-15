@@ -5,7 +5,7 @@ import torch
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import EcbDataSet
 from src.helper_scripts.generate_pairs import get_feat_alternative
-from src.pairwize_model.train import get_measurements
+from src.pairwize_model.train import get_measurements_bool_clasification
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -36,7 +36,7 @@ def accuracy_on_dataset(features):
 
     all_labels = torch.tensor(labels).bool()
     all_predictions = torch.tensor(predictions).bool()
-    get_measurements("ECB-Test", -1, all_labels, all_predictions)
+    get_measurements_bool_clasification("ECB-Test", -1, all_labels, all_predictions)
 
 
 if __name__ == '__main__':

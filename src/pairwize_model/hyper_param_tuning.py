@@ -10,10 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 def set_experiment_configuration(context_set, tds, dds, ration):
-    configuration.context_set = context_set
+    configuration.train_context_set = context_set
     configuration.train_dataset = tds
     configuration.dev_dataset = dds
-    configuration.ratio = ration
+    configuration.train_ratio = ration
     configuration.reload()
 
 
@@ -57,10 +57,10 @@ if __name__ == '__main__':
 
                             logger.info(
                                 "train_set=" + configuration.train_dataset.name + ", dev_set=" + configuration.dev_dataset.name +
-                                ", lr=" + str(configuration.learning_rate) + ", bs=" + str(configuration.batch_size) +
-                                ", ratio=1:" + str(configuration.ratio) + ", itr=" + str(configuration.iterations) +
-                                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay=" + str(
-                                    configuration.weight_decay))
+                                ", lr=" + str(configuration.train_learning_rate) + ", bs=" + str(configuration.train_batch_size) +
+                                ", ratio=1:" + str(configuration.train_ratio) + ", itr=" + str(configuration.train_iterations) +
+                                ", hidden_n=" + str(configuration.train_hidden_n) + ", weight_decay=" + str(
+                                    configuration.train_weight_decay))
 
                             train_pairwise(_pairwize_model, train_feat,
                                                               _event_validation_feat, _batch_size,

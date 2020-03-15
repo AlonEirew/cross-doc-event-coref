@@ -10,15 +10,15 @@ from src.dataobjs.topics import Topics
 
 def generate_pairs(data_set):
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _res_file
-    positive_, negative_ = data_set.get_pairwise_feat(event_validation_file, -1)
+    positive_, negative_ = data_set.get_pairwise_feat(event_validation_file, -1, sub_topics=True)
     # positive_, negative_ = get_feat_alternative(data_set, event_validation_file)
 
     validate_pairs(positive_, negative_)
     basename = path.basename(path.splitext(event_validation_file)[0])
     print("Positives=" + str(len(positive_)))
-    pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs.pickle", "w+b"))
+    pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs_Subtopic.pickle", "w+b"))
     print("Negative=" + str(len(negative_)))
-    pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs.pickle", "w+b"))
+    pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs_Subtopic.pickle", "w+b"))
     print("Done with " + event_validation_file)
 
 
@@ -78,8 +78,8 @@ def output_examples():
 
 if __name__ == '__main__':
     _res_folder = "dataset"
-    _res_file = "WEC_Dev_Event_gold_mentions.json"
-    _data_set = WecDataSet()
+    _res_file = "ECB_Test_Event_gold_mentions.json"
+    _data_set = EcbDataSet()
     generate_pairs(_data_set)
     # validate_pairs()
     # output_examples()

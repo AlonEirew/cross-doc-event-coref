@@ -31,9 +31,9 @@ class PairWiseModel(nn.Module):
 
     def predict(self, batch_features, bs):
         output, gold_labels = self.__call__(batch_features, bs)
-        output = torch.softmax(output, dim=1)
-        _, prediction = torch.max(output, dim=1)
-        # output = torch.sigmoid(output)
+        # output = torch.softmax(output, dim=1)
+        # _, prediction = torch.max(output, dim=1)
+        prediction = torch.sigmoid(output)
         # prediction = torch.round(output)
         return prediction, gold_labels
 

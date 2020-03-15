@@ -38,7 +38,7 @@ def extract_feature_dict(topics, bert_utils):
 def worker(resource_file, res_folder):
     name = multiprocessing.current_process().name
     print(name, "Starting")
-    bert_utils = BertPretrainedUtils(max_surrounding_contx=-1, finetune=False, use_cuda=True, pad=False)
+    bert_utils = BertPretrainedUtils(max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
 
     topics = Topics()
     topics.create_from_file(resource_file, keep_order=True)
@@ -52,11 +52,11 @@ def worker(resource_file, res_folder):
 
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
-    _res_folder = "dataset"
+    _res_folder = "dataset_full"
 
-    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Dev_Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Test_Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Train_Event_gold_mentions.json",
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Dev_Full_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Test_Full_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Train_Full_Event_gold_mentions.json",
                  ]
 
     jobs = list()
