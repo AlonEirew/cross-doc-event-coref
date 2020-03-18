@@ -2,14 +2,13 @@ import torch
 
 from src.dt_system.relation_extraction import RelationExtraction
 from src.dt_system.relation_type_enum import RelationTypeEnum
-from src.utils.embed_utils import BertFromFile
 
 
 class PairWizeRelationExtraction(RelationExtraction):
-    def __init__(self, pairwize_file, bert_pickle, pairthreshold=1):
+    def __init__(self, pairwize_file, bert, pairthreshold=1):
         super(PairWizeRelationExtraction, self).__init__()
         self.pairwize_model = torch.load(pairwize_file)
-        self.pairwize_model.bert_utils = BertFromFile([bert_pickle])
+        self.pairwize_model.bert_utils = bert
         self.pairwize_model.eval()
         self.pairthreshold = pairthreshold
 

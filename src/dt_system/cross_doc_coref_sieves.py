@@ -24,14 +24,14 @@ def run_example(cdc_settings, event_mentions_topics):
 
 def create_example_settings():
     model_file = configuration.dt_load_model_file
-    bert_file = configuration.bert_dt_file
+    bert_file = configuration.dt_bert_file
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        (RelationTypeEnum.PAIRWISE, 1.0)
-        # (RelationTypeEnum.SAME_HEAD_LEMMA, 1.0)
+        (RelationTypeEnum.PAIRWISE, configuration.dt_average_link_thresh)
+        # (RelationTypeEnum.SAME_HEAD_LEMMA, configuration.dt_average_link_thresh)
     ]
     sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
-        PairWizeRelationExtraction(model_file, bert_file)
+        PairWizeRelationExtraction(model_file, bert_file, pairthreshold=configuration.dt_pair_thresh)
         # ComputedRelationExtraction()
     ])
 

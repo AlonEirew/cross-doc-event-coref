@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 MAX_MENTION_SPAN = 7
-
+BERT_BASE_SIZE = 768
+BERT_LARGE_SIZE = 1024
+BOBERTA_LARGE_SIZE = 1024
 
 class EmbedGenerics(object):
     def __init__(self):
@@ -47,16 +49,29 @@ class EmbedGenerics(object):
         cntx_before, cntx_after = cntx_before_str, cntx_after_str
         try:
             if len(cntx_before_str) != 0:
-                cntx_before = model.encode(cntx_before_str)[0:-1]
+                cntx_before = model.encode(" ".join(cntx_before_str))[0:-1]
             if len(cntx_after_str) != 0:
-                cntx_after = model.encode(cntx_after_str)[1:]
+                cntx_after = model.encode(" ".join(cntx_before_str))[1:]
         except:
             print("FAILD on MentionID=" + mention.mention_id)
             raise
 
-        ment_span = model.encode(ment_span_str)[1:-1]
+        if len(cntx_before) > max_surrounding_contx:
+            cntx_before = [cntx_before[0]] + cntx_before[-max_surrounding_contx+1:]
+        if len(cntx_after) > max_surrounding_contx:
+            cntx_after = cntx_after[:max_surrounding_contx-1] + [cntx_after[-1]]
+
+        ment_span = model.encode(" ".join(ment_span_str))[1:-1]
         tokens_length = len(cntx_before) + len(cntx_after) + len(ment_span)
         att_mask = [1] * tokens_length
+
+        if isinstance(ment_span, torch.Tensor):
+            ment_span = ment_span.tolist()
+        if isinstance(cntx_before, torch.Tensor):
+            cntx_before = cntx_before.tolist()
+        if isinstance(cntx_after, torch.Tensor):
+            cntx_after = cntx_after.tolist()
+
         if pad:
             padding_length = 75 - tokens_length
             padding = [0] * padding_length
@@ -73,20 +88,21 @@ class EmbedGenerics(object):
 class BertPretrainedUtils(nn.Module):
     def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
         super(BertPretrainedUtils, self).__init__()
-        self._tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
-        self._bert = BertForSequenceClassification.from_pretrained('bert-base-cased', output_hidden_states=True, output_attentions=True)
+        self._tokenizer = BertTokenizer.from_pretrained('bert-large-cased')
+        self._bert = BertForSequenceClassification.from_pretrained('bert-large-cased', output_hidden_states=True, output_attentions=True)
 
         self.max_surrounding_contx = max_surrounding_contx
         self.finetune = finetune
         self.pad = pad
         self.use_cuda = use_cuda
+        self.embed_size = BERT_BASE_SIZE
 
         if self.use_cuda:
             self._bert.cuda()
 
     def get_mention_mean_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
-            mention, self._bert, self.max_surrounding_contx, self.pad)
+            mention, self._tokenizer, self.max_surrounding_contx, self.pad)
         with torch.no_grad():
             if self.use_cuda:
                 ment1_ids = ment1_ids.cuda()
@@ -113,7 +129,7 @@ class BertPretrainedUtils(nn.Module):
         ids, masks, starts, ends = ([], [], [], [])
         for mention in mentions_list:
             ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
-                mention, self._bert, self.max_surrounding_contx, self.pad)
+                mention, self._tokenizer, self.max_surrounding_contx, self.pad)
             ids.append(ment1_ids)
             masks.append(att_mask)
             starts.append(ment1_inx_start)
@@ -149,17 +165,21 @@ class BertPretrainedUtils(nn.Module):
 
     def get_mention_full_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
-            mention, self._bert, self.max_surrounding_contx, self.pad)
+            mention, self._tokenizer, self.max_surrounding_contx, self.pad)
 
-        if self.use_cuda:
-            ment1_ids = ment1_ids.cuda()
-            att_mask = att_mask.cuda()
+        try:
+            if self.use_cuda:
+                ment1_ids = ment1_ids.cuda()
+                att_mask = att_mask.cuda()
 
-        if not self.finetune:
-            with torch.no_grad():
+            if not self.finetune:
+                with torch.no_grad():
+                    all_hidden_states, _ = self._bert(ment1_ids, attention_mask=att_mask)[-2:]
+            else:
                 all_hidden_states, _ = self._bert(ment1_ids, attention_mask=att_mask)[-2:]
-        else:
-            all_hidden_states, _ = self._bert(ment1_ids, attention_mask=att_mask)[-2:]
+        except:
+            print("FAILD on TopicId:" + mention.topic_id + " MentionID=" + mention.mention_id)
+            raise
 
         # last_attend2 = all_attentions2[0]
         last_hidden_span = all_hidden_states[0].view(all_hidden_states[0].shape[1], -1)[
@@ -168,10 +188,14 @@ class BertPretrainedUtils(nn.Module):
         last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, 7 - last_hidden_span.shape[0]])
         return last_hidden_span_pad, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
 
+    def get_embed_size(self):
+        return self.embed_size
+
 
 class BertFromFile(object):
-    def __init__(self, files_to_load: list):
+    def __init__(self, files_to_load: list, embed_size):
         bert_dict = dict()
+        self.embed_size = embed_size
 
         if files_to_load is not None and len(files_to_load) > 0:
             for file_ in files_to_load:
@@ -194,6 +218,9 @@ class BertFromFile(object):
 
         return embed_list
 
+    def get_embed_size(self):
+        return self.embed_size
+
 
 class RoBERTaPretrainedUtils(object):
     def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
@@ -203,6 +230,11 @@ class RoBERTaPretrainedUtils(object):
         self.pad = pad
         self.use_cuda = use_cuda
 
+        self.embed_size = BOBERTA_LARGE_SIZE
+
+        if self.use_cuda:
+            self.roberta.cuda()
+
     def get_mention_full_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
             mention, self.roberta, self.max_surrounding_contx, self.pad)
@@ -210,7 +242,14 @@ class RoBERTaPretrainedUtils(object):
         if self.use_cuda:
             ment1_ids = ment1_ids.cuda()
 
-        last_hidden_span, _ = self.roberta.extract_features(ment1_ids)
+        with torch.no_grad():
+            last_hidden_span = self.roberta.extract_features(ment1_ids)
+
+        last_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[
+                           ment1_inx_start:ment1_inx_end]
 
         last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, 7 - last_hidden_span.shape[0]])
         return last_hidden_span_pad, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
+
+    def get_embed_size(self):
+        return self.embed_size

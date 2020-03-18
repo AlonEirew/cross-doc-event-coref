@@ -74,7 +74,7 @@ class PairWiseModel(nn.Module):
 class PairWiseModelKenton(PairWiseModel):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda):
         super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda)
-        self.attend = PairWiseModel.get_sequential(5376, f_hid_dim)
+        self.attend = PairWiseModel.get_sequential(7 * bert_utils.get_embed_size(), f_hid_dim)
         self.w_alpha = nn.Linear(f_hid_dim, 7)
 
     def get_bert_rep(self, batch_features, batch_size=32):
