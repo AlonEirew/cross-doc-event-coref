@@ -8,7 +8,7 @@ from src import LIBRARY_ROOT
 from src.pairwize_model import configuration
 from src.pairwize_model.model import PairWiseModelKenton
 from src.pairwize_model.train import train_pairwise
-from src.utils.bert_utils import BertFromFile
+from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)

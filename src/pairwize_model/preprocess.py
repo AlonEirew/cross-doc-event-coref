@@ -5,7 +5,7 @@ from os import path
 
 from src import LIBRARY_ROOT
 from src.dataobjs.topics import Topics
-from src.utils.bert_utils import BertPretrainedUtils
+from src.utils.embed_utils import BertPretrainedUtils
 
 USE_CUDA = True
 
@@ -45,7 +45,7 @@ def worker(resource_file, res_folder):
     train_feat = extract_feature_dict(topics, bert_utils)
     basename = path.basename(path.splitext(resource_file)[0])
     pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/" + res_folder + "/" +
-                                 basename + ".pickle", "w+b"))
+                                 basename + "roberta.pickle", "w+b"))
 
     print("Done with -" + basename)
 

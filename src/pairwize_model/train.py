@@ -7,7 +7,7 @@ import torch
 from src.dataobjs.dataset import DataSet
 from src.pairwize_model import configuration
 from src.pairwize_model.model import PairWiseModelKenton
-from src.utils.bert_utils import BertFromFile
+from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ import torch
 
 from torch import nn
 
-from src.utils.bert_utils import MAX_MENTION_SPAN
+from src.utils.embed_utils import MAX_MENTION_SPAN
 
 
 class PairWiseModel(nn.Module):

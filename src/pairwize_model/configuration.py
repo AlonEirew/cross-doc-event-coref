@@ -1,6 +1,6 @@
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import DATASET_NAME, SPLIT
-from src.utils.bert_utils import BertFromFile
+from src.utils.embed_utils import BertFromFile
 
 train_save_model_file, train_load_model_file, train_event_train_file_pos, train_event_train_file_neg, \
 train_event_validation_file_pos, train_event_validation_file_neg, train_bert_files = None, None, None, None, None, None, None
@@ -22,14 +22,14 @@ def reload():
     train_event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + \
                                       dev_dataset.name + "_Dev_Event_gold_mentions_NegPairs_Subtopic.pickle"
 
-    train_bert_files = [str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + train_dataset.name + "_Train_Full_Event_gold_mentions_bert.pickle",
-                        str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + dev_dataset.name + "_Dev_Full_Event_gold_mentions_bert.pickle"]
+    train_bert_files = [str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + train_dataset.name + "_Train_Event_gold_mentions_bert.pickle",
+                        str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + dev_dataset.name + "_Dev_Event_gold_mentions_bert.pickle"]
 
 
 ########################## Train Model Params ################################
 train_dataset = DATASET_NAME.ECB
 dev_dataset = DATASET_NAME.ECB
-train_context_set = "dataset_full"
+train_context_set = "dataset"
 
 train_learning_rate = 1e-4
 train_batch_size = 32
@@ -67,7 +67,7 @@ dt_bert_file = str(LIBRARY_ROOT) + "/resources/" + dt_context_set + "/" + dt_dat
                "_Test_Full_Event_gold_mentions_bert.pickle"
 
 dt_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_140320_1-1iter_5"
-scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_results_ecb_test_14032020_lemma.txt"
+scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_results_ecb_test_15032020.txt"
 dt_pair_thresh = 0.3
 dt_average_link_thresh = 1.0
 reload()

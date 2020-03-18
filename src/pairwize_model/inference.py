@@ -7,7 +7,7 @@ from src import LIBRARY_ROOT
 from src.dataobjs.dataset import DATASET_NAME, SPLIT, DataSet
 from src.pairwize_model import configuration
 from src.pairwize_model.train import accuracy_on_dataset
-from src.utils.bert_utils import BertFromFile
+from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)

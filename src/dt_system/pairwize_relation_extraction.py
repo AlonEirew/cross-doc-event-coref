@@ -2,7 +2,7 @@ import torch
 
 from src.dt_system.relation_extraction import RelationExtraction
 from src.dt_system.relation_type_enum import RelationTypeEnum
-from src.utils.bert_utils import BertFromFile
+from src.utils.embed_utils import BertFromFile
 
 
 class PairWizeRelationExtraction(RelationExtraction):
