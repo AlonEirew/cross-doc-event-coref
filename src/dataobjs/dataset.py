@@ -196,7 +196,8 @@ class WecDataSet(DataSet):
         # create WEC negative challenging examples
         list_combined_pairs = list()
         for mention_list in all_mentions:
-            cls.create_combinations(mention_list, list_combined_pairs)
+            if len(mention_list) > 2:
+                cls.create_combinations(mention_list, list_combined_pairs)
 
         return list_combined_pairs
 

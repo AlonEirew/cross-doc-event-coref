@@ -4,7 +4,7 @@ import torch
 
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import WecDataSet
-from src.utils.bert_utils import BertFromFile
+from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)

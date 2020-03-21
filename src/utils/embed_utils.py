@@ -86,10 +86,10 @@ class EmbedGenerics(object):
 
 
 class BertPretrainedUtils(nn.Module):
-    def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
+    def __init__(self, bert_model, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
         super(BertPretrainedUtils, self).__init__()
-        self._tokenizer = BertTokenizer.from_pretrained('bert-large-cased')
-        self._bert = BertForSequenceClassification.from_pretrained('bert-large-cased', output_hidden_states=True, output_attentions=True)
+        self._tokenizer = BertTokenizer.from_pretrained(bert_model)
+        self._bert = BertForSequenceClassification.from_pretrained(bert_model, output_hidden_states=True, output_attentions=True)
 
         self.max_surrounding_contx = max_surrounding_contx
         self.finetune = finetune
@@ -223,8 +223,8 @@ class BertFromFile(object):
 
 
 class RoBERTaPretrainedUtils(object):
-    def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
-        self.roberta = torch.hub.load('pytorch/fairseq', 'roberta.large')
+    def __init__(self, roberta_model, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
+        self.roberta = torch.hub.load('pytorch/fairseq', 'roberta_model')
         self.roberta.eval()
         self.max_surrounding_contx = max_surrounding_contx
         self.pad = pad

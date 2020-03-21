@@ -54,7 +54,7 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
                 logger.info(report)
 
         pairwize_model.eval()
-        accuracy_on_dataset("Train", epoch + 1, pairwize_model, train)
+        # accuracy_on_dataset("Train", epoch + 1, pairwize_model, train)
         _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
         # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
         pairwize_model.train()

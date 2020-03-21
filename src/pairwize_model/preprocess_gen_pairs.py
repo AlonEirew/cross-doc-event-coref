@@ -8,9 +8,9 @@ from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
 
 
-def generate_pairs(data_set):
+def generate_pairs(data_set, ratio):
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _res_file
-    positive_, negative_ = data_set.get_pairwise_feat(event_validation_file, -1, sub_topics=True)
+    positive_, negative_ = data_set.get_pairwise_feat(event_validation_file, ratio, sub_topics=False)
     # positive_, negative_ = get_feat_alternative(data_set, event_validation_file)
 
     validate_pairs(positive_, negative_)
@@ -77,9 +77,9 @@ def output_examples():
 
 
 if __name__ == '__main__':
-    _res_folder = "dataset"
-    _res_file = "ECB_Test_Event_gold_mentions.json"
+    _res_folder = "dataset_full"
+    _res_file = "WEC_Dev_Full_Event_gold_mentions_validated.json"
     _data_set = EcbDataSet()
-    generate_pairs(_data_set)
+    generate_pairs(_data_set, -1)
     # validate_pairs()
     # output_examples()
