@@ -22,18 +22,22 @@ def run_example(cdc_settings, event_mentions_topics):
     return event_clusters
 
 
-def create_example_settings():
+def create_example_settings(pairwise_thresh, average_link_thresh):
     model_file = configuration.dt_load_model_file
     bert_file = configuration.dt_bert_file
     event_config = EventSievesConfiguration()
     event_config.sieves_order = [
-        (RelationTypeEnum.PAIRWISE, configuration.dt_average_link_thresh)
-        # (RelationTypeEnum.SAME_HEAD_LEMMA, configuration.dt_average_link_thresh)
+        (configuration.dt_experiment, average_link_thresh)
     ]
-    sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
-        PairWizeRelationExtraction(model_file, bert_file, pairthreshold=configuration.dt_pair_thresh)
-        # ComputedRelationExtraction()
-    ])
+
+    if configuration.dt_experiment == RelationTypeEnum.SAME_HEAD_LEMMA:
+        sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
+            ComputedRelationExtraction()
+        ])
+    else:
+        sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
+            PairWizeRelationExtraction(model_file, bert_file, pairthreshold=pairwise_thresh)
+        ])
 
     event_config.run_evaluation = True
 
@@ -45,15 +49,18 @@ def create_example_settings():
 
 
 def run_cdc_pipeline(print_method, event_mentions_topics):
-    cdc_settings = create_example_settings()
-    event_clusters = run_example(cdc_settings, event_mentions_topics)
+    for pairwise_thresh in configuration.dt_pair_thresh:
+        for average_link_thresh in configuration.dt_average_link_thresh:
+            cdc_settings = create_example_settings(pairwise_thresh, average_link_thresh)
+            event_clusters = run_example(cdc_settings, event_mentions_topics)
 
-    print('-=Cross Document Coref Results=-')
-    if cdc_settings.event_config.run_evaluation:
-        print_method(event_clusters, 'Event')
+            print('-=Cross Document Coref Results=-')
+            if cdc_settings.event_config.run_evaluation:
+                print_method(event_clusters, 'Event', configuration.scorer_out_file + "pair" + str(pairwise_thresh) +
+                             "_link" + str(average_link_thresh))
 
 
-def print_results(clusters: List[Clusters], type: str):
+def print_results(clusters: List[Clusters], type: str, scorer_out_file):
     print('-=' + type + ' Clusters=-')
     for topic_cluster in clusters:
         print('\n\tTopic=' + topic_cluster.topic_id)
@@ -69,14 +76,16 @@ def print_results(clusters: List[Clusters], type: str):
                   + str(cluster_mentions))
 
 
-def print_scorer_results(all_clusters, eval_type):
+def print_scorer_results(all_clusters, eval_type, scorer_out_file):
     all_mentions = Clusters.from_clusters_to_mentions_list(all_clusters)
-    write_coref_scorer_results(all_mentions, configuration.scorer_out_file)
+    write_coref_scorer_results(all_mentions, scorer_out_file)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+    print("loading configuration file-" + configuration.dt_load_model_file)
 
     # print_method = print_results
     print_method = print_scorer_results

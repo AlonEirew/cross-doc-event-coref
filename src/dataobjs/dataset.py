@@ -70,7 +70,7 @@ class DataSet(object):
 
     @classmethod
     def load_datasets(cls, split_file, alpha):
-        logger.info('Create Features:' + DATASET_NAME.ECB)
+        logger.info('Create Features:' + cls.__name__)
         positive_, negative_ = cls.get_pairwise_feat(split_file, alpha)
         split_feat = cls.create_features_from_pos_neg(positive_, negative_)
         return split_feat

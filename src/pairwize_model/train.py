@@ -136,6 +136,7 @@ def init_basic_training_resources():
     if configuration.train_fine_tune:
         logger.info("Loading model to fine tune-" + configuration.train_load_model_file)
         pairwize_model = torch.load(configuration.train_load_model_file)
+        pairwize_model.bert_utils = bert_utils
     else:
         # pairwize_model = PairWiseModelKenton(20736, 150, 2)
         pairwize_model = PairWiseModelKenton(27 * bert_utils.embed_size, configuration.train_hidden_n, 1, bert_utils, configuration.use_cuda)
