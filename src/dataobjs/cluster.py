@@ -94,6 +94,13 @@ class Clusters(object):
         for cluster in clusters.clusters_list:
             self.clusters_list.append(cluster)
 
+    def get_mentions(self):
+        all_mentions = list()
+        for cluster in self.clusters_list:
+            all_mentions.extend(cluster.mentions)
+
+        return all_mentions
+
     @staticmethod
     def from_clusters_to_mentions_list(clusters_list):
         """
@@ -133,3 +140,11 @@ class Clusters(object):
 
                 print('\t\tCluster(' + str(cluster.coref_chain) + ') Mentions='
                       + str(cluster_mentions))
+
+    @staticmethod
+    def inc_cluster_coref_chain(value):
+        Clusters.cluster_coref_chain += value
+
+    @staticmethod
+    def get_cluster_coref_chain():
+        return Clusters.cluster_coref_chain

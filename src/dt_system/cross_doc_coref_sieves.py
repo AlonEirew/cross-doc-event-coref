@@ -1,63 +1,26 @@
 import logging
 from typing import List
 
+import torch
+
 from src.dataobjs.cluster import Clusters
-from src.dataobjs.sieves_config import EventSievesConfiguration
 from src.dataobjs.topics import Topics
-from src.dt_system.computed_relation_extraction import ComputedRelationExtraction
-from src.dt_system.cross_doc_sieves import run_event_coref
-from src.dt_system.pairwize_relation_extraction import PairWizeRelationExtraction
+from src.dt_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction
 from src.dt_system.relation_type_enum import RelationTypeEnum
-from src.dt_system.sieves_container_init import SievesContainerInitialization
 from src.pairwize_model import configuration
+from src.utils.clustering_utils import agglomerative_clustering, naive_clustering, ClusteringType
 from src.utils.io_utils import write_coref_scorer_results
 
 
-def run_example(cdc_settings, event_mentions_topics):
-    event_clusters = None
-    if cdc_settings.event_config.run_evaluation:
+def run_cdc_pipeline(cluster_algo, model, print_method, event_topics):
+    for average_link_thresh in configuration.dt_average_link_thresh:
+        all_mentions = list()
         logger.info('Running event coreference resolution')
-        event_clusters = run_event_coref(event_mentions_topics, cdc_settings)
 
-    return event_clusters
+        for topic in event_topics.topics_list:
+            all_mentions.extend(cluster_algo(model, topic, average_link_thresh))
 
-
-def create_example_settings(pairwise_thresh, average_link_thresh):
-    model_file = configuration.dt_load_model_file
-    bert_file = configuration.dt_bert_file
-    event_config = EventSievesConfiguration()
-    event_config.sieves_order = [
-        (configuration.dt_experiment, average_link_thresh)
-    ]
-
-    if configuration.dt_experiment == RelationTypeEnum.SAME_HEAD_LEMMA:
-        sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
-            ComputedRelationExtraction()
-        ])
-    else:
-        sieves_container = SievesContainerInitialization(event_coref_config=event_config, sieves_model_list=[
-            PairWizeRelationExtraction(model_file, bert_file, pairthreshold=pairwise_thresh)
-        ])
-
-    event_config.run_evaluation = True
-
-    # CDCResources hold default attribute values that might need to be change,
-    # (using the defaults values in this example), use to configure attributes
-    # such as resources files location, output directory, resources init methods and other.
-    # check in class and see if any attributes require change in your set-up
-    return sieves_container
-
-
-def run_cdc_pipeline(print_method, event_mentions_topics):
-    for pairwise_thresh in configuration.dt_pair_thresh:
-        for average_link_thresh in configuration.dt_average_link_thresh:
-            cdc_settings = create_example_settings(pairwise_thresh, average_link_thresh)
-            event_clusters = run_example(cdc_settings, event_mentions_topics)
-
-            print('-=Cross Document Coref Results=-')
-            if cdc_settings.event_config.run_evaluation:
-                print_method(event_clusters, 'Event', configuration.scorer_out_file + "pair" + str(pairwise_thresh) +
-                             "_link" + str(average_link_thresh))
+        print_method(all_mentions, configuration.scorer_out_file + "_" + str(average_link_thresh))
 
 
 def print_results(clusters: List[Clusters], type: str, scorer_out_file):
@@ -76,9 +39,20 @@ def print_results(clusters: List[Clusters], type: str, scorer_out_file):
                   + str(cluster_mentions))
 
 
-def print_scorer_results(all_clusters, eval_type, scorer_out_file):
+def print_scorer_results(all_clusters, scorer_out_file):
     all_mentions = Clusters.from_clusters_to_mentions_list(all_clusters)
     write_coref_scorer_results(all_mentions, scorer_out_file)
+
+
+def print_scorer_results_ment(all_mentions, scorer_out_file):
+    write_coref_scorer_results(all_mentions, scorer_out_file)
+
+
+def get_pairwise_model():
+    pairwize_model = torch.load(configuration.dt_load_model_file)
+    pairwize_model.bert_utils = configuration.dt_bert_util
+    pairwize_model.eval()
+    return pairwize_model
 
 
 if __name__ == '__main__':
@@ -88,15 +62,31 @@ if __name__ == '__main__':
     print("loading configuration file-" + configuration.dt_load_model_file)
 
     # print_method = print_results
-    print_method = print_scorer_results
+    # print_method = print_scorer_results
+    _print_method = print_scorer_results_ment
 
-    _event_mentions_topics = Topics()
-    _event_mentions_topics.create_from_file(configuration.dt_input_file, True)
+    _event_topics = Topics()
+    _event_topics.create_from_file(configuration.dt_input_file, True)
 
-    if configuration.cluster_topics and len(_event_mentions_topics.topics_list) > 1:
-        _event_mentions_topics = _event_mentions_topics.to_single_topic()
+    if configuration.cluster_topics and len(_event_topics.topics_list) > 1:
+        _event_topics = _event_topics.to_single_topic()
 
-    run_cdc_pipeline(print_method, _event_mentions_topics)
+    _cluster_algo = None
+    _model = None
+    if configuration.dt_cluster_type == ClusteringType.AgglomerativeClustering:
+        _cluster_algo = agglomerative_clustering
+        if configuration.dt_extractor == RelationTypeEnum.PAIRWISE:
+            _model = get_pairwise_model()
+        elif configuration.dt_extractor == RelationTypeEnum.SAME_HEAD_LEMMA:
+            _model = HeadLemmaRelationExtractor()
+    elif configuration.dt_cluster_type == ClusteringType.NaiveClustering:
+        _cluster_algo = naive_clustering
+        if configuration.dt_extractor == RelationTypeEnum.PAIRWISE:
+            _model = PairWizeRelationExtraction(get_pairwise_model(), pairthreshold=configuration.dt_pair_thresh)
+        elif configuration.dt_extractor == RelationTypeEnum.SAME_HEAD_LEMMA:
+            _model = HeadLemmaRelationExtractor()
+
+    run_cdc_pipeline(_cluster_algo, _model, _print_method, _event_topics)
 
 ################################## CREATE GOLD BASE LINE ################################
     # mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json')
