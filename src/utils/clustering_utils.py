@@ -8,7 +8,7 @@ from sklearn.cluster import AgglomerativeClustering
 
 from src.dataobjs.cluster import Cluster, Clusters
 from src.dataobjs.topics import Topic
-from src.dt_system.relation_extraction import RelationExtraction
+from src.coref_system.relation_extraction import RelationExtraction
 from src.pairwize_model.model import PairWiseModel
 
 logger = logging.getLogger(__name__)

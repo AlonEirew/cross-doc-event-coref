@@ -5,8 +5,7 @@ import torch
 
 from src.dataobjs.cluster import Clusters
 from src.dataobjs.topics import Topics
-from src.dt_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction
-from src.dt_system.relation_type_enum import RelationTypeEnum
+from src.coref_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction, RelationTypeEnum
 from src.pairwize_model import configuration
 from src.utils.clustering_utils import agglomerative_clustering, naive_clustering, ClusteringType
 from src.utils.io_utils import write_coref_scorer_results
@@ -18,9 +17,12 @@ def run_cdc_pipeline(cluster_algo, model, print_method, event_topics):
         logger.info('Running event coreference resolution')
 
         for topic in event_topics.topics_list:
+            logger.info("Evaluating Topic No:" + topic.topic_id)
             all_mentions.extend(cluster_algo(model, topic, average_link_thresh))
 
-        print_method(all_mentions, configuration.scorer_out_file + "_" + str(average_link_thresh))
+        scorer_file = configuration.scorer_out_file + "_" + str(average_link_thresh)
+        logger.info("Generating scorer file-" + scorer_file)
+        print_method(all_mentions, scorer_file)
 
 
 def print_results(clusters: List[Clusters], type: str, scorer_out_file):

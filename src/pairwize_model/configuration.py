@@ -1,6 +1,6 @@
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import DATASET_NAME, SPLIT
-from src.dt_system.relation_type_enum import RelationTypeEnum
+from src.coref_system.relation_extraction import RelationTypeEnum
 from src.utils import embed_utils
 from src.utils.clustering_utils import ClusteringType
 from src.utils.embed_utils import BertFromFile
