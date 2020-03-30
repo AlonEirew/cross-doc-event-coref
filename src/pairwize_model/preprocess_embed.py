@@ -14,8 +14,8 @@ USE_CUDA = True
 
 def extract_feature_dict(topics, bert_utils):
     result_train = dict()
-    topic_count = len(topics.topics_list)
-    for topic in topics.topics_list:
+    topic_count = len(topics.topics_dict)
+    for topic in topics.topics_dict.values():
         mention_count = len(topic.mentions)
         for mention in topic.mentions:
             start = time.time()

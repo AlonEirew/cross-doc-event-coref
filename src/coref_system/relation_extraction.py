@@ -64,10 +64,9 @@ class HeadLemmaRelationExtractor(RelationExtraction):
 
 
 class PairWizeRelationExtraction(RelationExtraction):
-    def __init__(self, pairwize_file, pairthreshold=1.0):
+    def __init__(self, pairwize_model, pairthreshold=1.0):
         super(PairWizeRelationExtraction, self).__init__()
-        self.pairwize_model = torch.load(pairwize_file)
-        self.pairwize_model.eval()
+        self.pairwize_model = pairwize_model
         self.pairthreshold = pairthreshold
 
     def solve(self, mention_x, mention_y):

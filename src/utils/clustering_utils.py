@@ -2,6 +2,7 @@ import logging
 import time
 from itertools import product
 
+import numpy as np
 import torch
 from enum import Enum
 from sklearn.cluster import AgglomerativeClustering
@@ -9,9 +10,11 @@ from sklearn.cluster import AgglomerativeClustering
 from src.dataobjs.cluster import Cluster, Clusters
 from src.dataobjs.topics import Topic
 from src.coref_system.relation_extraction import RelationExtraction
-from src.pairwize_model.model import PairWiseModel
 
 logger = logging.getLogger(__name__)
+
+
+MAX_ALLOWED_BATCH_SIZE = 20000
 
 
 class ClusteringType(Enum):
@@ -24,11 +27,17 @@ def agglomerative_clustering(inference_model, topic: [Topic], average_link_thres
                                          distance_threshold=average_link_thresh)
     start = time.time()
     all_pairs = list(product(topic.mentions, repeat=2))
+    pairs_chunks = [all_pairs]
+    if len(all_pairs) > MAX_ALLOWED_BATCH_SIZE:
+        pairs_chunks = [all_pairs[i:i + MAX_ALLOWED_BATCH_SIZE] for i in range(0, len(all_pairs), MAX_ALLOWED_BATCH_SIZE)]
 
+    predictions = np.empty(0)
     with torch.no_grad():
-        predictions, _ = inference_model.predict(all_pairs, bs=len(all_pairs))
+        for chunk in pairs_chunks:
+            chunk_predictions, _ = inference_model.predict(chunk, bs=len(chunk))
+            predictions = np.append(predictions, chunk_predictions.detach().cpu().numpy())
 
-    predictions = 1 - predictions.detach().cpu().numpy()
+    predictions = 1 - predictions
     pred_matrix = predictions.reshape(len(topic.mentions), len(topic.mentions))
     fit = clustering.fit(pred_matrix)
     for i in range(len(topic.mentions)):
@@ -79,8 +88,9 @@ def naive_clustering(extractor: RelationExtraction, topic: [Topic], average_link
 
         end = time.time()
         took = end - start
-        logger.info('Total of %d clusters merged using Naive Clustering method, relation: %s, took: %.4f sec',
-                    merge_count, str(extractor.get_supported_relation()), took)
+
+    logger.info('Total of %d clusters merged using Naive Clustering method, relation: %s, took: %.4f sec',
+                merge_count, str(extractor.get_supported_relation()), took)
 
     return topic.mentions
 

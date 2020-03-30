@@ -105,7 +105,6 @@ class EcbDataSet(DataSet):
 
     @classmethod
     def create_pos_neg_pairs(cls, topics, sub_topic):
-        # topic = topics.topics_list[0]
         if not sub_topic:
             topics = cls.from_ecb_subtopic_to_topic(topics)
 
@@ -122,7 +121,7 @@ class EcbDataSet(DataSet):
         _map = dict()
         _pairs = list()
         # create positive examples
-        for topic in topics.topics_list:
+        for topic in topics.topics_dict.values():
             for mention1 in topic.mentions:
                 for mention2 in topic.mentions:
                     if mention1.mention_id != mention2.mention_id:
@@ -136,14 +135,14 @@ class EcbDataSet(DataSet):
     @staticmethod
     def from_ecb_subtopic_to_topic(topics):
         new_topics = Topics()
-        for sub_topic in topics.topics_list:
+        for sub_topic in topics.topics_dict:
             id_num_groups = re.search(r"\b(\d+)\D+", str(sub_topic.topic_id))
             if id_num_groups is not None:
                 id_num = id_num_groups.group(1)
                 ret_topic = new_topics.get_topic_by_id(id_num)
                 if ret_topic is None:
                     ret_topic = Topic(id_num)
-                    new_topics.topics_list.append(ret_topic)
+                    new_topics.topics_dict[ret_topic.topic_id] = ret_topic
 
                 ret_topic.mentions.extend(sub_topic.mentions)
             else:

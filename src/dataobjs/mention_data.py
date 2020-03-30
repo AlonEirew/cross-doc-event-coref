@@ -369,10 +369,12 @@ class MentionData(MentionDataLight):
             return None
 
         all_mentions_only = load_json_file(mentions_json_file)
-
+        running_index = 1
         mentions = []
         for mention_line in all_mentions_only:
             mention_data = MentionData.read_json_mention_data_line(mention_line)
+            mention_data.mention_index = running_index
             mentions.append(mention_data)
+            running_index += 1
 
         return mentions

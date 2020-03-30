@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Dict
 
 from src.dataobjs.mention_data import MentionData
 from src.utils.json_utils import load_mentions_from_json_file
@@ -8,31 +8,27 @@ logger = logging.getLogger(__name__)
 
 
 class Topic(object):
-    def __init__(self, topic_id):
+    def __init__(self, topic_id: str):
         self.topic_id = topic_id
         self.mentions = []
 
 
 class Topics(object):
     def __init__(self):
-        self.topics_list = []
+        self.topics_dict = dict()
         self.keep_order = False
 
     def topic_id_exists(self, id_to_search):
-        for topic in self.topics_list:
-            if topic.topic_id == id_to_search:
-                return True
-
+        if id_to_search in self.topics_dict:
+            return True
         return False
 
     def get_topic_by_id(self, id_to_search):
-        for topic in self.topics_list:
-            if topic.topic_id == id_to_search:
-                return topic
-
+        if id_to_search in self.topics_dict:
+            return self.topics_dict[id_to_search]
         return None
 
-    def create_from_file(self, mentions_file_path: str, keep_order: bool = False) -> None:
+    def create_from_file(self, mentions_file_path: str, keep_order: bool = True) -> None:
         """
 
         Args:
@@ -41,9 +37,9 @@ class Topics(object):
         """
         self.keep_order = keep_order
         mentions = load_mentions_from_json_file(mentions_file_path)
-        self.topics_list = self.order_mentions_by_topics(mentions)
+        self.topics_dict = self.order_mentions_by_topics(mentions)
 
-    def order_mentions_by_topics(self, mentions: str) -> List[Topic]:
+    def order_mentions_by_topics(self, mentions: str) -> Dict[str, Topic]:
         """
         Order mentions to documents topics
         Args:
@@ -53,8 +49,7 @@ class Topics(object):
             List[Topic] of the mentions separated by their documents topics
         """
         running_index = 0
-        topics = []
-        current_topic_ref = None
+        topics = dict()
         for mention_line in mentions:
             mention = MentionData.read_json_mention_data_line(mention_line)
 
@@ -65,27 +60,26 @@ class Topics(object):
 
             topic_id = mention.topic_id
 
-            if not current_topic_ref or len(topics) > 0 and topic_id != topics[-1].topic_id:
-                current_topic_ref = Topic(topic_id)
-                topics.append(current_topic_ref)
+            if topic_id not in topics:
+                topics[topic_id] = Topic(topic_id)
 
-            current_topic_ref.mentions.append(mention)
+            topics[topic_id].mentions.append(mention)
 
         return topics
 
     def to_single_topic(self):
-        new_topic = Topic(-1)
+        new_topic = Topic("-1")
 
-        for topic in self.topics_list:
+        for topic in self.topics_dict.values():
             for ment in topic.mentions:
                 new_topic.mentions.append(ment)
 
-        self.topics_list.clear()
-        self.topics_list.append(new_topic)
+        self.topics_dict.clear()
+        self.topics_dict['-1'] = new_topic
 
     def convert_to_clusters(self):
         clusters = dict()
-        for topic in self.topics_list:
+        for topic in self.topics_dict.values():
             for mention in topic.mentions:
                 if mention.coref_chain not in clusters:
                     clusters[mention.coref_chain] = list()

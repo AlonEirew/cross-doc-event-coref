@@ -20,7 +20,7 @@ def from_topics_to_clusters(all_topics):
     clusters = dict()
     cluster_id_to_num = dict()
     running_num = 0
-    for top in all_topics.topics_list:
+    for top in all_topics.topics_dict.values():
         for mention in top.mentions:
             if mention.coref_chain not in clusters:
                 clusters[mention.coref_chain] = list()

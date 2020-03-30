@@ -29,6 +29,7 @@ def write_coref_scorer_results(mentions, output_file: str):
     :param output_file: str
     :return:
     """
+    mentions.sort(key=lambda x: x.mention_index)
     output = open(output_file, 'w')
     output.write('#begin document (ECB+/ecbplus_all); part 000\n')
     for mention in mentions:

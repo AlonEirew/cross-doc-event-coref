@@ -35,7 +35,7 @@ if __name__ == '__main__':
         topics = Topics()
         topics.create_from_file(resource_file, keep_order=True)
         new_mentions = list()
-        for topic in topics.topics_list:
+        for topic in topics.topics_dict.values():
             for _mention in topic.mentions:
                 if extract_head:
                     extract_mention_head(_mention)

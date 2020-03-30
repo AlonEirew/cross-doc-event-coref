@@ -13,6 +13,7 @@ BERT_BASE_SIZE = 768
 BERT_LARGE_SIZE = 1024
 BOBERTA_LARGE_SIZE = 1024
 
+
 class EmbedGenerics(object):
     def __init__(self):
         pass

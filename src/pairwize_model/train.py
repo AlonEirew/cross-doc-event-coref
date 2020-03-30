@@ -4,8 +4,8 @@ import numpy as np
 import random
 import torch
 
+from src import configuration
 from src.dataobjs.dataset import DataSet
-from src.pairwize_model import configuration
 from src.pairwize_model.model import PairWiseModelKenton
 from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
@@ -146,7 +146,6 @@ def init_basic_training_resources():
 
     if configuration.use_cuda:
         # print(torch.cuda.get_device_name(1))
-        torch.cuda.manual_seed(1)
         pairwize_model.cuda()
 
     return train_feat, validation_feat, bert_utils, pairwize_model
