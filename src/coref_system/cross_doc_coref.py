@@ -64,7 +64,7 @@ def print_scorer_results_ment(all_mentions, scorer_out_file):
 
 def get_pairwise_model():
     pairwize_model = torch.load(configuration.coref_load_model_file)
-    pairwize_model.bert_utils = BertFromFile(configuration.coref_embed_util, configuration.coref_embed_size)
+    pairwize_model.bert_utils = BertFromFile(configuration.coref_embed_util, configuration.coref_embed_config.model_size)
     pairwize_model.eval()
     return pairwize_model
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     _event_topics = Topics()
     _event_topics.create_from_file(configuration.coref_input_file, True)
 
-    if configuration.cluster_topics and len(_event_topics.topics_dict) > 1:
+    if configuration.coref_cluster_topics and len(_event_topics.topics_dict) > 1:
         _event_topics = _event_topics.to_single_topic()
 
     _cluster_algo = None

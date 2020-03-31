@@ -10,8 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
-from src.utils import json_utils
-from src.utils.json_utils import write_mention_to_json
+from src.utils.io_utils import load_json_file
 
 logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 logger = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ def main(full_context_file, test_mentions_json, predicted_mentions_out_json):
     true_labels_int = list()
     doc_ids = list()
     sentences = list()
-    docs_all = json_utils.load_json_file(full_context_file)
+    docs_all = load_json_file(full_context_file)
     for doc_id, sentences_list in docs_all.items():
         topic_id = doc_id.split("_")
         is_plus = True if 'ecbplus' in topic_id[1] else False

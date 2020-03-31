@@ -3,8 +3,7 @@ import multiprocessing
 
 from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
-from src.dataobjs.min_span_mention import set_mina_span
-from src.utils.json_utils import write_mention_to_json
+from src.utils.io_utils import write_mention_to_json
 from src.utils.sqlite_utils import create_connection, select_from_validation, select_all_from_mentions
 
 logger = logging.getLogger(__name__)
@@ -28,33 +27,6 @@ def run_split(split, out_file_full, out_file_single):
     print("Writing new single sentence file: " + out_file_single)
     write_mention_to_json(out_file_single, mentions_single)
     print(name, 'Exiting')
-
-
-def extract_constituency_trees(mentions, predictor):
-    logging.info('Mention level constituency trees')
-    mention_str = [{"sentence":  mention.tokens_str} for mention in mentions]
-    keys = [mention.mention_id for mention in mentions]
-    constituency_trees = []
-    batch_size = 1024
-
-    for i in range(0, len(mention_str), batch_size):
-        constituency_trees.extend(predictor.predict_batch_json(mention_str[i:i+batch_size]))
-
-    trees = {key: tree['hierplane_tree']['root'] for key, tree in zip(keys, constituency_trees)}
-    logger.info('{} mentions were processed'.format(len(trees) + 1))
-
-    set_mina_span(trees, mentions)
-
-
-def get_root_of_mention(root, mention):
-    for child in root['children']:
-        if mention == child['word']:
-            return child
-        elif mention in child['word']:
-            root = child
-
-    print('No root matched for the mention: {}'.format(mention))
-    return None
 
 
 def clean_long_mentions(mentions_to_clean):

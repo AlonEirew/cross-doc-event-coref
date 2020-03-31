@@ -2,7 +2,7 @@ from os import path
 
 from src import LIBRARY_ROOT
 from src.dataobjs.topics import Topics
-from src.utils.json_utils import write_mention_to_json
+from src.utils.io_utils import write_mention_to_json
 
 
 def extract_mention_head(mention):

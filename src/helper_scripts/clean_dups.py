@@ -1,6 +1,6 @@
 from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
-from src.utils.json_utils import write_mention_to_json
+from src.utils.io_utils import write_mention_to_json
 
 if __name__ == '__main__':
     validated_in_file = str(LIBRARY_ROOT) + '/resources/validated/WEC_CLEAN_JOIN.json'

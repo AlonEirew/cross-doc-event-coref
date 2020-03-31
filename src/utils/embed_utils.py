@@ -2,16 +2,32 @@ import logging
 import pickle
 
 import torch
+from enum import Enum
 from torch import nn
 from transformers import BertTokenizer, BertForSequenceClassification, RobertaTokenizer, RobertaModel
 
 logger = logging.getLogger(__name__)
 
-
 MAX_MENTION_SPAN = 7
-BERT_BASE_SIZE = 768
-BERT_LARGE_SIZE = 1024
-BOBERTA_LARGE_SIZE = 1024
+
+
+class EmbeddingEnum(Enum):
+    BERT_LARGE_CASED = 1
+    BERT_BASE_CASED = 2
+    ROBERTA_LARGE = 3
+
+
+class EmbeddingConfig(object):
+    def __init__(self, embed_enum: EmbeddingEnum):
+        if embed_enum == EmbeddingEnum.BERT_BASE_CASED:
+            self.model_name = "bert-base-cased"
+            self.model_size = 768
+        elif embed_enum == EmbeddingEnum.BERT_LARGE_CASED:
+            self.model_name = "bert-large-cased"
+            self.model_size = 1024
+        elif embed_enum == EmbeddingEnum.ROBERTA_LARGE:
+            self.model_name = "roberta-large"
+            self.model_size = 1024
 
 
 class EmbedTransformersGenerics(nn.Module):

@@ -90,7 +90,7 @@ def naive_clustering(extractor: RelationExtraction, topic: [Topic], average_link
     took = end - start
 
     logger.info('Total of %d clusters merged using Naive Clustering method, relation: %s, took: %.4f sec',
-                merge_count, str(extractor.get_supported_relation()), str(took))
+                merge_count, str(extractor.get_supported_relation()), took)
 
     return topic.mentions
 

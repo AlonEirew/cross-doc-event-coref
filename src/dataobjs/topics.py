@@ -2,7 +2,7 @@ import logging
 from typing import Dict
 
 from src.dataobjs.mention_data import MentionData
-from src.utils.json_utils import load_mentions_from_json_file
+from src.utils.io_utils import load_mentions_from_json_file
 
 logger = logging.getLogger(__name__)
 
