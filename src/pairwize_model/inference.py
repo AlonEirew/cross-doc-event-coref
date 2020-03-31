@@ -3,9 +3,8 @@ from os import path
 
 import torch
 
-from src import LIBRARY_ROOT
+from src import LIBRARY_ROOT, configuration
 from src.dataobjs.dataset import DATASET_NAME, SPLIT, DataSet
-from src.pairwize_model import configuration
 from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
@@ -113,7 +112,7 @@ if __name__ == '__main__':
     _event_test_file_pos = configuration.inference_event_test_file_pos
     _event_test_file_neg = configuration.inference_event_test_file_neg
 
-    _bert_utils = configuration.inference_bert
+    _bert_utils = BertFromFile(configuration.inference_embed_files, configuration.inference_embed_size)
 
     basename = path.basename(path.splitext(_model_in)[0])
     pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TP_" + basename + "_" + split.name + "_paris.txt"

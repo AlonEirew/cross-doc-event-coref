@@ -3,7 +3,7 @@ import pickle
 
 import torch
 from torch import nn
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import BertTokenizer, BertForSequenceClassification, RobertaTokenizer, RobertaModel
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +14,12 @@ BERT_LARGE_SIZE = 1024
 BOBERTA_LARGE_SIZE = 1024
 
 
-class EmbedGenerics(object):
+class EmbedTransformersGenerics(nn.Module):
     def __init__(self):
-        pass
+        super(EmbedTransformersGenerics, self).__init__()
+
+    def get_mention_full_rep(self, mention):
+        raise NotImplementedError("Method implemented only in subclasses")
 
     @staticmethod
     def extract_mention_surrounding_context(mention, max_surrounding_contx):
@@ -45,14 +48,14 @@ class EmbedGenerics(object):
 
     @staticmethod
     def mention_feat_to_vec(mention, model, max_surrounding_contx, pad):
-        cntx_before_str, ment_span_str, cntx_after_str = EmbedGenerics.extract_mention_surrounding_context(mention,
-                                                                                                           max_surrounding_contx)
+        cntx_before_str, ment_span_str, cntx_after_str = EmbedTransformersGenerics.extract_mention_surrounding_context(mention,
+                                                                                                                       max_surrounding_contx)
         cntx_before, cntx_after = cntx_before_str, cntx_after_str
         try:
             if len(cntx_before_str) != 0:
                 cntx_before = model.encode(" ".join(cntx_before_str))[0:-1]
             if len(cntx_after_str) != 0:
-                cntx_after = model.encode(" ".join(cntx_before_str))[1:]
+                cntx_after = model.encode(" ".join(cntx_after_str))[1:]
         except:
             print("FAILD on MentionID=" + mention.mention_id)
             raise
@@ -86,7 +89,7 @@ class EmbedGenerics(object):
         return sent_tokens, att_mask, len(cntx_before), len(cntx_before) + len(ment_span)
 
 
-class BertPretrainedUtils(nn.Module):
+class BertPretrainedUtils(EmbedTransformersGenerics):
     def __init__(self, bert_model, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
         super(BertPretrainedUtils, self).__init__()
         self._tokenizer = BertTokenizer.from_pretrained(bert_model)
@@ -102,7 +105,7 @@ class BertPretrainedUtils(nn.Module):
             self._bert.cuda()
 
     def get_mention_mean_rep(self, mention):
-        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
+        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
             mention, self._tokenizer, self.max_surrounding_contx, self.pad)
         with torch.no_grad():
             if self.use_cuda:
@@ -129,7 +132,7 @@ class BertPretrainedUtils(nn.Module):
 
         ids, masks, starts, ends = ([], [], [], [])
         for mention in mentions_list:
-            ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
+            ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
                 mention, self._tokenizer, self.max_surrounding_contx, self.pad)
             ids.append(ment1_ids)
             masks.append(att_mask)
@@ -165,7 +168,7 @@ class BertPretrainedUtils(nn.Module):
         return zip(all_last_span_pad, all_first, all_last, all_len)
 
     def get_mention_full_rep(self, mention):
-        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
+        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
             mention, self._tokenizer, self.max_surrounding_contx, self.pad)
 
         try:
@@ -223,13 +226,16 @@ class BertFromFile(object):
         return self.embed_size
 
 
-class RoBERTaPretrainedUtils(object):
+class RoBERTaPretrainedUtils(EmbedTransformersGenerics):
     def __init__(self, roberta_model, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
-        self.roberta = torch.hub.load('pytorch/fairseq', 'roberta_model')
-        self.roberta.eval()
+        super(RoBERTaPretrainedUtils, self).__init__()
+        self._tokenizer = RobertaTokenizer.from_pretrained(roberta_model)
+        self.roberta = RobertaModel.from_pretrained(roberta_model)
+
         self.max_surrounding_contx = max_surrounding_contx
         self.pad = pad
         self.use_cuda = use_cuda
+        self.finetune = finetune
 
         self.embed_size = BOBERTA_LARGE_SIZE
 
@@ -237,14 +243,17 @@ class RoBERTaPretrainedUtils(object):
             self.roberta.cuda()
 
     def get_mention_full_rep(self, mention):
-        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedGenerics.mention_feat_to_vec(
-            mention, self.roberta, self.max_surrounding_contx, self.pad)
+        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
+            mention, self._tokenizer, self.max_surrounding_contx, self.pad)
 
         if self.use_cuda:
             ment1_ids = ment1_ids.cuda()
 
-        with torch.no_grad():
-            last_hidden_span = self.roberta.extract_features(ment1_ids)
+        if not self.finetune:
+            with torch.no_grad():
+                last_hidden_span, _ = self.roberta(ment1_ids)
+        else:
+            last_hidden_span, _ = self.roberta(ment1_ids)
 
         last_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[
                            ment1_inx_start:ment1_inx_end]

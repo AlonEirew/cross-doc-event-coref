@@ -16,9 +16,9 @@ def generate_pairs(data_set, ratio):
     validate_pairs(positive_, negative_)
     basename = path.basename(path.splitext(event_validation_file)[0])
     print("Positives=" + str(len(positive_)))
-    pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs_Subtopic.pickle", "w+b"))
+    pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs.pickle", "w+b"))
     print("Negative=" + str(len(negative_)))
-    pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs_Subtopic.pickle", "w+b"))
+    pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs.pickle", "w+b"))
     print("Done with " + event_validation_file)
 
 
@@ -77,9 +77,10 @@ def output_examples():
 
 
 if __name__ == '__main__':
-    _res_folder = "dataset_full"
-    _res_file = "WEC_Dev_Full_Event_gold_mentions_validated.json"
-    _data_set = EcbDataSet()
+    _res_folder = "dataset_full_clean"
+    _res_file = "WEC_Train_Full_Event_gold_mentions_validated.json"
+    print("Generating pairs for file-" + _res_folder + "/" + _res_file)
+    _data_set = WecDataSet()
     generate_pairs(_data_set, -1)
     # validate_pairs()
     # output_examples()

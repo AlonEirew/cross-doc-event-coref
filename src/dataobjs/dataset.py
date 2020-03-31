@@ -135,7 +135,7 @@ class EcbDataSet(DataSet):
     @staticmethod
     def from_ecb_subtopic_to_topic(topics):
         new_topics = Topics()
-        for sub_topic in topics.topics_dict:
+        for sub_topic in topics.topics_dict.values():
             id_num_groups = re.search(r"\b(\d+)\D+", str(sub_topic.topic_id))
             if id_num_groups is not None:
                 id_num = id_num_groups.group(1)

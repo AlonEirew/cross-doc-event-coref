@@ -12,7 +12,7 @@ from src.utils.embed_utils import BertPretrainedUtils, RoBERTaPretrainedUtils
 USE_CUDA = True
 
 
-def extract_feature_dict(topics, bert_utils):
+def extract_feature_dict(topics: Topics, bert_utils):
     result_train = dict()
     topic_count = len(topics.topics_dict)
     for topic in topics.topics_dict.values():
@@ -37,16 +37,17 @@ def extract_feature_dict(topics, bert_utils):
 
 
 def worker(resource_file, res_folder):
+    embed_utils = BertPretrainedUtils("bert-large-cased", max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
+    # embed_utils = RoBERTaPretrainedUtils("roberta-large", max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
     name = multiprocessing.current_process().name
     print(name, "Starting")
-    embed_utils = BertPretrainedUtils("bert-large-cased", max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
 
     topics = Topics()
     topics.create_from_file(resource_file, keep_order=True)
     train_feat = extract_feature_dict(topics, embed_utils)
     basename = path.basename(path.splitext(resource_file)[0])
     pickle.dump(train_feat, open(str(LIBRARY_ROOT) + "/resources/" + res_folder + "/" +
-                                 basename + "_bert_large.pickle", "w+b"))
+                                 basename + "_bert-large-cased.pickle", "w+b"))
 
     print("Done with -" + basename)
 
@@ -55,9 +56,9 @@ if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     _res_folder = "dataset_full"
 
-    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Dev_Full_Event_gold_mentions_validated.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Test_Full_Event_gold_mentions_validated.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/WEC_Train_Full_Event_gold_mentions_validated.json",
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Dev_Full_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Test_Full_Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/ECB_Train_Full_Event_gold_mentions.json",
                  ]
 
     jobs = list()

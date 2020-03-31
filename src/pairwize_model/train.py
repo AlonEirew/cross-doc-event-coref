@@ -130,7 +130,7 @@ def init_basic_training_resources():
     np.random.seed(1)
     dataset = DataSet()
 
-    bert_utils = BertFromFile(configuration.train_bert_files, configuration.train_embed_size)
+    bert_utils = BertFromFile(configuration.train_embed_files, configuration.train_embed_size)
     # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
 
     if configuration.train_fine_tune:

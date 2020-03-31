@@ -10,6 +10,7 @@ from src.dataobjs.cluster import Clusters
 from src.dataobjs.topics import Topics
 from src.coref_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction, RelationTypeEnum
 from src.utils.clustering_utils import agglomerative_clustering, naive_clustering, ClusteringType
+from src.utils.embed_utils import BertFromFile
 from src.utils.io_utils import write_coref_scorer_results
 
 
@@ -63,7 +64,7 @@ def print_scorer_results_ment(all_mentions, scorer_out_file):
 
 def get_pairwise_model():
     pairwize_model = torch.load(configuration.coref_load_model_file)
-    pairwize_model.bert_utils = configuration.coref_bert_util
+    pairwize_model.bert_utils = BertFromFile(configuration.coref_embed_util, configuration.coref_embed_size)
     pairwize_model.eval()
     return pairwize_model
 

@@ -4,8 +4,7 @@ import numpy as np
 import random
 import torch
 
-from src import LIBRARY_ROOT
-from src.pairwize_model import configuration
+from src import LIBRARY_ROOT, configuration
 from src.pairwize_model.model import PairWiseModelKenton
 from src.pairwize_model.train import train_pairwise
 from src.utils.embed_utils import BertFromFile
