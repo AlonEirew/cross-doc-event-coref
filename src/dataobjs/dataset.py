@@ -11,13 +11,13 @@ from src.dataobjs.topics import Topics, Topic
 logger = logging.getLogger(__name__)
 
 
-class DATASET_NAME(enum.Enum):
+class DataSetName(enum.Enum):
     ECB = 1
     WEC = 2
 
 
 # creating enumerations using class
-class SPLIT(enum.Enum):
+class Split(enum.Enum):
     Test = 1
     Dev = 2
     Train = 3

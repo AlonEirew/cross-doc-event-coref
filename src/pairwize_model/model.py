@@ -115,8 +115,8 @@ class PairWiseModelKenton(PairWiseModel):
         att1_head = hidden1_reshape * att1_soft.reshape(batch_size, 7, 1)
         att2_head = hidden2_reshape * att2_soft.reshape(batch_size, 7, 1)
 
-        g1 = torch.cat((first1_tok, last1_tok, att1_head.reshape(batch_size, -1)), dim=1)
-        g2 = torch.cat((first2_tok, last2_tok, att2_head.reshape(batch_size, -1)), dim=1)
+        g1 = torch.cat((first1_tok, last1_tok, torch.sum(att1_head, dim=1)), dim=1)
+        g2 = torch.cat((first2_tok, last2_tok, torch.sum(att2_head, dim=1)), dim=1)
 
         # (1, 6912), (1,6912)
         span1_span2 = g1 * g2

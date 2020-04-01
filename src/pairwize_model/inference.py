@@ -4,7 +4,7 @@ from os import path
 import torch
 
 from src import LIBRARY_ROOT, configuration
-from src.dataobjs.dataset import DATASET_NAME, SPLIT, DataSet
+from src.dataobjs.dataset import DataSetName, Split, DataSet
 from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
