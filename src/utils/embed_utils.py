@@ -106,16 +106,16 @@ class EmbedTransformersGenerics(nn.Module):
 
 
 class BertPretrainedUtils(EmbedTransformersGenerics):
-    def __init__(self, bert_model, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
+    def __init__(self, bert_config: EmbeddingConfig, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
         super(BertPretrainedUtils, self).__init__()
-        self._tokenizer = BertTokenizer.from_pretrained(bert_model)
-        self._bert = BertForSequenceClassification.from_pretrained(bert_model, output_hidden_states=True, output_attentions=True)
+        self._tokenizer = BertTokenizer.from_pretrained(bert_config.model_name)
+        self._bert = BertForSequenceClassification.from_pretrained(bert_config.model_name, output_hidden_states=True, output_attentions=True)
 
         self.max_surrounding_contx = max_surrounding_contx
         self.finetune = finetune
         self.pad = pad
         self.use_cuda = use_cuda
-        self.embed_size = BERT_BASE_SIZE
+        self.embed_size = bert_config.model_size
 
         if self.use_cuda:
             self._bert.cuda()
@@ -243,17 +243,17 @@ class BertFromFile(object):
 
 
 class RoBERTaPretrainedUtils(EmbedTransformersGenerics):
-    def __init__(self, roberta_model, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
+    def __init__(self, roberta_config: EmbeddingConfig, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
         super(RoBERTaPretrainedUtils, self).__init__()
-        self._tokenizer = RobertaTokenizer.from_pretrained(roberta_model)
-        self.roberta = RobertaModel.from_pretrained(roberta_model)
+        self._tokenizer = RobertaTokenizer.from_pretrained(roberta_config.model_name)
+        self.roberta = RobertaModel.from_pretrained(roberta_config.model_name)
 
         self.max_surrounding_contx = max_surrounding_contx
         self.pad = pad
         self.use_cuda = use_cuda
         self.finetune = finetune
 
-        self.embed_size = BOBERTA_LARGE_SIZE
+        self.embed_size = roberta_config.model_size
 
         if self.use_cuda:
             self.roberta.cuda()

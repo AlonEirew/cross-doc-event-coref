@@ -223,60 +223,50 @@ from src.utils.io_utils import load_pickle, write_mention_to_json
 # print("Total=" + str(good + bad))
 # print("good=" + str(good))
 # print("bad=" + str(bad))
-################################### Load From File #########################################
-
-test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/dataset_full/ECB_Test_Full_Event_gold_mentions.json',)
-label_mapping = dict()
-# for file in listdir(str(LIBRARY_ROOT) + '/resources/ecb_pred'):
-#     with open(str(LIBRARY_ROOT) + '/resources/ecb_pred/' + file, "r") as fs:
-#         lines = fs.readlines()
-#         pred_topic_id = ntpath.basename(file)
-#         for line in lines:
-#             split = line.split("_")
-#             gold_topic = split[0] + '_' + split[1]
-#             label_mapping[gold_topic] = pred_topic_id.split('.')[0]
-
-pred_topics = load_pickle(str(LIBRARY_ROOT) + '/resources/ecb_pred/shany_predicted_topics')
-
-for i in range(len(pred_topics)):
-    for doc_name in pred_topics[i]:
-        label_mapping[doc_name] = i
-
-docs_ids = dict()
-for ment in test_mentions:
-    doc_id_split = ment.doc_id.split('.')[0]
-    if doc_id_split not in docs_ids:
-        docs_ids[doc_id_split] = ment.topic_id
-
-    topic_id = ment.doc_id.split("_")
-    ment.topic_id = label_mapping[doc_id_split]
-
-true_labels_int = list()
-pred_labels_int = list()
-for doc_id in docs_ids.keys():
-    is_plus = True if 'ecbplus' in doc_id else False
-    if is_plus:
-        id = int(doc_id.split('_')[0] + "1")
-        true_labels_int.append(id)
-    else:
-        id = int(doc_id.split('_')[0] + "0")
-        true_labels_int.append(id)
-
-    pred_labels_int.append(label_mapping[doc_id])
-
-for key in label_mapping.keys():
-    if key not in docs_ids:
-        print(key + " not found")
-
-print("Homogeneity: %0.3f" % metrics.homogeneity_score(true_labels_int, pred_labels_int))
-print("Completeness: %0.3f" % metrics.completeness_score(true_labels_int, pred_labels_int))
-print("V-measure: %0.3f" % metrics.v_measure_score(true_labels_int, pred_labels_int))
-print("Adjusted Rand-Index: %.3f" % metrics.adjusted_rand_score(true_labels_int, pred_labels_int))
-write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ECB_Test_Full_Event_gold_shany_predicted_topic_mentions.json', test_mentions)
+################################### Load Predicted From File #########################################
+# test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/resources/dataset_full/ecb/test/Event_gold_mentions.json')
+#
+# label_mapping = dict()
+# pred_topics = load_pickle(str(LIBRARY_ROOT) + '/resources/ecb_pred/shany_predicted_topics')
+#
+# for i in range(len(pred_topics)):
+#     for doc_name in pred_topics[i]:
+#         label_mapping[doc_name] = i
+#
+# docs_ids = dict()
+# for ment in test_mentions:
+#     doc_id_split = ment.doc_id.split('.')[0]
+#     if doc_id_split not in docs_ids:
+#         docs_ids[doc_id_split] = ment.topic_id
+#
+#     topic_id = ment.doc_id.split("_")
+#     ment.topic_id = label_mapping[doc_id_split]
+#
+# true_labels_int = list()
+# pred_labels_int = list()
+# for doc_id in docs_ids.keys():
+#     is_plus = True if 'ecbplus' in doc_id else False
+#     if is_plus:
+#         id = int(doc_id.split('_')[0] + "1")
+#         true_labels_int.append(id)
+#     else:
+#         id = int(doc_id.split('_')[0] + "0")
+#         true_labels_int.append(id)
+#
+#     pred_labels_int.append(label_mapping[doc_id])
+#
+# for key in label_mapping.keys():
+#     if key not in docs_ids:
+#         print(key + " not found")
+#
+# print("Homogeneity: %0.3f" % metrics.homogeneity_score(true_labels_int, pred_labels_int))
+# print("Completeness: %0.3f" % metrics.completeness_score(true_labels_int, pred_labels_int))
+# print("V-measure: %0.3f" % metrics.v_measure_score(true_labels_int, pred_labels_int))
+# print("Adjusted Rand-Index: %.3f" % metrics.adjusted_rand_score(true_labels_int, pred_labels_int))
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/test/Event_shany_pred_mentions.json', test_mentions)
 
 ######################## CLEAN NER #############################
-# from src.utils.io_utils import write_mention_to_json
-#
 # origin_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/dataset_full/WEC_Train_Full_Event_gold_mentions_validated.json')
 # new_mention = list()
 # removed = 0
@@ -289,3 +279,28 @@ write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ECB_Test_Full
 # print("total mentions remove=" + str(removed))
 # print("total mentions in split-" + str(len(new_mention)))
 # write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full_clean/WEC_Train_Full_Event_gold_mentions_validated.json', new_mention)
+
+###################### Add Context and Topic Id to Shany file ##################
+shany_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+            '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions.json')
+
+test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+            '/resources/dataset_full/ecb/test/Event_gold_mentions.json')
+
+for mention_s in shany_mentions:
+    mention_s.doc_id = mention_s.doc_id + ".xml"
+    mention_s.mention_id = None
+    mention_s.get_mention_id()
+    for mention_t in test_mentions:
+        if mention_s.mention_id == mention_t.mention_id:
+            # mention_s.mention_context = mention_t.mention_context
+            mention_s.topic_id = mention_t.topic_id
+            # mention_s.tokens_number = mention_t.tokens_number
+            break
+
+for mention_s in shany_mentions:
+    if not mention_s.topic_id or len(mention_s.topic_id) == 0:
+        raise Exception("Missing context in mention-" + mention_s.topic_id)
+
+write_mention_to_json(str(LIBRARY_ROOT) + '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions_context.json', shany_mentions)
+print("Done!")

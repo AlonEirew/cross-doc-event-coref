@@ -23,6 +23,7 @@ def run_cdc_pipeline(cluster_algo, model, print_method, event_topics):
         for average_link_thresh in configuration.coref_average_link_thresh:
             for pair_thresh in configuration.coref_pairs_thresh:
                 model.pairthreshold = pair_thresh
+                model.cache = dict()
                 scorer_file = configuration.coref_scorer_out_file + "_" + str(average_link_thresh) + "_" + str(pair_thresh)
                 cluster_and_print(cluster_algo, model, print_method, event_topics, average_link_thresh, scorer_file)
 
@@ -106,11 +107,3 @@ if __name__ == '__main__':
 
     logger.info("Running clustering algo:" + _cluster_algo.__name__ + " with model:" + type(_model).__name__)
     run_cdc_pipeline(_cluster_algo, _model, _print_method, _event_topics)
-
-################################## CREATE GOLD BASE LINE ################################
-    # mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Event_gold_mentions.json')
-    # for ment in mentions:
-    #     ment.predicted_coref_chain = ment.coref_chain
-    #
-    # write_coref_scorer_results(sorted(mentions, key=lambda ment: ment.coref_chain, reverse=False),
-    #                            str(LIBRARY_ROOT) + "/resources/gold_scorer/wec/CD_dev_event_mention_based.txt")

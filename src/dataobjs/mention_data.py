@@ -75,15 +75,16 @@ class MentionData(MentionDataLight):
         self.is_singleton = is_singleton
         self.score = score
         self.predicted_coref_chain = predicted_coref_chain
-        self.mention_id = str(mention_id)
         self.min_span_str = min_span_str
         self.min_span_ids = min_span_ids
 
         if manual_score > 0:
             self.manual_score = manual_score
 
-        if self.mention_id is None:
+        if mention_id is None:
             self.mention_id = self.gen_mention_id()
+        else:
+            self.mention_id = str(mention_id)
 
         self.mention_index = mention_index
 
