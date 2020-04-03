@@ -100,24 +100,22 @@ class PairWiseModelKenton(PairWiseModel):
         att2_w = self.w_alpha(attend2)
 
         # Clean attention on padded tokens
-        att1_w = att1_w.reshape(batch_size, 7)
-        att2_w = att2_w.reshape(batch_size, 7)
+        att1_w = att1_w.reshape(batch_size, MAX_MENTION_SPAN)
+        att2_w = att2_w.reshape(batch_size, MAX_MENTION_SPAN)
         self.clean_attnd_on_zero(att1_w, ment1_size, att2_w, ment2_size)
 
         att1_soft = torch.softmax(att1_w, dim=1)
         att2_soft = torch.softmax(att2_w, dim=1)
-        hidden1_reshape = hiddens1.reshape(batch_size, 7, -1)
-        hidden2_reshape = hiddens2.reshape(batch_size, 7, -1)
-        att1_head = hidden1_reshape * att1_soft.reshape(batch_size, 7, 1)
-        att2_head = hidden2_reshape * att2_soft.reshape(batch_size, 7, 1)
+        hidden1_reshape = hiddens1.reshape(batch_size, MAX_MENTION_SPAN, -1)
+        hidden2_reshape = hiddens2.reshape(batch_size, MAX_MENTION_SPAN, -1)
+        att1_head = hidden1_reshape * att1_soft.reshape(batch_size, MAX_MENTION_SPAN, 1)
+        att2_head = hidden2_reshape * att2_soft.reshape(batch_size, MAX_MENTION_SPAN, 1)
 
         g1 = torch.cat((first1_tok, last1_tok, torch.sum(att1_head, dim=1)), dim=1)
         g2 = torch.cat((first2_tok, last2_tok, torch.sum(att2_head, dim=1)), dim=1)
 
-        # (1, 6912), (1,6912)
         span1_span2 = g1 * g2
 
-        # 6912 * 3 = (1, 20736)
         concat_result = torch.cat((g1, g2, span1_span2), dim=1)
 
         ret_golds = torch.tensor(self.get_gold_labels(batch_features))
