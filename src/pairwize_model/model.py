@@ -74,22 +74,16 @@ class PairWiseModel(nn.Module):
 class PairWiseModelKenton(PairWiseModel):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda):
         super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda)
-        self.attend = PairWiseModel.get_sequential(7 * bert_utils.get_embed_size(), f_hid_dim)
-        self.w_alpha = nn.Linear(f_hid_dim, 7)
+        self.attend = PairWiseModel.get_sequential(bert_utils.get_embed_size(), f_hid_dim)
+        self.w_alpha = nn.Linear(f_hid_dim, 1)
 
     def get_bert_rep(self, batch_features, batch_size=32):
         mentions1, mentions2 = zip(*batch_features)
-        # (x, 768)
-        hiddens1, first1_tok, last1_tok, ment1_size = zip(*self.bert_utils.get_mentions_rep(mentions1))
-        hiddens1 = torch.cat(hiddens1).reshape(batch_size, -1)
-        first1_tok = torch.cat(first1_tok).reshape(batch_size, -1)
-        last1_tok = torch.cat(last1_tok).reshape(batch_size, -1)
+        # (batch_size, bert_utils.get_embed_size())
+        hiddens1, first1_tok, last1_tok, ment1_size = self.prepare_vectors(mentions1, batch_size)
 
-        # (x, 768)
-        hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.bert_utils.get_mentions_rep(mentions2))
-        hiddens2 = torch.cat(hiddens2).reshape(batch_size, -1)
-        first2_tok = torch.cat(first2_tok).reshape(batch_size, -1)
-        last2_tok = torch.cat(last2_tok).reshape(batch_size, -1)
+        # (batch_size, bert_utils.get_embed_size())
+        hiddens2, first2_tok, last2_tok, ment2_size = self.prepare_vectors(mentions2, batch_size)
 
         if self.use_cuda:
             hiddens1 = hiddens1.cuda()
@@ -106,6 +100,8 @@ class PairWiseModelKenton(PairWiseModel):
         att2_w = self.w_alpha(attend2)
 
         # Clean attention on padded tokens
+        att1_w = att1_w.reshape(batch_size, 7)
+        att2_w = att2_w.reshape(batch_size, 7)
         self.clean_attnd_on_zero(att1_w, ment1_size, att2_w, ment2_size)
 
         att1_soft = torch.softmax(att1_w, dim=1)
@@ -131,6 +127,13 @@ class PairWiseModelKenton(PairWiseModel):
             ret_golds = ret_golds.cuda()
 
         return concat_result, ret_golds
+
+    def prepare_vectors(self, mentions, batch_size):
+        hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.bert_utils.get_mentions_rep(mentions))
+        hiddens2 = torch.cat(hiddens2)
+        first2_tok = torch.cat(first2_tok).reshape(batch_size, -1)
+        last2_tok = torch.cat(last2_tok).reshape(batch_size, -1)
+        return hiddens2, first2_tok, last2_tok, ment2_size
 
     def clean_attnd_on_zero(self, attend1, ment_size1, attend2, ment_size2):
         for i, vals in enumerate(list(zip(ment_size1, ment_size2))):

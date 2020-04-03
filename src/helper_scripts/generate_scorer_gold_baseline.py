@@ -1,25 +1,28 @@
 import logging
 
 from src import LIBRARY_ROOT
+from src.dataobjs.dataset import DataSetName
 from src.dataobjs.topics import Topics
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    corpus_id = 'ecb'
-    dev_in_file = str(LIBRARY_ROOT) + '/resources/dataset_full/ECB_Dev_Full_Event_gold_mentions.json'
-    dev_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id + '/CD_dev_event_mention_based.txt'
+    dataset = "dataset"
+    corpus_id = DataSetName.WEC
 
-    test_in_file = str(LIBRARY_ROOT) + '/resources/dataset_full/WEC_Test_Full_Event_gold_mentions_validated.json'
-    test_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id + '/CD_test_event_mention_based.txt'
+    dev_in_file = str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + corpus_id.name.lower() + \
+                  '/dev/WEC_Dev_Event_gold_mentions_validated.json'
+    dev_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id.name.lower() + '/CD_dev_event_mention_based_dataset.txt'
 
-    train_in_file = str(LIBRARY_ROOT) + '/resources/corpora/' + corpus_id + '/gold_json/WEC_Train_Event_gold_mentions.json'
-    train_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id + '/gold_scorer/WIKI_CD_train_event_mention_based.txt'
+    test_in_file = str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + corpus_id.name.lower() + \
+                   '/test/WEC_Test_Event_gold_mentions_validated.json'
+    test_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id.name.lower() + '/CD_test_event_mention_based_dataset.txt'
 
+    print("preparing dev file-" + dev_in_file)
     make_kian_scorer_file(dev_in_file, dev_out_file)
+    # print("preparing test file-" + test_in_file)
     # make_kian_scorer_file(test_in_file, test_out_file)
-    # make_kian_scorer_file(train_in_file, train_out_file)
 
 
 def make_kian_scorer_file(in_file, out_file):

@@ -11,7 +11,7 @@ train_ratio = -1
 train_iterations = 10
 train_use_cuda = True
 train_save_model = True
-train_save_model_threshold = 0.1
+train_save_model_threshold = 0.01
 train_fine_tune = False
 train_weight_decay = 0.01
 train_hidden_n = 150
@@ -22,7 +22,7 @@ dev_dataset = DataSetName.ECB
 train_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
 train_save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + train_dataset.name + "_" + dev_dataset.name + \
-                        "_2_" + train_embed_config.model_name + "_" + str(train_ratio)
+                        "_030420_" + train_embed_config.model_name + "_" + str(train_ratio)
 
 train_load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
@@ -42,50 +42,48 @@ train_embed_files = [str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/"
 
 ########################## Inference Model Params ################################
 inference_context_set = "dataset_full"
-inference_dataset = DataSetName.ECB
-inference_split = Split.Test
+inference_dataset = DataSetName.WEC
+inference_split = Split.Dev
 inference_ratio = -1
 inference_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
-inference_model = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_01042020_roberta-large_-1iter_6"
+inference_model = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_010420_roberta-large_30iter_4"
 
 inference_event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + inference_context_set + "/" + \
                     inference_dataset.name.lower() + "/" + inference_split.name.lower() + \
-                    "/Event_gold_mentions_PosPairs_Subtopic.pickle"
+                    "/Event_gold_mentions_validated_PosPairs_Subtopic.pickle"
 
 inference_event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + inference_context_set + \
                     "/" + inference_dataset.name.lower() + "/" + inference_split.name.lower() + \
-                    "/Event_gold_mentions_NegPairs_Subtopic.pickle"
+                    "/Event_gold_mentions_validated_NegPairs_Subtopic.pickle"
 
 inference_embed_files = [str(LIBRARY_ROOT) + "/resources/" + inference_context_set +
                     "/" + inference_dataset.name.lower() + "/" + inference_split.name.lower() +
-                    "/Event_gold_mentions_" + inference_embed_config.model_name + ".pickle"]
+                    "/Event_gold_mentions_validated_" + inference_embed_config.model_name + ".pickle"]
 
 ########################## Determenistic/Cluster System ################################
 # cluster_topics = experiment without topic classification first
-coref_context_set = "dataset_full"
-coref_dataset = DataSetName.ECB
+coref_context_set = "dataset"
+coref_dataset = DataSetName.WEC
 coref_split = Split.Dev
 
 coref_cluster_topics = False
-coref_extractor = RelationTypeEnum.PAIRWISE
-coref_cluster_type = ClusteringType.AgglomerativeClustering
+coref_extractor = RelationTypeEnum.SAME_HEAD_LEMMA
+coref_cluster_type = ClusteringType.NaiveClustering
 coref_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
 coref_pairs_thresh = [1.0]
-coref_average_link_thresh = [0.45, 0.5, 0.55, 0.6, 0.65, 0.7]
+coref_average_link_thresh = [1.0]
 
 coref_input_file = str(LIBRARY_ROOT) + "/resources/" + coref_context_set + "/" + coref_dataset.name.lower() + \
-                "/" + coref_split.name.lower() + "/" + "Event_gold_mentions.json"
-
-# coref_input_file = str(LIBRARY_ROOT) + "/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions_context.json"
+                "/" + coref_split.name.lower() + "/" + "WEC_Dev_Event_gold_mentions_validated.json"
 
 coref_embed_util = [str(LIBRARY_ROOT) + "/resources/" + coref_context_set +
                     "/" + coref_dataset.name.lower() + "/" + coref_split.name.lower() +
-                    "/Event_gold_mentions_" + coref_embed_config.model_name + ".pickle"]
+                    "/Event_gold_mentions_validated_" + coref_embed_config.model_name + ".pickle"]
 
-coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_01042020_roberta-large_-1iter_6"
-coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_010420_roberta-large-sum" + \
+coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_010420_roberta-large_30iter_4"
+coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_020420_lemma_dev_" + \
                         coref_dataset.name + "_" + coref_split.name
 
 ################################################################################

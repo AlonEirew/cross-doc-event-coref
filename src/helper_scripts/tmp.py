@@ -281,26 +281,27 @@ from src.utils.io_utils import load_pickle, write_mention_to_json
 # write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full_clean/WEC_Train_Full_Event_gold_mentions_validated.json', new_mention)
 
 ###################### Add Context and Topic Id to Shany file ##################
-shany_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-            '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions.json')
+# shany_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions.json')
+#
+# test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/resources/dataset_full/ecb/test/Event_gold_mentions.json')
+#
+# for mention_s in shany_mentions:
+#     mention_s.doc_id = mention_s.doc_id + ".xml"
+#     mention_s.mention_id = None
+#     mention_s.get_mention_id()
+#     for mention_t in test_mentions:
+#         if mention_s.mention_id == mention_t.mention_id:
+#             # mention_s.mention_context = mention_t.mention_context
+#             mention_s.topic_id = mention_t.topic_id
+#             # mention_s.tokens_number = mention_t.tokens_number
+#             break
+#
+# for mention_s in shany_mentions:
+#     if not mention_s.topic_id or len(mention_s.topic_id) == 0:
+#         raise Exception("Missing context in mention-" + mention_s.topic_id)
+#
+# write_mention_to_json(str(LIBRARY_ROOT) + '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions_context.json', shany_mentions)
+# print("Done!")
 
-test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-            '/resources/dataset_full/ecb/test/Event_gold_mentions.json')
-
-for mention_s in shany_mentions:
-    mention_s.doc_id = mention_s.doc_id + ".xml"
-    mention_s.mention_id = None
-    mention_s.get_mention_id()
-    for mention_t in test_mentions:
-        if mention_s.mention_id == mention_t.mention_id:
-            # mention_s.mention_context = mention_t.mention_context
-            mention_s.topic_id = mention_t.topic_id
-            # mention_s.tokens_number = mention_t.tokens_number
-            break
-
-for mention_s in shany_mentions:
-    if not mention_s.topic_id or len(mention_s.topic_id) == 0:
-        raise Exception("Missing context in mention-" + mention_s.topic_id)
-
-write_mention_to_json(str(LIBRARY_ROOT) + '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions_context.json', shany_mentions)
-print("Done!")
