@@ -1,24 +1,34 @@
+import os
 import pickle
 
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import WecDataSet, EcbDataSet, DataSet, POLARITY
+from src.dataobjs.dataset import WecDataSet, EcbDataSet, POLARITY, Split
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
 
 
-def generate_pairs(data_set, ratio):
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _res_file
-    positive_, negative_ = data_set.get_pairwise_feat(event_validation_file, ratio, sub_topics=False)
+def generate_pairs():
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _data_set.name.lower() + \
+                                "/" + _split.name.lower() + "/" + _res_file
+
+    positive_, negative_ = _data_set.get_pairwise_feat(event_validation_file, sub_topics=False)
     # positive_, negative_ = get_feat_alternative(data_set, event_validation_file)
 
     validate_pairs(positive_, negative_)
+
     basename = path.basename(path.splitext(event_validation_file)[0])
+    dirname = os.path.dirname(event_validation_file)
+    positive_file = dirname + "/" + basename + "_PosPairs.pickle"
+    negative_file = dirname + "/" + basename + "_NegPairs.pickle"
+
     print("Positives=" + str(len(positive_)))
-    pickle.dump(positive_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_PosPairs.pickle", "w+b"))
+    pickle.dump(positive_, open(positive_file, "w+b"))
+
     print("Negative=" + str(len(negative_)))
-    pickle.dump(negative_, open(str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + basename + "_NegPairs.pickle", "w+b"))
+
+    pickle.dump(negative_, open(negative_file, "w+b"))
     print("Done with " + event_validation_file)
 
 
@@ -34,7 +44,7 @@ def get_feat_alternative(data_set, event_validation_file):
     for ment1 in mentions:
         for ment2 in mentions:
             if ment1.coref_chain != ment2.coref_chain:
-                DataSet.check_and_add_pair(_map, negative_pairs, ment1, ment2)
+                _data_set.check_and_add_pair(_map, negative_pairs, ment1, ment2)
 
     return positive_pairs, negative_pairs
 
@@ -77,10 +87,12 @@ def output_examples():
 
 
 if __name__ == '__main__':
-    _res_folder = "dataset_full_clean"
-    _res_file = "WEC_Train_Full_Event_gold_mentions_validated.json"
+    _res_folder = "dataset_full"
+    _split = Split.Train
+    _ratio = -1
+    _data_set = WecDataSet(ratio=_ratio, split=_split)
+    _res_file = "Event_gold_mentions_validated.json"
     print("Generating pairs for file-" + _res_folder + "/" + _res_file)
-    _data_set = WecDataSet()
-    generate_pairs(_data_set, -1)
+    generate_pairs()
     # validate_pairs()
     # output_examples()

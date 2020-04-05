@@ -40,6 +40,7 @@ def clean_long_mentions(mentions_to_clean):
 
 
 def extract_from_sql(connection, table_name, split, limit=-1):
+    print('Extract from sqlite and convert to mentions')
     if connection is not None:
         # clusters = select_from_validation(connection, table_name, split, limit=limit)
         clusters = select_all_from_mentions(connection, table_name)

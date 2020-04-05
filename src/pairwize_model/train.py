@@ -128,7 +128,6 @@ def init_basic_training_resources():
     torch.manual_seed(1)
     random.seed(1)
     np.random.seed(1)
-    dataset = DataSet()
 
     bert_utils = BertFromFile(configuration.train_embed_files, configuration.train_embed_config.model_size)
     # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
@@ -139,10 +138,13 @@ def init_basic_training_resources():
         pairwize_model.bert_utils = bert_utils
     else:
         # pairwize_model = PairWiseModelKenton(20736, 150, 2)
-        pairwize_model = PairWiseModelKenton(9 * bert_utils.embed_size, configuration.train_hidden_n, 1, bert_utils, configuration.train_use_cuda)
+        pairwize_model = PairWiseModelKenton(9 * bert_utils.embed_size, configuration.train_hidden_n, 1,
+                                             bert_utils, configuration.train_use_cuda)
 
-    train_feat = dataset.load_pos_neg_pickle(configuration.train_event_train_file_pos, configuration.train_event_train_file_neg, configuration.train_ratio)
-    validation_feat = dataset.load_pos_neg_pickle(configuration.train_event_validation_file_pos, configuration.train_event_validation_file_neg, -1)
+    train_feat = configuration.train_dataset.load_pos_neg_pickle(configuration.train_event_train_file_pos,
+                                                                 configuration.train_event_train_file_neg)
+    validation_feat = configuration.dev_dataset.load_pos_neg_pickle(configuration.train_event_validation_file_pos,
+                                                                    configuration.train_event_validation_file_neg)
 
     if configuration.train_use_cuda:
         # print(torch.cuda.get_device_name(1))

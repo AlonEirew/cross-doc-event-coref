@@ -227,10 +227,9 @@ class MentionData(MentionDataLight):
             tokens_numbers.append(i)
         tokens_numbers.append(token_end)
 
-        mention_data = MentionData(mention_id, -1, doc_id, -1, tokens_numbers, mention_text,
-                                   mention_context.split(' '), None, None, coref_chain, mention_type, gen_lemma=gen_lemma)
+        mention_data = MentionData(mention_id, "-1", doc_id, -1, tokens_numbers, mention_text,
+                                   mention_context.split(' '), "", "", coref_chain, mention_type, gen_lemma=gen_lemma)
 
-        mention_data.mention_id = mention_id
         return mention_data
 
     @staticmethod

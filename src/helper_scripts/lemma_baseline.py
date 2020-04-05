@@ -20,7 +20,7 @@ def main():
     # features = create_features_from_pos_neg(positive_, negative_)
     ################ NO TOPICS ######################
     dataset = EcbDataSet()
-    features = dataset.load_datasets(event_validation_file, -1)
+    features = dataset.load_datasets(event_validation_file)
     accuracy_on_dataset(features)
 
 

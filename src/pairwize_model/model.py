@@ -127,11 +127,11 @@ class PairWiseModelKenton(PairWiseModel):
         return concat_result, ret_golds
 
     def prepare_vectors(self, mentions, batch_size):
-        hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.bert_utils.get_mentions_rep(mentions))
-        hiddens2 = torch.cat(hiddens2)
-        first2_tok = torch.cat(first2_tok).reshape(batch_size, -1)
-        last2_tok = torch.cat(last2_tok).reshape(batch_size, -1)
-        return hiddens2, first2_tok, last2_tok, ment2_size
+        hiddens, first_tok, last_tok, ment_size = zip(*self.bert_utils.get_mentions_rep(mentions))
+        hiddens = torch.cat(hiddens)
+        first_tok = torch.cat(first_tok).reshape(batch_size, -1)
+        last_tok = torch.cat(last_tok).reshape(batch_size, -1)
+        return hiddens, first_tok, last_tok, ment_size
 
     def clean_attnd_on_zero(self, attend1, ment_size1, attend2, ment_size2):
         for i, vals in enumerate(list(zip(ment_size1, ment_size2))):

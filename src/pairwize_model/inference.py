@@ -4,7 +4,7 @@ from os import path
 import torch
 
 from src import LIBRARY_ROOT, configuration
-from src.dataobjs.dataset import DataSetName, Split, DataSet
+from src.dataobjs.dataset import DataSet
 from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.embed_utils import BertFromFile
 from src.utils.log_utils import create_logger_with_fh
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     # logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
-    split_feat = DataSet().load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg, ratio)
+    split_feat = dataset.load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg)
     # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
     #                                                                                split_feat, extract_on_mention)
     accuracy_on_dataset("", 0, _pairwize_model, split_feat)

@@ -1,7 +1,7 @@
 import random
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import DataSet, WecDataSet
+from src.dataobjs.dataset import DataSet, WecDataSet, EcbDataSet, Split
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
 
@@ -179,13 +179,13 @@ def create_split_stats(mentions_file, dataset, split):
 
 
 if __name__ == '__main__':
-    _event_train = str(LIBRARY_ROOT) + '/resources/dataset/WEC_Test_Event_gold_mentions.json'
-    # _event_dev = str(LIBRARY_ROOT) + '/resources/dataset/ECB_Dev_Event_gold_mentions.json'
-    # _event_test = str(LIBRARY_ROOT) + '/resources/dataset/ECB_Test_Event_gold_mentions.json'
+    _event_train = str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json'
+    _event_test = str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json'
 
-    create_split_stats(_event_train, WecDataSet(), "Train")
-    # create_split_stats(_event_dev, "Dev")
-    # create_split_stats(_event_test, "Test")
+    create_split_stats(_event_train, WecDataSet(Split.Train), "Train")
+    create_split_stats(_event_dev, EcbDataSet(), "Dev")
+    create_split_stats(_event_test, EcbDataSet(), "Test")
 
     # calc_tp_fp_pairs_lemma()
     # extract_tp_lemma_pairs()

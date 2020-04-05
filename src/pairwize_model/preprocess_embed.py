@@ -6,7 +6,7 @@ import time
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import DataSetName
+from src.dataobjs.dataset import WecDataSet
 from src.dataobjs.topics import Topics
 from src.utils.embed_utils import RoBERTaPretrainedUtils, EmbeddingConfig, EmbeddingEnum
 
@@ -59,7 +59,7 @@ def worker(resource_file):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     _res_folder = "dataset_full"
-    _dataset_name = DataSetName.WEC
+    _dataset_name = WecDataSet()
 
     all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
                  "/dev/Event_gold_mentions_validated.json",

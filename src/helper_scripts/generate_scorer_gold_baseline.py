@@ -1,28 +1,28 @@
 import logging
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import DataSetName
+from src.dataobjs.dataset import WecDataSet, Split
 from src.dataobjs.topics import Topics
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    dataset = "dataset"
-    corpus_id = DataSetName.WEC
+    dataset = "dataset_full"
+    corpus_id = WecDataSet()
 
     dev_in_file = str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + corpus_id.name.lower() + \
-                  '/dev/WEC_Dev_Event_gold_mentions_validated.json'
+                  '/dev/Event_gold_mentions_validated.json'
     dev_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id.name.lower() + '/CD_dev_event_mention_based_dataset.txt'
 
     test_in_file = str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + corpus_id.name.lower() + \
-                   '/test/WEC_Test_Event_gold_mentions_validated.json'
+                   '/test/Event_gold_mentions_validated.json'
     test_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id.name.lower() + '/CD_test_event_mention_based_dataset.txt'
 
     print("preparing dev file-" + dev_in_file)
     make_kian_scorer_file(dev_in_file, dev_out_file)
-    # print("preparing test file-" + test_in_file)
-    # make_kian_scorer_file(test_in_file, test_out_file)
+    print("preparing test file-" + test_in_file)
+    make_kian_scorer_file(test_in_file, test_out_file)
 
 
 def make_kian_scorer_file(in_file, out_file):
