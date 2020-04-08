@@ -112,9 +112,9 @@ if __name__ == '__main__':
     _event_test_file_pos = configuration.inference_event_test_file_pos
     _event_test_file_neg = configuration.inference_event_test_file_neg
 
-    _bert_utils = BertFromFile(configuration.inference_embed_files,
-                               configuration.inference_embed_config.model_size,
-                               configuration.inference_dataset.max_mention_span)
+    _embed_utils = BertFromFile(configuration.inference_embed_files,
+                                configuration.inference_embed_config.model_size,
+                                configuration.inference_dataset.max_mention_span)
 
     basename = path.basename(path.splitext(_model_in)[0])
     pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TP_" + basename + "_" + split.name + "_paris.txt"
@@ -124,16 +124,16 @@ if __name__ == '__main__':
 
     print("Loading the model to-" + _model_in)
     _pairwize_model = torch.load(_model_in)
-    _pairwize_model.bert_utils = _bert_utils
+    _pairwize_model.set_embed_utils(_embed_utils)
     _pairwize_model.eval()
 
     _use_cuda = True
 
-    # test_pos_accuracy, test_pos_precision, test_pos_recall, test_pos_f1 = accuracy_on_dataset(_bert_utils, _pairwize_model, positive_, _use_cuda)
+    # test_pos_accuracy, test_pos_precision, test_pos_recall, test_pos_f1 = accuracy_on_dataset(_embed_utils, _pairwize_model, positive_, _use_cuda)
     # logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
     #             ("POS-Dev-Acc", test_pos_accuracy.item(), test_pos_precision, test_pos_recall, test_pos_f1))
     #
-    # test_neg_accuracy, test_neg_precision, test_neg_recall, test_neg_f1 = accuracy_on_dataset(_bert_utils, _pairwize_model, negative_, _use_cuda)
+    # test_neg_accuracy, test_neg_precision, test_neg_recall, test_neg_f1 = accuracy_on_dataset(_embed_utils, _pairwize_model, negative_, _use_cuda)
     # logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 

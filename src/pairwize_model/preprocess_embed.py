@@ -20,7 +20,7 @@ def extract_feature_dict(topics: Topics, embed_utils):
         mention_count = len(topic.mentions)
         for mention in topic.mentions:
             start = time.time()
-            # hidden, attend = bert_utils.get_mention_full_rep(mention)
+            # hidden, attend = embed_utils.get_mention_full_rep(mention)
             hidden, first_tok, last_tok, ment_size = embed_utils.get_mention_full_rep(mention)
             end = time.time()
 

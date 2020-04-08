@@ -271,7 +271,7 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 # write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/test/Event_shany_pred_mentions.json', test_mentions)
 
 ######################## CLEAN NER #############################
-# bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_roberta-large.pickle"], 1024)
+# embed_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_roberta-large.pickle"], 1024)
 #
 # split = Split.Dev.name.lower()
 # origin_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +

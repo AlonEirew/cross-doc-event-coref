@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
                             set_experiment_configuration(_context_set, _tds, _dds, _alpha)
 
-                            _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
+                            _event_train_feat, _event_validation_feat, _pairwize_model = init_basic_training_resources()
 
                             cut_train = int((len(_event_train_feat) * _prc) / 100)
                             train_feat = _event_train_feat[0:cut_train]
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
                             # logger.info("************* EXPERIMENT TEST RESULTS **************")
                             # _pairwize_model.eval()
-                            # accuracy_on_dataset("TEST", -1, _bert_utils, _pairwize_model, _event_test_feat, _use_cuda)
+                            # accuracy_on_dataset("TEST", -1, _embed_utils, _pairwize_model, _event_test_feat, _use_cuda)
                             # logger.info("************* EXPERIMENT TEST RESULTS **************")
 
     logger.info("Process Done!")

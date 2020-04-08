@@ -5,11 +5,11 @@ from torch import nn
 
 
 class PairWiseModel(nn.Module):
-    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda=True):
+    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, embed_utils, use_cuda=True):
         super(PairWiseModel, self).__init__()
         self.W = nn.Linear(f_hid_dim, f_out_dim)
         self.pairwize = PairWiseModel.get_sequential(f_in_dim, f_hid_dim)
-        self.embed_utils = bert_utils
+        self.embed_utils = embed_utils
         self.use_cuda = use_cuda
 
     @staticmethod
@@ -68,19 +68,22 @@ class PairWiseModel(nn.Module):
             batch_labels.append(gold_label)
         return batch_labels
 
+    def set_embed_utils(self, embed_utils):
+        self.embed_utils = embed_utils
+
 
 class PairWiseModelKenton(PairWiseModel):
-    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda):
-        super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda)
-        self.attend = PairWiseModel.get_sequential(bert_utils.get_embed_size(), f_hid_dim)
+    def __init__(self, f_in_dim, f_hid_dim, f_out_dim, embed_utils, use_cuda):
+        super(PairWiseModelKenton, self).__init__(f_in_dim, f_hid_dim, f_out_dim, embed_utils, use_cuda)
+        self.attend = PairWiseModel.get_sequential(embed_utils.get_embed_size(), f_hid_dim)
         self.w_alpha = nn.Linear(f_hid_dim, 1)
 
     def get_bert_rep(self, batch_features, batch_size=32):
         mentions1, mentions2 = zip(*batch_features)
-        # (batch_size, bert_utils.get_embed_size())
+        # (batch_size, embed_utils.get_embed_size())
         hiddens1, first1_tok, last1_tok, ment1_size = self.prepare_vectors(mentions1, batch_size)
 
-        # (batch_size, bert_utils.get_embed_size())
+        # (batch_size, embed_utils.get_embed_size())
         hiddens2, first2_tok, last2_tok, ment2_size = self.prepare_vectors(mentions2, batch_size)
 
         if self.use_cuda:

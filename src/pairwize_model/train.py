@@ -55,7 +55,7 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
         pairwize_model.eval()
         # accuracy_on_dataset("Train", epoch + 1, pairwize_model, train)
         _, _, _, dev_f1 = accuracy_on_dataset("Dev", epoch + 1, pairwize_model, validation)
-        # accuracy_on_dataset(accum_count_btch / 10000, bert_utils, pairwize_model, test, use_cuda)
+        # accuracy_on_dataset(accum_count_btch / 10000, embed_utils, pairwize_model, test, use_cuda)
         pairwize_model.train()
 
         if best_result_for_save < dev_f1:
@@ -128,19 +128,19 @@ def init_basic_training_resources():
     random.seed(1)
     np.random.seed(1)
 
-    bert_utils = BertFromFile(configuration.train_embed_files, configuration.train_embed_config.model_size,
+    embed_utils = BertFromFile(configuration.train_embed_files, configuration.train_embed_config.model_size,
                               configuration.train_dataset.max_mention_span)
 
-    # bert_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
+    # embed_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
 
     if configuration.train_fine_tune:
         logger.info("Loading model to fine tune-" + configuration.train_load_model_file)
         pairwize_model = torch.load(configuration.train_load_model_file)
-        pairwize_model.bert_utils = bert_utils
+        pairwize_model.set_embed_utils(embed_utils)
     else:
         # pairwize_model = PairWiseModelKenton(20736, 150, 2)
-        pairwize_model = PairWiseModelKenton(9 * bert_utils.embed_size, configuration.train_hidden_n, 1,
-                                             bert_utils, configuration.train_use_cuda)
+        pairwize_model = PairWiseModelKenton(9 * embed_utils.embed_size, configuration.train_hidden_n, 1,
+                                             embed_utils, configuration.train_use_cuda)
 
     train_feat = configuration.train_dataset.load_pos_neg_pickle(configuration.train_event_train_file_pos,
                                                                  configuration.train_event_train_file_neg)
@@ -151,7 +151,7 @@ def init_basic_training_resources():
         # print(torch.cuda.get_device_name(1))
         pairwize_model.cuda()
 
-    return train_feat, validation_feat, bert_utils, pairwize_model
+    return train_feat, validation_feat, pairwize_model
 
 
 if __name__ == '__main__':
@@ -170,7 +170,7 @@ if __name__ == '__main__':
                 ", ratio=1:" + str(configuration.train_ratio) + ", itr=" + str(configuration.train_iterations) +
                 ", hidden_n=" + str(configuration.train_hidden_n) + ", weight_decay=" + str(configuration.train_weight_decay))
 
-    _event_train_feat, _event_validation_feat, _bert_utils, _pairwize_model = init_basic_training_resources()
+    _event_train_feat, _event_validation_feat, _pairwize_model = init_basic_training_resources()
 
     train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, configuration.train_batch_size,
                    configuration.train_iterations, configuration.train_learning_rate, save_model=configuration.train_save_model,

@@ -65,9 +65,9 @@ def print_scorer_results_ment(all_mentions, scorer_out_file):
 
 def get_pairwise_model():
     pairwize_model = torch.load(configuration.coref_load_model_file)
-    pairwize_model.bert_utils = BertFromFile(configuration.coref_embed_util,
+    pairwize_model.set_embed_utils(BertFromFile(configuration.coref_embed_util,
                                              configuration.coref_embed_config.model_size,
-                                             configuration.coref_dataset.max_mention_span)
+                                             configuration.coref_dataset.max_mention_span))
     pairwize_model.eval()
     return pairwize_model
 

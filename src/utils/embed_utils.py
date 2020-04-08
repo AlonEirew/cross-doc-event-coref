@@ -215,7 +215,7 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
         last_hidden_span = all_hidden_states[0].view(all_hidden_states[0].shape[1], -1)[
                            ment1_inx_start:ment1_inx_end]
 
-        last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, 7 - last_hidden_span.shape[0]])
+        last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, self.max_mention_span - last_hidden_span.shape[0]])
         return last_hidden_span_pad, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
 
     def get_embed_size(self):
@@ -245,7 +245,10 @@ class BertFromFile(object):
     def get_mentions_rep(self, mentions_list):
         embed_list = list()
         for mention in mentions_list:
-            embed_list.append(self.embeddings[self.embed_key[mention.mention_id]])
+            ment_embed = self.embeddings[self.embed_key[mention.mention_id]]
+            hidd = ment_embed[0][0:self.max_mention_span]
+            ment_embed = (hidd, ment_embed[1], ment_embed[2], ment_embed[3])
+            embed_list.append(ment_embed)
 
         return embed_list
 
