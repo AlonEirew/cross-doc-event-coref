@@ -22,7 +22,7 @@ dev_dataset = EcbDataSet() #WecDataSet(split=Split.Dev)
 train_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
 train_save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + train_dataset.name + "_" + dev_dataset.name + \
-                        "_080420_7_" + train_embed_config.model_name + "_" + str(train_ratio)
+                        "_080420_reduced_" + train_embed_config.model_name + "_" + str(train_ratio)
 
 train_load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
@@ -36,9 +36,9 @@ train_event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + train_cont
                                   dev_dataset.name.lower() + "/dev/Event_gold_mentions_NegPairs_Subtopic.pickle"
 
 train_embed_files = [str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + train_dataset.name.lower() +
-                     "/train/Event_gold_mentions_" + train_embed_config.model_name + ".pickle",
+                     "/train/Event_gold_mentions_" + train_embed_config.model_name + "_reduced.pickle",
                      str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + dev_dataset.name.lower() +
-                     "/dev/Event_gold_mentions_" + train_embed_config.model_name + ".pickle"]
+                     "/dev/Event_gold_mentions_" + train_embed_config.model_name + "_reduced.pickle"]
 
 ########################## Inference Model Params ################################
 inference_context_set = "dataset_full"
@@ -80,10 +80,10 @@ coref_input_file = str(LIBRARY_ROOT) + "/resources/" + coref_context_set + "/" +
 
 coref_embed_util = [str(LIBRARY_ROOT) + "/resources/" + coref_context_set +
                     "/" + coref_dataset.name.lower() + "/" + coref_split.name.lower() +
-                    "/Event_gold_mentions_" + coref_embed_config.model_name + ".pickle"]
+                    "/Event_gold_mentions_" + coref_embed_config.model_name + "_reduced.pickle"]
 
-coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_070420_roberta-large_-1iter_5"
-coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_060420_" + \
+coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_080420_reduced_roberta-large_-1iter_6"
+coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_060420_2_" + \
                         coref_dataset.name + "_" + coref_split.name
 
 ################################################################################

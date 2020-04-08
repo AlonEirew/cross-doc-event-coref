@@ -25,10 +25,9 @@ class POLARITY(enum.Enum):
 
 
 class DataSet(object):
-    def __init__(self, name="DataSetSuper", ratio=-1, max_mention_span=-1):
+    def __init__(self, name="DataSetSuper", ratio=-1):
         self.ratio = ratio
         self.name = name
-        self.max_mention_span = max_mention_span
 
     def load_pos_neg_pickle(self, pos_file, neg_file):
         logger.info("Loading pos file-" + pos_file)
@@ -96,7 +95,7 @@ class DataSet(object):
 
 class EcbDataSet(DataSet):
     def __init__(self):
-        super(EcbDataSet, self).__init__(name="ECB", max_mention_span=11)
+        super(EcbDataSet, self).__init__(name="ECB")
 
     @classmethod
     def create_pos_neg_pairs(cls, topics, to_topic):
@@ -148,7 +147,7 @@ class EcbDataSet(DataSet):
 
 class WecDataSet(DataSet):
     def __init__(self, ratio=-1, split=Split.NA):
-        super(WecDataSet, self).__init__("WEC", ratio, max_mention_span=11)
+        super(WecDataSet, self).__init__("WEC", ratio)
         self.split = split
 
     def create_pos_neg_pairs(self, topics, sub_topics):

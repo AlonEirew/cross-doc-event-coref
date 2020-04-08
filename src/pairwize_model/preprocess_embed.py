@@ -40,15 +40,13 @@ def extract_feature_dict(topics: Topics, embed_utils):
 def worker(resource_file, dataset):
     embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
     # embed_utils = BertPretrainedUtils(embed_config, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
-    embed_utils = RoBERTaPretrainedUtils(embed_config, max_surrounding_contx=250,
-                                         max_mention_span=dataset.max_mention_span,
-                                         finetune=False, use_cuda=True, pad=False)
+    embed_utils = RoBERTaPretrainedUtils(embed_config, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
     name = multiprocessing.current_process().name
     print(name, "Starting")
 
     basename = path.basename(path.splitext(resource_file)[0])
     dirname = os.path.dirname(resource_file)
-    save_to = dirname + "/" + basename + "_" + embed_config.model_name + ".pickle"
+    save_to = dirname + "/" + basename + "_" + embed_config.model_name + "_reduced.pickle"
 
     topics = Topics()
     topics.create_from_file(resource_file, keep_order=True)
@@ -61,14 +59,14 @@ def worker(resource_file, dataset):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     _res_folder = "dataset_full"
-    _dataset_name = WecDataSet()
+    _dataset_name = EcbDataSet()
 
     all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/dev/Event_gold_mentions_validated2.json",
+                 "/dev/Event_gold_mentions.json",
                  str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/test/Event_gold_mentions_validated2.json",
+                 "/test/Event_gold_mentions.json",
                  str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/train/Event_gold_mentions_validated2.json"
+                 "/train/Event_gold_mentions.json"
                  ]
 
     print("Processing files-" + str(all_files))

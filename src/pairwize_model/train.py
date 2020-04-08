@@ -6,7 +6,7 @@ import torch
 
 from src import configuration
 from src.pairwize_model.model import PairWiseModelKenton
-from src.utils.embed_utils import BertFromFile
+from src.utils.embed_utils import EmbedFromFile
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
         end_index = batch_size
         random.shuffle(train)
 
-        cum_loss, count_btch = (0.0, 0)
+        cum_loss, count_btch = (0.0, 1)
         for start_index in range(0, dataset_size, batch_size):
             if end_index > dataset_size:
                 end_index = dataset_size
@@ -128,8 +128,7 @@ def init_basic_training_resources():
     random.seed(1)
     np.random.seed(1)
 
-    embed_utils = BertFromFile(configuration.train_embed_files, configuration.train_embed_config.model_size,
-                              configuration.train_dataset.max_mention_span)
+    embed_utils = EmbedFromFile(configuration.train_embed_files, configuration.train_embed_config.model_size)
 
     # embed_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
 

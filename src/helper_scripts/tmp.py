@@ -9,7 +9,7 @@ from sklearn import metrics
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import Split
 from src.dataobjs.mention_data import MentionData
-from src.utils.embed_utils import BertFromFile
+from src.utils.embed_utils import EmbedFromFile
 from src.utils.string_utils import StringUtils
 from src.dataobjs.topics import Topics, Topic
 from src.helper_scripts.extract_wec_tojson import clean_long_mentions, extract_from_sql
@@ -271,7 +271,7 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 # write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/test/Event_shany_pred_mentions.json', test_mentions)
 
 ######################## CLEAN NER #############################
-# embed_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_roberta-large.pickle"], 1024)
+# embed_utils = EmbedFromFile([str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_roberta-large.pickle"], 1024)
 #
 # split = Split.Dev.name.lower()
 # origin_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
