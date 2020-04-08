@@ -1,22 +1,26 @@
 import random
+from transformers import RobertaTokenizer
 
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import DataSet, WecDataSet, EcbDataSet, Split
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
+from src.utils.embed_utils import EmbedTransformersGenerics
 
 
-def calc_longest_mention_context(split_list, message):
+def calc_longest_mention_and_context(split_list, message):
     longest_mention = 0
     longest_context = 0
     for mention in split_list:
-        if len(mention.tokens_str) > longest_mention:
-            longest_mention = len(mention.tokens_number)
-        if len(mention.mention_context) > longest_context:
-            longest_context = len(mention.mention_context)
+        mention_encode = _tokenizer.encode(mention.mention_context[mention.tokens_number[0]:mention.tokens_number[-1] + 1])
+        # context = EmbedTransformersGenerics.extract_mention_surrounding_context(mention, 205)
+        if len(mention_encode) > longest_mention:
+            longest_mention = len(mention_encode)
+        # if len(mention.mention_context) > longest_context:
+        #     longest_context = len(context_encode)
 
     print(message + '_longest_mention=' + str(longest_mention))
-    print(message + '_longest_context=' + str(longest_context))
+    # print(message + '_longest_context=' + str(longest_context))
 
 
 def calc_cluster_head_lemma(ment_file, message, clus_size_thresh):
@@ -168,24 +172,24 @@ def generate_pair_score(f):
     return diff_string, same_string, total
 
 
-def create_split_stats(mentions_file, dataset, split):
+def create_split_stats(mentions_file, tokenizer, split):
     mentions_list = MentionData.read_mentions_json_to_mentions_data_list(mentions_file)
     if mentions_list:
         print('############# ' + split + ' ###################')
-        calc_singletons(mentions_list, split, only_validated=False)
-        calc_longest_mention_context(mentions_list, split)
-        cal_head_lemma_pairs(mentions_file, dataset, split, 1)
-        calc_cluster_head_lemma(mentions_file, split, 1)
+        # calc_singletons(mentions_list, split, only_validated=False)
+        calc_longest_mention_and_context(mentions_list, split)
+        # cal_head_lemma_pairs(mentions_file, dataset, split, 1)
+        # calc_cluster_head_lemma(mentions_file, split, 1)
 
 
 if __name__ == '__main__':
-    _event_train = str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json'
-    _event_test = str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json'
+    # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/WEC_Full_Train_Event_gold_mentions_validated2.json'
 
-    create_split_stats(_event_train, WecDataSet(Split.Train), "Train")
-    create_split_stats(_event_dev, EcbDataSet(), "Dev")
-    create_split_stats(_event_test, EcbDataSet(), "Test")
+    _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
+
+    # create_split_stats(_event_train, _tokenizer, "Train")
+    create_split_stats(_event_dev, _tokenizer, "Dev")
 
     # calc_tp_fp_pairs_lemma()
     # extract_tp_lemma_pairs()

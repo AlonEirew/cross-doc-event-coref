@@ -3,15 +3,13 @@ import torch
 
 from torch import nn
 
-from src.utils.embed_utils import MAX_MENTION_SPAN
-
 
 class PairWiseModel(nn.Module):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim, bert_utils, use_cuda=True):
         super(PairWiseModel, self).__init__()
         self.W = nn.Linear(f_hid_dim, f_out_dim)
         self.pairwize = PairWiseModel.get_sequential(f_in_dim, f_hid_dim)
-        self.bert_utils = bert_utils
+        self.embed_utils = bert_utils
         self.use_cuda = use_cuda
 
     @staticmethod
@@ -41,11 +39,11 @@ class PairWiseModel(nn.Module):
         # for mention1, mention2 in batch_features:
         mentions1, mentions2 = zip(*batch_features)
         # (1, 768), (1, 169)
-        hiddens1 = self.bert_utils.get_mentions_mean_rep(mentions1)
+        hiddens1 = self.embed_utils.get_mentions_mean_rep(mentions1)
         hiddens1, _ = zip(*hiddens1)
         hiddens1 = torch.cat(hiddens1)
         # (1, 768)
-        hiddens2 = self.bert_utils.get_mentions_mean_rep(mentions2)
+        hiddens2 = self.embed_utils.get_mentions_mean_rep(mentions2)
         hiddens2, _ = zip(*hiddens2)
         hiddens2 = torch.cat(hiddens2)
 
@@ -100,16 +98,16 @@ class PairWiseModelKenton(PairWiseModel):
         att2_w = self.w_alpha(attend2)
 
         # Clean attention on padded tokens
-        att1_w = att1_w.reshape(batch_size, MAX_MENTION_SPAN)
-        att2_w = att2_w.reshape(batch_size, MAX_MENTION_SPAN)
+        att1_w = att1_w.reshape(batch_size, self.embed_utils.max_mention_span)
+        att2_w = att2_w.reshape(batch_size, self.embed_utils.max_mention_span)
         self.clean_attnd_on_zero(att1_w, ment1_size, att2_w, ment2_size)
 
         att1_soft = torch.softmax(att1_w, dim=1)
         att2_soft = torch.softmax(att2_w, dim=1)
-        hidden1_reshape = hiddens1.reshape(batch_size, MAX_MENTION_SPAN, -1)
-        hidden2_reshape = hiddens2.reshape(batch_size, MAX_MENTION_SPAN, -1)
-        att1_head = hidden1_reshape * att1_soft.reshape(batch_size, MAX_MENTION_SPAN, 1)
-        att2_head = hidden2_reshape * att2_soft.reshape(batch_size, MAX_MENTION_SPAN, 1)
+        hidden1_reshape = hiddens1.reshape(batch_size, self.embed_utils.max_mention_span, -1)
+        hidden2_reshape = hiddens2.reshape(batch_size, self.embed_utils.max_mention_span, -1)
+        att1_head = hidden1_reshape * att1_soft.reshape(batch_size, self.embed_utils.max_mention_span, 1)
+        att2_head = hidden2_reshape * att2_soft.reshape(batch_size, self.embed_utils.max_mention_span, 1)
 
         g1 = torch.cat((first1_tok, last1_tok, torch.sum(att1_head, dim=1)), dim=1)
         g2 = torch.cat((first2_tok, last2_tok, torch.sum(att2_head, dim=1)), dim=1)
@@ -127,7 +125,7 @@ class PairWiseModelKenton(PairWiseModel):
         return concat_result, ret_golds
 
     def prepare_vectors(self, mentions, batch_size):
-        hiddens, first_tok, last_tok, ment_size = zip(*self.bert_utils.get_mentions_rep(mentions))
+        hiddens, first_tok, last_tok, ment_size = zip(*self.embed_utils.get_mentions_rep(mentions))
         hiddens = torch.cat(hiddens)
         first_tok = torch.cat(first_tok).reshape(batch_size, -1)
         last_tok = torch.cat(last_tok).reshape(batch_size, -1)
@@ -136,16 +134,18 @@ class PairWiseModelKenton(PairWiseModel):
     def clean_attnd_on_zero(self, attend1, ment_size1, attend2, ment_size2):
         for i, vals in enumerate(list(zip(ment_size1, ment_size2))):
             val1, val2 = vals
-            if val1 > MAX_MENTION_SPAN:
-                val1 = MAX_MENTION_SPAN
+            if val1 > self.embed_utils.max_mention_span:
+                val1 = self.embed_utils.max_mention_span
 
-            if val2 > MAX_MENTION_SPAN:
-                val2 = MAX_MENTION_SPAN
+            if val2 > self.embed_utils.max_mention_span:
+                val2 = self.embed_utils.max_mention_span
 
             attend1_fx = attend1[i:i + 1, 0:val1]
-            attend1_fx = torch.nn.functional.pad(attend1_fx, [0, MAX_MENTION_SPAN - val1, 0, 0], value=-math.inf)
+            attend1_fx = torch.nn.functional.pad(attend1_fx, [0, self.embed_utils.max_mention_span - val1, 0, 0],
+                                                 value=-math.inf)
             attend1[i:i + 1] = attend1_fx
 
             attend2_fx = attend2[i:i + 1, 0:val2]
-            attend2_fx = torch.nn.functional.pad(attend2_fx, [0, MAX_MENTION_SPAN - val2, 0, 0], value=-math.inf)
+            attend2_fx = torch.nn.functional.pad(attend2_fx, [0, self.embed_utils.max_mention_span - val2, 0, 0],
+                                                 value=-math.inf)
             attend2[i:i + 1] = attend2_fx

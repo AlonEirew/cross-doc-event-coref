@@ -1,9 +1,12 @@
+import collections
+
 import os
 import re
 import string
 from typing import List
 
 import spacy
+from spacy.tokens import Doc
 
 from src.utils.io_utils import load_json_file
 
@@ -120,6 +123,26 @@ class StringUtils(object):
                 ner = ent.label_
 
         return head, lemma, pos, ner
+
+    @staticmethod
+    def find_all_ners(x: List[str]):
+        """
+
+        :param x: context with mention
+        :return: the list of all context tokens ners
+        """
+        ners = list()
+
+        # pylint: disable=not-callable
+        doc = Doc(StringUtils.spacy_parser.vocab, words=x, spaces=[True] * len(x))
+        # parsed = StringUtils.spacy_parser(doc.text)
+        for name, proc in StringUtils.spacy_parser.pipeline:  # iterate over components in order
+            parsed = proc(doc)
+            if name == 'ner':
+                for tok in parsed:
+                    ners.append(tok.ent_type_)
+
+        return ners
 
     @staticmethod
     def get_tokenized_string(not_tokenized_str):

@@ -25,9 +25,10 @@ class POLARITY(enum.Enum):
 
 
 class DataSet(object):
-    def __init__(self, name="DataSetSuper", ratio=-1):
+    def __init__(self, name="DataSetSuper", ratio=-1, max_mention_span=-1):
         self.ratio = ratio
         self.name = name
+        self.max_mention_span = max_mention_span
 
     def load_pos_neg_pickle(self, pos_file, neg_file):
         logger.info("Loading pos file-" + pos_file)
@@ -44,12 +45,12 @@ class DataSet(object):
         logger.info('neg-' + str(len(neg_pairs)))
         return self.create_features_from_pos_neg(pos_pairs, neg_pairs)
 
-    def get_pairwise_feat(self, data_file, sub_topics=False):
+    def get_pairwise_feat(self, data_file, to_topics=False):
         topics_ = Topics()
         topics_.create_from_file(data_file, keep_order=True)
         logger.info('Create pos/neg examples')
         # Create positive and negative pair within the same ECB+ topic
-        positive_, negative_ = self.create_pos_neg_pairs(topics_, sub_topics)
+        positive_, negative_ = self.create_pos_neg_pairs(topics_, to_topics)
 
         if self.ratio > 0:
             if len(negative_) > (len(positive_) * self.ratio):
@@ -60,11 +61,11 @@ class DataSet(object):
         return positive_, negative_
 
     @classmethod
-    def create_pos_neg_pairs(cls, topics, sub_topic):
+    def create_pos_neg_pairs(cls, topics, to_topic):
         raise NotImplementedError("Method implemented only in subclasses")
 
     def load_datasets(self, split_file):
-        logger.info('Create Features:' + self.__name__)
+        logger.info('Create Features:' + self.name)
         positive_, negative_ = self.get_pairwise_feat(split_file)
         split_feat = self.create_features_from_pos_neg(positive_, negative_)
         return split_feat
@@ -95,11 +96,11 @@ class DataSet(object):
 
 class EcbDataSet(DataSet):
     def __init__(self):
-        super(EcbDataSet, self).__init__("ECB")
+        super(EcbDataSet, self).__init__(name="ECB", max_mention_span=11)
 
     @classmethod
-    def create_pos_neg_pairs(cls, topics, sub_topic):
-        if not sub_topic:
+    def create_pos_neg_pairs(cls, topics, to_topic):
+        if not to_topic:
             topics = cls.from_ecb_subtopic_to_topic(topics)
 
         # create positive examples
@@ -147,7 +148,7 @@ class EcbDataSet(DataSet):
 
 class WecDataSet(DataSet):
     def __init__(self, ratio=-1, split=Split.NA):
-        super(WecDataSet, self).__init__("WEC", ratio)
+        super(WecDataSet, self).__init__("WEC", ratio, max_mention_span=11)
         self.split = split
 
     def create_pos_neg_pairs(self, topics, sub_topics):

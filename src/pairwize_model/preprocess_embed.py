@@ -6,14 +6,14 @@ import time
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import WecDataSet
+from src.dataobjs.dataset import WecDataSet, EcbDataSet
 from src.dataobjs.topics import Topics
 from src.utils.embed_utils import RoBERTaPretrainedUtils, EmbeddingConfig, EmbeddingEnum
 
 USE_CUDA = True
 
 
-def extract_feature_dict(topics: Topics, bert_utils):
+def extract_feature_dict(topics: Topics, embed_utils):
     result_train = dict()
     topic_count = len(topics.topics_dict)
     for topic in topics.topics_dict.values():
@@ -21,7 +21,7 @@ def extract_feature_dict(topics: Topics, bert_utils):
         for mention in topic.mentions:
             start = time.time()
             # hidden, attend = bert_utils.get_mention_full_rep(mention)
-            hidden, first_tok, last_tok, ment_size = bert_utils.get_mention_full_rep(mention)
+            hidden, first_tok, last_tok, ment_size = embed_utils.get_mention_full_rep(mention)
             end = time.time()
 
             result_train[mention.mention_id] = (hidden.cpu(), first_tok.cpu(), last_tok.cpu(), ment_size)
@@ -37,10 +37,12 @@ def extract_feature_dict(topics: Topics, bert_utils):
     return result_train
 
 
-def worker(resource_file):
+def worker(resource_file, dataset):
     embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
     # embed_utils = BertPretrainedUtils(embed_config, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
-    embed_utils = RoBERTaPretrainedUtils(embed_config, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
+    embed_utils = RoBERTaPretrainedUtils(embed_config, max_surrounding_contx=250,
+                                         max_mention_span=dataset.max_mention_span,
+                                         finetune=False, use_cuda=True, pad=False)
     name = multiprocessing.current_process().name
     print(name, "Starting")
 
@@ -62,18 +64,18 @@ if __name__ == '__main__':
     _dataset_name = WecDataSet()
 
     all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/dev/Event_gold_mentions_validated.json",
+                 "/dev/Event_gold_mentions_validated2.json",
                  str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/test/Event_gold_mentions_validated.json",
+                 "/test/Event_gold_mentions_validated2.json",
                  str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/train/Event_gold_mentions_validated.json",
+                 "/train/Event_gold_mentions_validated2.json"
                  ]
 
     print("Processing files-" + str(all_files))
 
     jobs = list()
     for _resource_file in all_files:
-        job = multiprocessing.Process(target=worker, args=(_resource_file,))
+        job = multiprocessing.Process(target=worker, args=(_resource_file,_dataset_name,))
         jobs.append(job)
         job.start()
 

@@ -138,6 +138,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/dataset/wec/test/WEC_Test_Event_gold_mentions_validated.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/dataset_full_clean/wec/train/Event_gold_mentions_validated.json'
     threash = [-1]
     main(_event_file)

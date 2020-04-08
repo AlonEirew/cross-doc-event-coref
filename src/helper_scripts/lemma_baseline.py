@@ -3,7 +3,7 @@ import logging
 import torch
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import EcbDataSet
+from src.dataobjs.dataset import EcbDataSet, WecDataSet, Split
 from src.pairwize_model.train import get_measurements_bool_clasification
 
 logger = logging.getLogger(__name__)
@@ -12,14 +12,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 def main():
     context_set = "dataset_full"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/ECB_Test_Full_Event_gold_mentions.json"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/wec/dev/Event_gold_mentions_validated.json"
+    dataset = WecDataSet(split=Split.Dev)
     ################ NO TOPICS ######################
     # positive_, negative_ = get_feat_alternative(event_validation_file)
     # logger.info('pos-' + str(len(positive_)))
     # logger.info('neg-' + str(len(negative_)))
     # features = create_features_from_pos_neg(positive_, negative_)
     ################ NO TOPICS ######################
-    dataset = EcbDataSet()
     features = dataset.load_datasets(event_validation_file)
     accuracy_on_dataset(features)
 

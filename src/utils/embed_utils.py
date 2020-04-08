@@ -8,8 +8,6 @@ from transformers import BertTokenizer, BertForSequenceClassification, RobertaTo
 
 logger = logging.getLogger(__name__)
 
-MAX_MENTION_SPAN = 7
-
 
 class EmbeddingEnum(Enum):
     BERT_LARGE_CASED = 1
@@ -31,8 +29,22 @@ class EmbeddingConfig(object):
 
 
 class EmbedTransformersGenerics(nn.Module):
-    def __init__(self):
+    def __init__(self, model=None, tokenizer=None, max_surrounding_contx=10,
+                 max_mention_span=-1, finetune=False, use_cuda=True, pad=False,
+                 embed_size=-1):
+
         super(EmbedTransformersGenerics, self).__init__()
+        self.model = model
+        self.tokenizer = tokenizer
+        self.max_mention_span = max_mention_span
+        self.max_surrounding_contx=max_surrounding_contx
+        self.pad = pad
+        self.use_cuda = use_cuda
+        self.finetune = finetune
+        self.embed_size = embed_size
+
+        if self.use_cuda:
+            self.model.cuda()
 
     def get_mention_full_rep(self, mention):
         raise NotImplementedError("Method implemented only in subclasses")
@@ -63,15 +75,16 @@ class EmbedTransformersGenerics(nn.Module):
         return ret_context_before, ret_mention, ret_context_after
 
     @staticmethod
-    def mention_feat_to_vec(mention, model, max_surrounding_contx, pad):
-        cntx_before_str, ment_span_str, cntx_after_str = EmbedTransformersGenerics.extract_mention_surrounding_context(mention,
-                                                                                                                       max_surrounding_contx)
+    def mention_feat_to_vec(mention, tokenizer, max_surrounding_contx, pad):
+        cntx_before_str, ment_span_str, cntx_after_str = EmbedTransformersGenerics.\
+            extract_mention_surrounding_context(mention, max_surrounding_contx)
+
         cntx_before, cntx_after = cntx_before_str, cntx_after_str
         try:
             if len(cntx_before_str) != 0:
-                cntx_before = model.encode(" ".join(cntx_before_str))[0:-1]
+                cntx_before = tokenizer.encode(" ".join(cntx_before_str))[0:-1]
             if len(cntx_after_str) != 0:
-                cntx_after = model.encode(" ".join(cntx_after_str))[1:]
+                cntx_after = tokenizer.encode(" ".join(cntx_after_str))[1:]
         except:
             print("FAILD on MentionID=" + mention.mention_id)
             raise
@@ -81,7 +94,7 @@ class EmbedTransformersGenerics(nn.Module):
         if len(cntx_after) > max_surrounding_contx:
             cntx_after = cntx_after[:max_surrounding_contx-1] + [cntx_after[-1]]
 
-        ment_span = model.encode(" ".join(ment_span_str))[1:-1]
+        ment_span = tokenizer.encode(" ".join(ment_span_str))[1:-1]
         tokens_length = len(cntx_before) + len(cntx_after) + len(ment_span)
         att_mask = [1] * tokens_length
 
@@ -106,28 +119,24 @@ class EmbedTransformersGenerics(nn.Module):
 
 
 class BertPretrainedUtils(EmbedTransformersGenerics):
-    def __init__(self, bert_config: EmbeddingConfig, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
-        super(BertPretrainedUtils, self).__init__()
-        self._tokenizer = BertTokenizer.from_pretrained(bert_config.model_name)
-        self._bert = BertForSequenceClassification.from_pretrained(bert_config.model_name, output_hidden_states=True, output_attentions=True)
+    def __init__(self, bert_config: EmbeddingConfig, max_surrounding_contx=10, max_mention_span=-1,
+                 finetune=False, use_cuda=True, pad=False):
 
-        self.max_surrounding_contx = max_surrounding_contx
-        self.finetune = finetune
-        self.pad = pad
-        self.use_cuda = use_cuda
-        self.embed_size = bert_config.model_size
-
-        if self.use_cuda:
-            self._bert.cuda()
+        super(BertPretrainedUtils, self).__init__(model=BertForSequenceClassification.from_pretrained(bert_config.model_name, output_hidden_states=True, output_attentions=True),
+                                                  tokenizer=BertTokenizer.from_pretrained(bert_config.model_name),
+                                                  max_mention_span=max_mention_span,
+                                                  max_surrounding_contx=max_surrounding_contx,
+                                                  finetune=finetune, use_cuda=use_cuda, pad=pad,
+                                                  embed_size=bert_config.model_size)
 
     def get_mention_mean_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-            mention, self._tokenizer, self.max_surrounding_contx, self.pad)
+            mention, self.tokenizer, self.max_surrounding_contx, self.pad)
         with torch.no_grad():
             if self.use_cuda:
                 ment1_ids = ment1_ids.cuda()
 
-            all_hidden_states, all_attention_states = self._bert(ment1_ids)[-2:]
+            all_hidden_states, all_attention_states = self.model(ment1_ids)[-2:]
 
         # last_attend2 = all_attentions2[0]
         last_hidden_span = all_hidden_states[0].view(all_hidden_states[0].shape[1], -1)[
@@ -149,7 +158,8 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
         ids, masks, starts, ends = ([], [], [], [])
         for mention in mentions_list:
             ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-                mention, self._tokenizer, self.max_surrounding_contx, self.pad)
+                mention, self.tokenizer, self.max_surrounding_contx, self.pad)
+
             ids.append(ment1_ids)
             masks.append(att_mask)
             starts.append(ment1_inx_start)
@@ -164,9 +174,9 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
 
         if not self.finetune:
             with torch.no_grad():
-                all_hidden_states, _ = self._bert(ids, attention_mask=masks)[-2:]
+                all_hidden_states, _ = self.model(ids, attention_mask=masks)[-2:]
         else:
-            all_hidden_states, _ = self._bert(ids, attention_mask=masks)[-2:]
+            all_hidden_states, _ = self.model(ids, attention_mask=masks)[-2:]
 
         # last_attend2 = all_attentions2[0]
         all_last_span_pad, all_first, all_last, all_len = ([], [], [], [])
@@ -175,7 +185,7 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
                                starts[i]:ends[i]]
 
             # Padding of mention (longest mentions is 7 tokens)
-            last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, MAX_MENTION_SPAN - last_hidden_span.shape[0]])
+            last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, self.max_mention_span - last_hidden_span.shape[0]])
             all_last_span_pad.append(last_hidden_span_pad)
             all_first.append(last_hidden_span[0])
             all_last.append(last_hidden_span[-1])
@@ -185,7 +195,7 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
 
     def get_mention_full_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-            mention, self._tokenizer, self.max_surrounding_contx, self.pad)
+            mention, self.tokenizer, self.max_surrounding_contx, self.pad)
 
         try:
             if self.use_cuda:
@@ -194,9 +204,9 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
 
             if not self.finetune:
                 with torch.no_grad():
-                    all_hidden_states, _ = self._bert(ment1_ids, attention_mask=att_mask)[-2:]
+                    all_hidden_states, _ = self.model(ment1_ids, attention_mask=att_mask)[-2:]
             else:
-                all_hidden_states, _ = self._bert(ment1_ids, attention_mask=att_mask)[-2:]
+                all_hidden_states, _ = self.model(ment1_ids, attention_mask=att_mask)[-2:]
         except:
             print("FAILD on TopicId:" + mention.topic_id + " MentionID=" + mention.mention_id)
             raise
@@ -213,9 +223,10 @@ class BertPretrainedUtils(EmbedTransformersGenerics):
 
 
 class BertFromFile(object):
-    def __init__(self, files_to_load: list, embed_size):
+    def __init__(self, files_to_load: list, embed_size, max_mention_span):
         bert_dict = dict()
         self.embed_size = embed_size
+        self.max_mention_span = max_mention_span
 
         if files_to_load is not None and len(files_to_load) > 0:
             for file_ in files_to_load:
@@ -243,38 +254,33 @@ class BertFromFile(object):
 
 
 class RoBERTaPretrainedUtils(EmbedTransformersGenerics):
-    def __init__(self, roberta_config: EmbeddingConfig, max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
-        super(RoBERTaPretrainedUtils, self).__init__()
-        self._tokenizer = RobertaTokenizer.from_pretrained(roberta_config.model_name)
-        self.roberta = RobertaModel.from_pretrained(roberta_config.model_name)
+    def __init__(self, roberta_config: EmbeddingConfig,
+                 max_surrounding_contx=10, max_mention_span=-1, finetune=False, use_cuda=True, pad=False):
 
-        self.max_surrounding_contx = max_surrounding_contx
-        self.pad = pad
-        self.use_cuda = use_cuda
-        self.finetune = finetune
-
-        self.embed_size = roberta_config.model_size
-
-        if self.use_cuda:
-            self.roberta.cuda()
+        super(RoBERTaPretrainedUtils, self).__init__(model=RobertaModel.from_pretrained(roberta_config.model_name),
+                                                     tokenizer=RobertaTokenizer.from_pretrained(roberta_config.model_name),
+                                                     max_mention_span=max_mention_span,
+                                                     max_surrounding_contx=max_surrounding_contx,
+                                                     finetune=finetune, use_cuda=use_cuda, pad=pad,
+                                                     embed_size=roberta_config.model_size)
 
     def get_mention_full_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-            mention, self._tokenizer, self.max_surrounding_contx, self.pad)
+            mention, self.tokenizer, self.max_surrounding_contx, self.pad)
 
         if self.use_cuda:
             ment1_ids = ment1_ids.cuda()
 
         if not self.finetune:
             with torch.no_grad():
-                last_hidden_span, _ = self.roberta(ment1_ids)
+                last_hidden_span, _ = self.model(ment1_ids)
         else:
-            last_hidden_span, _ = self.roberta(ment1_ids)
+            last_hidden_span, _ = self.model(ment1_ids)
 
         last_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[
                            ment1_inx_start:ment1_inx_end]
 
-        last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, 7 - last_hidden_span.shape[0]])
+        last_hidden_span_pad = torch.nn.functional.pad(last_hidden_span, [0, 0, 0, self.max_mention_span - last_hidden_span.shape[0]])
         return last_hidden_span_pad, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
 
     def get_embed_size(self):

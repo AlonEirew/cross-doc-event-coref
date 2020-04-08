@@ -7,7 +7,10 @@ import random
 from sklearn import metrics
 
 from src import LIBRARY_ROOT
+from src.dataobjs.dataset import Split
 from src.dataobjs.mention_data import MentionData
+from src.utils.embed_utils import BertFromFile
+from src.utils.string_utils import StringUtils
 from src.dataobjs.topics import Topics, Topic
 from src.helper_scripts.extract_wec_tojson import clean_long_mentions, extract_from_sql
 from src.utils.io_utils import load_pickle, write_mention_to_json
@@ -268,18 +271,35 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 # write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/test/Event_shany_pred_mentions.json', test_mentions)
 
 ######################## CLEAN NER #############################
-# origin_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) + '/resources/dataset_full/WEC_Train_Full_Event_gold_mentions_validated.json')
+# bert_utils = BertFromFile([str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_roberta-large.pickle"], 1024)
+#
+# split = Split.Dev.name.lower()
+# origin_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#                        '/resources/dataset_full/wec/' + split + '/Event_gold_mentions_validated.json')
 # new_mention = list()
 # removed = 0
 # for mention in origin_mentions:
-#     if mention.mention_ner in ["GPE", "LOC"]:
+#     ners = StringUtils.find_all_ners(mention.mention_context)
+#
+#     head_token_id = -1
+#     for i in mention.tokens_number:
+#         if mention.mention_context[i] == mention.mention_head:
+#             head_token_id = i
+#
+#     if head_token_id == -1:
 #         removed += 1
-#     else:
-#         new_mention.append(mention)
+#         print("Bad mention in split-" + str(mention.mention_id))
+#         # raise Exception("Couldnt find mention head in context")
+#     # else:
+#     #     ment_ners = ners[head_token_id]
+#     #     if ment_ners in ["GPE", "LOC"]:
+#     #         removed += 1
+#     #     else:
+#     #         new_mention.append(mention)
 #
 # print("total mentions remove=" + str(removed))
 # print("total mentions in split-" + str(len(new_mention)))
-# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full_clean/WEC_Train_Full_Event_gold_mentions_validated.json', new_mention)
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full_clean/wec/' + split + '/Event_gold_mentions_validated.json', new_mention)
 
 ###################### Add Context and Topic Id to Shany file ##################
 # shany_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
@@ -307,46 +327,70 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 # print("Done!")
 ##########################################################################################
 
-dev_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-            '/resources/dataset/wec/dev/WEC_Dev_Event_gold_mentions_validated.json')
+# dev_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/resources/dataset/wec/dev/WEC_Dev_Event_gold_mentions_validated.json')
+#
+# test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/resources/dataset/wec/test/WEC_Test_Event_gold_mentions_validated.json')
+#
+# train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json')
+#
+# connection = create_connection(str(LIBRARY_ROOT) + "/resources/EnWikiLinks_v9.db")
+# # clusters = select_all_from_mentions(connection, 'Validation3', limit=-1)
+# mentions_full_context, _ = extract_from_sql(connection, "Validation3", "split")
+# all_mentions = dev_mentions + test_mentions + train_mentions
+#
+# print("Total mentions from files=" + str(len(all_mentions)))
+# print("Total mentions from sql=" + str(len(mentions_full_context)))
+#
+# mentions_by_ids = dict()
+# for mention_from_file in all_mentions:
+#     if mention_from_file.mention_id in mentions_by_ids:
+#         raise Exception("Mention - " + mention_from_file.mention_id + " exist twice!!")
+#     mentions_by_ids[mention_from_file.mention_id] = mention_from_file
+#
+# total_changed = 0
+# for mention_from_sql in mentions_full_context:
+#     if mention_from_sql.mention_id in mentions_by_ids:
+#         total_changed += 1
+#         mentions_by_ids[mention_from_sql.mention_id].mention_context = mention_from_sql.mention_context
+#         mentions_by_ids[mention_from_sql.mention_id].tokens_number = mention_from_sql.tokens_number
+#
+# if total_changed < len(all_mentions):
+#     print("Total changed is smaller then the sum of all mentions: " + str(total_changed) + "<" + str(len(all_mentions)))
+# else:
+#     print('Writing files...')
+#     write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/WEC_Full_Dev_Event_gold_mentions_validated.json',
+#                           dev_mentions)
+#
+#     write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/WEC_Full_Test_Event_gold_mentions_validated.json',
+#                           test_mentions)
+#
+#     write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/WEC_Full_Train_Event_gold_mentions_validated.json',
+#                           train_mentions)
+#
+# print('Done!!')
 
-test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-            '/resources/dataset/wec/test/WEC_Test_Event_gold_mentions_validated.json')
+#################################### FIX MENTION SPAN ########################################
+mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+                       '/resources/dataset_full/wec/test/Event_gold_mentions_validated.json')
 
-train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-            '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json')
+total_bad = 0
+final_mentions = list()
+for mention in mentions:
+    good = True
+    for i, tok_id in enumerate(mention.tokens_number):
+        mention_text = mention.tokens_str.split(" ")
+        if mention_text[i] != mention.mention_context[tok_id]:
+            total_bad += 1
+            good = False
+            break
+    if good:
+        final_mentions.append(mention)
 
-connection = create_connection(str(LIBRARY_ROOT) + "/resources/EnWikiLinks_v9.db")
-# clusters = select_all_from_mentions(connection, 'Validation3', limit=-1)
-mentions_full_context, _ = extract_from_sql(connection, "Validation3", "split")
-all_mentions = dev_mentions + test_mentions + train_mentions
-
-print("Total mentions from files=" + str(len(all_mentions)))
-print("Total mentions from sql=" + str(len(mentions_full_context)))
-
-mentions_by_ids = dict()
-for mention_from_file in all_mentions:
-    if mention_from_file.mention_id in mentions_by_ids:
-        raise Exception("Mention - " + mention_from_file.mention_id + " exist twice!!")
-    mentions_by_ids[mention_from_file.mention_id] = mention_from_file
-
-total_changed = 0
-for mention_from_sql in mentions_full_context:
-    if mention_from_sql.mention_id in mentions_by_ids:
-        total_changed += 1
-        mentions_by_ids[mention_from_sql.mention_id].mention_context = mention_from_sql.mention_context
-
-if total_changed < len(all_mentions):
-    print("Total changed is smaller then the sum of all mentions: " + str(total_changed) + "<" + str(len(all_mentions)))
-else:
-    print('Writing files...')
-    write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset/wec/dev/WEC_Full_Dev_Event_gold_mentions_validated.json',
-                          dev_mentions)
-
-    write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset/wec/test/WEC_Full_Test_Event_gold_mentions_validated.json',
-                          test_mentions)
-
-    write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset/wec/train/WEC_Full_Train_Event_gold_mentions_validated.json',
-                          train_mentions)
-
-print('Done!!')
+print(str(total_bad))
+print(len(final_mentions))
+write_mention_to_json(str(LIBRARY_ROOT) +
+                      '/resources/dataset_full/wec/test/WEC_Full_Train_Event_gold_mentions_validated2.json',
+                      final_mentions)

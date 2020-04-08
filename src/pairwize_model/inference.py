@@ -112,7 +112,9 @@ if __name__ == '__main__':
     _event_test_file_pos = configuration.inference_event_test_file_pos
     _event_test_file_neg = configuration.inference_event_test_file_neg
 
-    _bert_utils = BertFromFile(configuration.inference_embed_files, configuration.inference_embed_config.model_size)
+    _bert_utils = BertFromFile(configuration.inference_embed_files,
+                               configuration.inference_embed_config.model_size,
+                               configuration.inference_dataset.max_mention_span)
 
     basename = path.basename(path.splitext(_model_in)[0])
     pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TP_" + basename + "_" + split.name + "_paris.txt"

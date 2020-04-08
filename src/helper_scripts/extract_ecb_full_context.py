@@ -56,14 +56,31 @@ def enhance_json_with_context(json_files, documents_context_file):
         for mention in mentions:
             new_mention_tokens_id = 0
             new_full_context = list()
-            for sent, tokens in documents_context[mention.doc_id].items():
+            for sent, tokens in documents_context[mention.doc_id + '.xml'].items():
                 if mention.sent_id == int(sent):
-                    for i in range(len(mention.tokens_number)):
-                        mention.tokens_number[i] += new_mention_tokens_id
+                    new_tokens = list()
+                    for token_id in mention.tokens_number:
+                        new_tokens.append(token_id + new_mention_tokens_id)
+                    mention.tokens_number = new_tokens
                 new_full_context.extend(tokens)
                 new_mention_tokens_id += len(tokens)
 
+            topic = mention.doc_id.split("_")[0]
+            if 'ecbplus' in mention.doc_id:
+                topic += 'ecbplus'
+            else:
+                topic += 'ecb'
+
             mention.mention_context = new_full_context
+            mention.doc_id = mention.doc_id + '.xml'
+            mention.mention_id = mention.gen_mention_id()
+            mention.topic_id = topic
+
+            for i, tok_id in enumerate(mention.tokens_number):
+                mention_text = mention.tokens_str.split(" ")
+                if mention_text[i] != mention.mention_context[tok_id]:
+                    raise Exception("Issue with mention-" + str(mention.mention_id))
+
 
         with open(file + '_full', 'w') as osw:
             json.dump(mentions, osw, default=default, indent=4, sort_keys=True)
@@ -76,11 +93,12 @@ def default(o):
 if __name__ == '__main__':
     # print('Read all ECB+ files')
     # documents_context = read_data_from_corpus_folder(str(LIBRARY_ROOT) + '/resources/ECB+')
-    # print('Done reading, star enhancing with context')
-    enhance_json_with_context([str(LIBRARY_ROOT) + '/resources/dataset/ECB_Dev_Event_gold_mentions.json',
-                               str(LIBRARY_ROOT) + '/resources/dataset/ECB_Test_Event_gold_mentions.json',
-                               str(LIBRARY_ROOT) + '/resources/dataset/ECB_Train_Event_gold_mentions.json'],
-                              str(LIBRARY_ROOT) + '/resources/dataset_full/ecb_full_contest_file.json')
+    print('Done reading, star enhancing with context')
+    enhance_json_with_context([str(LIBRARY_ROOT) + '/resources/dataset_full/ecb_fix/ECB_Dev_Event_gold_mentions.json',
+                               str(LIBRARY_ROOT) + '/resources/dataset_full/ecb_fix/ECB_Test_Event_gold_mentions.json',
+                               str(LIBRARY_ROOT) + '/resources/dataset_full/ecb_fix/ECB_Test_Event_pred_mentions.json',
+                               str(LIBRARY_ROOT) + '/resources/dataset_full/ecb_fix/ECB_Train_Event_gold_mentions.json'],
+                              str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/ecb_full_contest_file.json')
 
     # with open(str(LIBRARY_ROOT) + '/resources/dataset_full/ecb_full_contest_file.json', 'w+') as osw:
     #     json.dump(documents_context, osw, default=default, indent=4, sort_keys=True)

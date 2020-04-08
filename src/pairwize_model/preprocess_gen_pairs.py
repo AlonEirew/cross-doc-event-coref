@@ -13,7 +13,7 @@ def generate_pairs():
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _data_set.name.lower() + \
                                 "/" + _split.name.lower() + "/" + _res_file
 
-    positive_, negative_ = _data_set.get_pairwise_feat(event_validation_file, sub_topics=False)
+    positive_, negative_ = _data_set.get_pairwise_feat(event_validation_file, to_topics=False)
     # positive_, negative_ = get_feat_alternative(data_set, event_validation_file)
 
     validate_pairs(positive_, negative_)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     _split = Split.Train
     _ratio = -1
     _data_set = WecDataSet(ratio=_ratio, split=_split)
-    _res_file = "Event_gold_mentions_validated.json"
+    _res_file = "Event_gold_mentions_validated2.json"
     print("Generating pairs for file-" + _res_folder + "/" + _res_file)
     generate_pairs()
     # validate_pairs()
