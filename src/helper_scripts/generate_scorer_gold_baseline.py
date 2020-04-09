@@ -12,11 +12,11 @@ def main():
     corpus_id = WecDataSet()
 
     dev_in_file = str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + corpus_id.name.lower() + \
-                  '/dev/Event_gold_mentions_validated.json'
+                  '/dev/Event_gold_mentions_validated2.json'
     dev_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id.name.lower() + '/CD_dev_event_mention_based_dataset.txt'
 
     test_in_file = str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + corpus_id.name.lower() + \
-                   '/test/Event_gold_mentions_validated.json'
+                   '/test/Event_gold_mentions_validated2.json'
     test_out_file = str(LIBRARY_ROOT) + '/gold_scorer/' + corpus_id.name.lower() + '/CD_test_event_mention_based_dataset.txt'
 
     print("preparing dev file-" + dev_in_file)

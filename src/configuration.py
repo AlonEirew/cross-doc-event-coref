@@ -64,7 +64,7 @@ inference_embed_files = [str(LIBRARY_ROOT) + "/resources/" + inference_context_s
 ########################## Determenistic/Cluster System ################################
 # cluster_topics = experiment without topic classification first
 coref_context_set = "dataset_full"
-coref_split = Split.Test
+coref_split = Split.Dev
 coref_dataset = EcbDataSet() #WecDataSet(-1, coref_split)
 
 coref_cluster_topics = False
@@ -73,17 +73,17 @@ coref_cluster_type = ClusteringType.AgglomerativeClustering
 coref_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
 coref_pairs_thresh = [1.0]
-coref_average_link_thresh = [0.65]
+coref_average_link_thresh = [0.6, 0.65, 0.7, 0.75]
 
 coref_input_file = str(LIBRARY_ROOT) + "/resources/" + coref_context_set + "/" + coref_dataset.name.lower() + \
-                "/" + coref_split.name.lower() + "/" + "Event_pred_mentions.json"
+                "/" + coref_split.name.lower() + "/" + "Event_gold_mentions.json"
 
 coref_embed_util = [str(LIBRARY_ROOT) + "/resources/" + coref_context_set +
                     "/" + coref_dataset.name.lower() + "/" + coref_split.name.lower() +
-                    "/Event_gold_mentions_" + coref_embed_config.model_name + "_reduced.pickle"]
+                    "/Event_gold_mentions_" + coref_embed_config.model_name + ".pickle"]
 
 coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_080420_reduced_roberta-large_-1iter_6"
-coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_060420_2_" + \
+coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_080420_" + \
                         coref_dataset.name + "_" + coref_split.name
 
 ################################################################################

@@ -140,11 +140,8 @@ class PairWiseModelKenton(PairWiseModel):
     def clean_attnd_on_zero(self, attend1, ment_size1, attend2, ment_size2, max_mention_span):
         for i, vals in enumerate(list(zip(ment_size1, ment_size2))):
             val1, val2 = vals
-            if val1 > max_mention_span:
-                val1 = max_mention_span
-            if val2 > max_mention_span:
-                val2 = max_mention_span
-                # raise Exception("Mention size exceed maximum!")
+            if val1 > max_mention_span or val2 > max_mention_span:
+                raise Exception("Mention size exceed maximum!")
 
             attend1_fx = attend1[i:i + 1, 0:val1]
             attend1_fx = torch.nn.functional.pad(attend1_fx, [0, max_mention_span - val1, 0, 0], value=-math.inf)

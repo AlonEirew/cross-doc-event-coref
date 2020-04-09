@@ -181,11 +181,7 @@ class EmbedFromFile(object):
         return self.embeddings[self.embed_key[mention.mention_id]]
 
     def get_mentions_rep(self, mentions_list):
-        embed_list = list()
-        for mention in mentions_list:
-            ment_embed = self.embeddings[self.embed_key[mention.mention_id]]
-            embed_list.append(ment_embed)
-
+        embed_list = [self.embeddings[self.embed_key[mention.mention_id]] for mention in mentions_list]
         return embed_list
 
     def get_embed_size(self):
