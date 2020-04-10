@@ -8,7 +8,7 @@ from os import path
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import WecDataSet, EcbDataSet
 from src.dataobjs.topics import Topics
-from src.utils.embed_utils import RoBERTaPretrainedUtils, EmbeddingConfig, EmbeddingEnum
+from src.utils.embed_utils import EmbedModel, EmbeddingConfig, EmbeddingEnum
 
 USE_CUDA = True
 
@@ -20,16 +20,10 @@ def extract_feature_dict(topics: Topics, embed_utils):
         mention_count = len(topic.mentions)
         for mention in topic.mentions:
             start = time.time()
-            # hidden, attend = embed_utils.get_mention_full_rep(mention)
             hidden, first_tok, last_tok, ment_size = embed_utils.get_mention_full_rep(mention)
             end = time.time()
 
             result_train[mention.mention_id] = (hidden.cpu(), first_tok.cpu(), last_tok.cpu(), ment_size)
-            # if attend is not None:
-            #     result_train[mention.mention_id] = (hidden.cpu(), attend.cpu())
-            # else:
-            #     result_train[mention.mention_id] = (hidden.cpu())
-
             print("To Go: Topics" + str(topic_count) + ", Mentions" + str(mention_count) + ", took-" + str((end - start)))
             mention_count -= 1
         topic_count -= 1
@@ -37,16 +31,15 @@ def extract_feature_dict(topics: Topics, embed_utils):
     return result_train
 
 
-def worker(resource_file, dataset):
+def worker(resource_file):
     embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
-    # embed_utils = BertPretrainedUtils(embed_config, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
-    embed_utils = RoBERTaPretrainedUtils(embed_config, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
+    embed_utils = embed_config.get_embed_utils(max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
     name = multiprocessing.current_process().name
     print(name, "Starting")
 
     basename = path.basename(path.splitext(resource_file)[0])
     dirname = os.path.dirname(resource_file)
-    save_to = dirname + "/" + basename + "_" + embed_config.model_name + "_reduced.pickle"
+    save_to = dirname + "/" + basename + "_" + embed_config.embed_type.name.lower() + ".pickle"
 
     topics = Topics()
     topics.create_from_file(resource_file, keep_order=True)
@@ -73,7 +66,7 @@ if __name__ == '__main__':
 
     jobs = list()
     for _resource_file in all_files:
-        job = multiprocessing.Process(target=worker, args=(_resource_file,_dataset_name,))
+        job = multiprocessing.Process(target=worker, args=(_resource_file,))
         jobs.append(job)
         job.start()
 

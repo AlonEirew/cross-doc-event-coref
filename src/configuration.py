@@ -22,7 +22,7 @@ dev_dataset = EcbDataSet() #WecDataSet(split=Split.Dev)
 train_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
 train_save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + train_dataset.name + "_" + dev_dataset.name + \
-                        "_080420_reduced_" + train_embed_config.model_name + "_" + str(train_ratio)
+                        "_090420_reduced_" + train_embed_config.embed_type.name.lower() + "_" + str(train_ratio)
 
 train_load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
@@ -36,9 +36,9 @@ train_event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + train_cont
                                   dev_dataset.name.lower() + "/dev/Event_gold_mentions_NegPairs_Subtopic.pickle"
 
 train_embed_files = [str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + train_dataset.name.lower() +
-                     "/train/Event_gold_mentions_" + train_embed_config.model_name + "_reduced.pickle",
+                     "/train/Event_gold_mentions_" + train_embed_config.embed_type.name.lower() + ".pickle",
                      str(LIBRARY_ROOT) + "/resources/" + train_context_set + "/" + dev_dataset.name.lower() +
-                     "/dev/Event_gold_mentions_" + train_embed_config.model_name + "_reduced.pickle"]
+                     "/dev/Event_gold_mentions_" + train_embed_config.embed_type.name.lower() + ".pickle"]
 
 ########################## Inference Model Params ################################
 inference_context_set = "dataset_full"
@@ -73,17 +73,17 @@ coref_cluster_type = ClusteringType.AgglomerativeClustering
 coref_embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
 coref_pairs_thresh = [1.0]
-coref_average_link_thresh = [0.6, 0.65, 0.7, 0.75]
+coref_average_link_thresh = [0.5]
 
 coref_input_file = str(LIBRARY_ROOT) + "/resources/" + coref_context_set + "/" + coref_dataset.name.lower() + \
                 "/" + coref_split.name.lower() + "/" + "Event_gold_mentions.json"
 
 coref_embed_util = [str(LIBRARY_ROOT) + "/resources/" + coref_context_set +
                     "/" + coref_dataset.name.lower() + "/" + coref_split.name.lower() +
-                    "/Event_gold_mentions_" + coref_embed_config.model_name + ".pickle"]
+                    "/Event_gold_mentions_" + coref_embed_config.embed_type.name.lower() + ".pickle"]
 
-coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_080420_reduced_roberta-large_-1iter_6"
-coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_080420_" + \
+coref_load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_090420_reduced_roberta_large_-1iter_9"
+coref_scorer_out_file = str(LIBRARY_ROOT) + "/output/event_scorer_090420_" + \
                         coref_dataset.name + "_" + coref_split.name
 
 ################################################################################

@@ -130,8 +130,6 @@ def init_basic_training_resources():
 
     embed_utils = EmbedFromFile(configuration.train_embed_files, configuration.train_embed_config.model_size)
 
-    # embed_utils = BertPretrainedUtils(-1, finetune=True, use_cuda=use_cuda, pad=True)
-
     if configuration.train_fine_tune:
         logger.info("Loading model to fine tune-" + configuration.train_load_model_file)
         pairwize_model = torch.load(configuration.train_load_model_file)
