@@ -8,9 +8,6 @@ from src.utils.embed_utils import EmbedTransformersGenerics, EmbeddingEnum, Embe
 
 
 def test_mention_span():
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions.json')
-
     for mention in mentions:
         for i, tok_id in enumerate(mention.tokens_number):
             mention_text = mention.tokens_str.split(" ")
@@ -21,9 +18,6 @@ def test_mention_span():
 
 
 def test_extract_mention_surrounding_context():
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json')
-
     context_before = ["context"]
     context_after = ["context"]
     mention_str = ["this", "is", "a", "test"]
@@ -100,9 +94,6 @@ def test_extract_mention_surrounding_context():
 
 
 def test_mention_feat_to_vec():
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/test/Event_gold_mentions.json')
-
     for embed_type in EmbeddingEnum:
         config = EmbeddingConfig(embed_type)
         print("###### Config= " + config.embed_type.name)
@@ -127,9 +118,6 @@ def test_mention_feat_to_vec():
 
 
 def test_embedding():
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json')
-
     for embed_type in EmbeddingEnum:
         config = EmbeddingConfig(embed_type).get_embed_utils()
         print("###### Config= " + embed_type.name)
@@ -146,10 +134,10 @@ def test_compare_embeddings():
     roberta_large = config_roberta.get_embed_utils()
     roberta_for_seq = config_roberta_seq.get_embed_utils()
 
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json')
+    mentions_loc = MentionData.read_mentions_json_to_mentions_data_list(
+        str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/dev/Event_gold_mentions.json')
 
-    for mention in mentions:
+    for mention in mentions_loc:
         hidden1, first1_tok, last1_tok, ment1_size = roberta_large.get_mention_full_rep(mention)
         hidden2, first2_tok, last2_tok, ment2_size = roberta_for_seq.get_mention_full_rep(mention)
         if ment1_size != ment2_size:
@@ -159,8 +147,16 @@ def test_compare_embeddings():
 
 
 if __name__ == '__main__':
+    mentions = list()
+    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
+        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'))
+    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
+        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_validated2.json'))
+    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
+        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_validated2.json'))
+
     # test_mention_span()
     # test_extract_mention_surrounding_context()
-    test_mention_feat_to_vec()
+    # test_mention_feat_to_vec()
     # test_embedding()
-    # test_compare_embeddings()
+    test_compare_embeddings()

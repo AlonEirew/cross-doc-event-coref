@@ -5,7 +5,7 @@ import torch
 from enum import Enum
 from torch import nn
 from transformers import BertTokenizer, BertForSequenceClassification, RobertaTokenizer, RobertaModel, \
-    RobertaForSequenceClassification, BertModel
+    RobertaForSequenceClassification, BertModel, RobertaConfig
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,8 @@ class EmbeddingConfig(object):
         elif embed_enum == EmbeddingEnum.BERT_FOR_SEQ_CLASSIFICATION:
             self.model_name = "bert-large-cased"
             self.model_size = 1024
-            self.model = BertForSequenceClassification.from_pretrained(self.model_name, output_hidden_states=True, output_attentions=True)
+            self.model = BertForSequenceClassification.from_pretrained(
+                self.model_name, output_hidden_states=True, output_attentions=True)
             self.tokenizer = BertTokenizer.from_pretrained(self.model_name)
         elif embed_enum == EmbeddingEnum.ROBERTA_LARGE:
             self.model_name = "roberta-large"
@@ -39,7 +40,8 @@ class EmbeddingConfig(object):
         elif embed_enum == EmbeddingEnum.ROBERTA_FOR_SEQ_CLASSIFICATION:
             self.model_name = "roberta-large"
             self.model_size = 1024
-            self.model = RobertaForSequenceClassification.from_pretrained(self.model_name, output_hidden_states=True, output_attentions=True)
+            self.model = RobertaForSequenceClassification.from_pretrained(
+                self.model_name, output_hidden_states=True, output_attentions=True)
             self.tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
 
     def get_embed_utils(self, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False):

@@ -5,7 +5,7 @@ from typing import List
 import numpy as np
 import torch
 
-from src import configuration
+from src.configuration import Configuration, ConfigType
 from src.dataobjs.cluster import Clusters
 from src.dataobjs.topics import Topics
 from src.coref_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction, RelationTypeEnum
@@ -15,16 +15,16 @@ from src.utils.io_utils import write_coref_scorer_results
 
 
 def run_cdc_pipeline(cluster_algo, model, print_method, event_topics):
-    if configuration.coref_cluster_type == ClusteringType.AgglomerativeClustering:
-        for average_link_thresh in configuration.coref_average_link_thresh:
-            scorer_file = configuration.coref_scorer_out_file + "_" + str(average_link_thresh)
+    if configuration.cluster_algo_type == ClusteringType.AgglomerativeClustering:
+        for average_link_thresh in configuration.cluster_average_link_thresh:
+            scorer_file = configuration.save_model_file + "_" + str(average_link_thresh)
             cluster_and_print(cluster_algo, model, print_method, event_topics, average_link_thresh, scorer_file)
-    elif configuration.coref_cluster_type == ClusteringType.NaiveClustering:
-        for average_link_thresh in configuration.coref_average_link_thresh:
-            for pair_thresh in configuration.coref_pairs_thresh:
+    elif configuration.cluster_algo_type == ClusteringType.NaiveClustering:
+        for average_link_thresh in configuration.cluster_average_link_thresh:
+            for pair_thresh in configuration.cluster_pairs_thresh:
                 model.pairthreshold = pair_thresh
                 model.cache = dict()
-                scorer_file = configuration.coref_scorer_out_file + "_" + str(average_link_thresh) + "_" + str(pair_thresh)
+                scorer_file = configuration.save_model_file + "_" + str(average_link_thresh) + "_" + str(pair_thresh)
                 cluster_and_print(cluster_algo, model, print_method, event_topics, average_link_thresh, scorer_file)
 
 
@@ -64,9 +64,9 @@ def print_scorer_results_ment(all_mentions, scorer_out_file):
 
 
 def get_pairwise_model():
-    pairwize_model = torch.load(configuration.coref_load_model_file)
-    pairwize_model.set_embed_utils(EmbedFromFile(configuration.coref_embed_util,
-                                                 configuration.coref_embed_config.model_size))
+    pairwize_model = torch.load(configuration.load_model_file)
+    pairwize_model.set_embed_utils(EmbedFromFile(configuration.embed_files,
+                                                 configuration.embed_config.model_size))
     pairwize_model.eval()
     return pairwize_model
 
@@ -75,35 +75,37 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
+    configuration = Configuration(ConfigType.Clustering)
+
     torch.manual_seed(1)
     random.seed(1)
     np.random.seed(1)
 
-    print("loading configuration file-" + configuration.coref_load_model_file)
+    print("loading configuration file-" + configuration.load_model_file)
 
     # print_method = print_results
     # print_method = print_scorer_results
     _print_method = print_scorer_results_ment
 
     _event_topics = Topics()
-    _event_topics.create_from_file(configuration.coref_input_file, True)
+    _event_topics.create_from_file(configuration.mentions_file, True)
 
-    if configuration.coref_cluster_topics and len(_event_topics.topics_dict) > 1:
+    if configuration.cluster_topics and len(_event_topics.topics_dict) > 1:
         _event_topics = _event_topics.to_single_topic()
 
     _cluster_algo = None
     _model = None
-    if configuration.coref_cluster_type == ClusteringType.AgglomerativeClustering:
+    if configuration.cluster_algo_type == ClusteringType.AgglomerativeClustering:
         _cluster_algo = agglomerative_clustering
-        if configuration.coref_extractor == RelationTypeEnum.PAIRWISE:
+        if configuration.cluster_extractor == RelationTypeEnum.PAIRWISE:
             _model = get_pairwise_model()
-        elif configuration.coref_extractor == RelationTypeEnum.SAME_HEAD_LEMMA:
+        elif configuration.cluster_extractor == RelationTypeEnum.SAME_HEAD_LEMMA:
             _model = HeadLemmaRelationExtractor()
-    elif configuration.coref_cluster_type == ClusteringType.NaiveClustering:
+    elif configuration.cluster_algo_type == ClusteringType.NaiveClustering:
         _cluster_algo = naive_clustering
-        if configuration.coref_extractor == RelationTypeEnum.PAIRWISE:
+        if configuration.cluster_extractor == RelationTypeEnum.PAIRWISE:
             _model = PairWizeRelationExtraction(get_pairwise_model(), pairthreshold=-1)
-        elif configuration.coref_extractor == RelationTypeEnum.SAME_HEAD_LEMMA:
+        elif configuration.cluster_extractor == RelationTypeEnum.SAME_HEAD_LEMMA:
             _model = HeadLemmaRelationExtractor()
 
     logger.info("Running clustering algo:" + _cluster_algo.__name__ + " with model:" + type(_model).__name__)

@@ -1,10 +1,10 @@
 import logging
-from os import path
 
 import torch
+from os import path
 
-from src import LIBRARY_ROOT, configuration
-from src.dataobjs.dataset import DataSet
+from src import LIBRARY_ROOT
+from src.configuration import Configuration, ConfigType
 from src.pairwize_model.train import accuracy_on_dataset
 from src.utils.embed_utils import EmbedFromFile
 from src.utils.log_utils import create_logger_with_fh
@@ -100,20 +100,21 @@ def extract_on_head(batch_features, batch_label, batch_predictions, pairs_fn, pa
 
 
 if __name__ == '__main__':
-    dataset = configuration.inference_dataset
-    split = configuration.inference_split
-    ratio = configuration.inference_ratio
-    context_set = configuration.inference_context_set
-    _model_in = configuration.inference_model
+    configuration = Configuration(ConfigType.Inference)
+    dataset = configuration.test_dataset
+    split = configuration.split
+    ratio = configuration.ratio
+    context_set = configuration.context_set
+    _model_in = configuration.load_model_file
 
     log_param_str = "inference_" + dataset.name + ".log"
     create_logger_with_fh(log_param_str)
 
-    _event_test_file_pos = configuration.inference_event_test_file_pos
-    _event_test_file_neg = configuration.inference_event_test_file_neg
+    _event_test_file_pos = configuration.event_test_file_pos
+    _event_test_file_neg = configuration.event_test_file_neg
 
-    _embed_utils = EmbedFromFile(configuration.inference_embed_files,
-                                 configuration.inference_embed_config.model_size)
+    _embed_utils = EmbedFromFile(configuration.embed_files,
+                                 configuration.embed_config.model_size)
 
     basename = path.basename(path.splitext(_model_in)[0])
     pairs_tp_out_file = str(LIBRARY_ROOT) + "/reports/pairs_final/TP_" + basename + "_" + split.name + "_paris.txt"
