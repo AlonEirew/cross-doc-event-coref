@@ -79,7 +79,7 @@ class Configuration(object):
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + self.train_dataset.name + "_" + self.dev_dataset.name + \
-                                "_100420_11_" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
+                                "_100420_max_" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
@@ -130,7 +130,7 @@ class Configuration(object):
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.cluster_pairs_thresh = [1.0]
-        self.cluster_average_link_thresh = [0.65]
+        self.cluster_average_link_thresh = [0.75]
 
         self.mentions_file = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.test_dataset.name.lower() + \
                         "/" + self.split.name.lower() + "/" + "Event_pred_mentions.json"
@@ -139,8 +139,8 @@ class Configuration(object):
                             "/" + self.test_dataset.name.lower() + "/" + self.split.name.lower() +
                             "/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle"]
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_100420_11_roberta_large_-1iter_5"
-        self.save_model_file = str(LIBRARY_ROOT) + "/output/event_scorer_110420_11_pred_" + \
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_100420_max_roberta_large_-1iter_6"
+        self.save_model_file = str(LIBRARY_ROOT) + "/output/event_scorer_110420_max_pred_" + \
                                 self.test_dataset.name + "_" + self.split.name
 
 ################################################################################

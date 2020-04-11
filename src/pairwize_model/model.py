@@ -41,8 +41,7 @@ class PairWiseModelKenton(nn.Module):
         # (batch_size, embed_utils.get_embed_size())
         hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.embed_utils.get_mentions_rep(mentions2))
 
-        max_ment_span = 11 # to reproduce best results for ECB+
-        # max_ment_span = max([max(ment1_size), max(ment2_size)])
+        max_ment_span = max([max(ment1_size), max(ment2_size)])
         hiddens1_pad = [torch.nn.functional.pad(hid, [0, 0, 0, max_ment_span - hid.shape[0]]) for hid in hiddens1]
         hiddens2_pad = [torch.nn.functional.pad(hid, [0, 0, 0, max_ment_span - hid.shape[0]]) for hid in hiddens2]
 
@@ -96,11 +95,8 @@ class PairWiseModelKenton(nn.Module):
     def clean_attnd_on_zero(attend1, ment_size1, attend2, ment_size2, max_mention_span):
         for i, vals in enumerate(list(zip(ment_size1, ment_size2))):
             val1, val2 = vals
-            if val1 > max_mention_span:
-                val1 = max_mention_span
-            if val2 > max_mention_span:
-                val2 = max_mention_span
-                # raise Exception("Mention size exceed maximum!")
+            if val1 > max_mention_span or val2 > max_mention_span:
+                raise Exception("Mention size exceed maximum!")
 
             attend1_fx = attend1[i:i + 1, 0:val1]
             attend1_fx = torch.nn.functional.pad(attend1_fx, [0, max_mention_span - val1, 0, 0], value=-math.inf)
