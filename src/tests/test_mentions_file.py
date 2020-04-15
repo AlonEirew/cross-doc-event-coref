@@ -3,6 +3,7 @@ import unittest
 import torch
 
 from src import LIBRARY_ROOT
+from src.dataobjs.dataset import EcbDataSet, WecDataSet
 from src.dataobjs.mention_data import MentionData, MentionDataLight
 from src.utils.embed_utils import EmbedTransformersGenerics, EmbeddingEnum, EmbeddingConfig
 
@@ -146,6 +147,22 @@ def test_compare_embeddings():
             print("hidden1 == hidden2")
 
 
+def test_pairs_file():
+    pairs_dict = dict()
+    for pair in pairs:
+        if pair[0].mention_id == pair[1].mention_id:
+            raise Exception("Invalid pair with same mention found")
+        key1 = pair[0].mention_id + pair[1].mention_id
+        key2 = pair[1].mention_id + pair[0].mention_id
+        if key1 in pairs_dict or key2 in pairs_dict:
+            raise Exception("pair found twice")
+        else:
+            pairs_dict[key1] = True
+            pairs_dict[key2] = True
+
+    print("Test Passed!")
+
+
 if __name__ == '__main__':
     mentions = list()
     mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
@@ -159,4 +176,12 @@ if __name__ == '__main__':
     # test_extract_mention_surrounding_context()
     # test_mention_feat_to_vec()
     # test_embedding()
-    test_compare_embeddings()
+    # test_compare_embeddings()
+
+    dataset = 'dataset_full'
+    data_set = WecDataSet()
+    pairs = data_set.load_pos_neg_pickle(
+        str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + data_set.name.lower() + '/train/Event_gold_mentions_validated2_PosPairs.pickle',
+        str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + data_set.name.lower() + '/train/Event_gold_mentions_validated2_NegPairs.pickle')
+    test_pairs_file()
+

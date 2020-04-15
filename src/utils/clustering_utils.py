@@ -44,7 +44,7 @@ def agglomerative_clustering(inference_model, topic: [Topic], average_link_thres
         topic.mentions[i].predicted_coref_chain = fit.labels_[i] + Clusters.get_cluster_coref_chain()
 
     total_merged_clusters = max(fit.labels_)
-    Clusters.inc_cluster_coref_chain(total_merged_clusters)
+    Clusters.inc_cluster_coref_chain(total_merged_clusters + 1)
 
     end = time.time()
     took = end - start

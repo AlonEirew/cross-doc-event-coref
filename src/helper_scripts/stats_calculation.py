@@ -85,17 +85,21 @@ def calc_singletons(split_list, message, only_validated=False):
         mentions_length += len(mention.tokens_number)
 
     avg_in_clust = 0.0
+    biggest_cluster = -1
     for key, value in sorted(result_dict.items(), key=lambda kv: kv[1], reverse=True):
         # print(str(key) + "=" + str(value))
         if value == 1:
             singletons_count += 1
         else:
             avg_in_clust += value
+            if value > biggest_cluster:
+                biggest_cluster = value
 
     average_length = mentions_length / len(final_mentions_list)
     print(message + '_Mentions=' + str(len(final_mentions_list)))
     print(message + '_Singletons=' + str(singletons_count))
     print(message + '_Non_singleton_Clusters=' + str(len(result_dict.keys()) - singletons_count))
+    print(message + 'Beggest cluster=' + str(biggest_cluster))
     print(message + '_Average Length=' + str(average_length))
     print(message + '_Average Ment in Clust=' + str(avg_in_clust / (len(result_dict) - singletons_count)))
 
@@ -176,15 +180,15 @@ def create_split_stats(mentions_file, tokenizer, split):
     mentions_list = MentionData.read_mentions_json_to_mentions_data_list(mentions_file)
     if mentions_list:
         print('############# ' + split + ' ###################')
-        # calc_singletons(mentions_list, split, only_validated=False)
-        calc_longest_mention_and_context(mentions_list, split)
+        calc_singletons(mentions_list, split, only_validated=False)
+        # calc_longest_mention_and_context(mentions_list, split)
         # cal_head_lemma_pairs(mentions_file, dataset, split, 1)
         # calc_cluster_head_lemma(mentions_file, split, 1)
 
 
 if __name__ == '__main__':
     # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/dev/Event_gold_mentions.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json'
 
     _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
 

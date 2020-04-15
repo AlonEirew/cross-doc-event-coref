@@ -43,7 +43,7 @@ class Cluster(object):
 
 
 class Clusters(object):
-    cluster_coref_chain = 1
+    cluster_coref_chain = 0
 
     def __init__(self, topic_id: str, mentions=None) -> None:
         """
@@ -148,3 +148,13 @@ class Clusters(object):
     @staticmethod
     def get_cluster_coref_chain():
         return Clusters.cluster_coref_chain
+
+    @staticmethod
+    def from_mentions_to_predicted_clusters(mentions):
+        clusters = dict()
+        for mention in mentions:
+            if mention.predicted_coref_chain not in clusters:
+                clusters[mention.predicted_coref_chain] = list()
+            clusters[mention.predicted_coref_chain].append(mention)
+
+        return clusters

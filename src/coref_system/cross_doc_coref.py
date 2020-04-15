@@ -38,28 +38,42 @@ def cluster_and_print(cluster_algo, model, print_method, event_topics, average_l
     print_method(all_mentions, scorer_file)
 
 
-def print_results(clusters: List[Clusters], type: str, scorer_out_file):
-    print('-=' + type + ' Clusters=-')
-    for topic_cluster in clusters:
-        print('\n\tTopic=' + topic_cluster.topic_id)
-        for cluster in topic_cluster.clusters_list:
-            cluster_mentions = list()
-            for mention in cluster.mentions:
-                mentions_dict = dict()
-                mentions_dict['id'] = mention.mention_id
-                mentions_dict['text'] = mention.tokens_str
-                cluster_mentions.append(mentions_dict)
+def print_results(all_mentions, scorer_out_file):
+    all_clusters = Clusters.from_mentions_to_predicted_clusters(all_mentions)
+    for cluster_id, cluster in all_clusters.items():
+        if 'Singleton' in cluster[0].coref_chain and len(cluster) == 1:
+            continue
 
-            print('\t\tCluster(' + str(cluster.coref_chain) + ') Mentions='
-                  + str(cluster_mentions))
+        print('\n\tCluster=' + str(cluster_id))
+        for mention in cluster:
+            mentions_dict = dict()
+            mentions_dict['id'] = mention.mention_id
+            mentions_dict['text'] = mention.tokens_str
+            mentions_dict['gold'] = mention.coref_chain
+
+            if mention.tokens_number[0] >= 10 and (mention.tokens_number[-1] + 10) < len(mention.mention_context):
+                id_start = mention.tokens_number[0] - 10
+                id_end = mention.tokens_number[-1] + 10
+            elif mention.tokens_number[0] < 10 and (mention.tokens_number[-1] + 10) < len(mention.mention_context):
+                id_start = 0
+                id_end = mention.tokens_number[-1] + 10
+            elif mention.tokens_number[0] >= 10 and (mention.tokens_number[-1] + 10) >= len(mention.mention_context):
+                id_start = mention.tokens_number[0] - 10
+                id_end = len(mention.mention_context)
+            else:
+                id_start = 0
+                id_end = len(mention.mention_context)
+
+            before = " ".join(mention.mention_context[id_start:mention.tokens_number[0]])
+            after = " ".join(mention.mention_context[mention.tokens_number[-1] + 1:id_end])
+            mention_txt = " <" + mention.tokens_str + "> "
+            mentions_dict['context'] = before + mention_txt + after
+
+            print('\t\tCluster(' + str(cluster_id) + ') Mentions='
+                  + str(mentions_dict))
 
 
-def print_scorer_results(all_clusters, scorer_out_file):
-    all_mentions = Clusters.from_clusters_to_mentions_list(all_clusters)
-    write_coref_scorer_results(all_mentions, scorer_out_file)
-
-
-def print_scorer_results_ment(all_mentions, scorer_out_file):
+def print_scorer_results(all_mentions, scorer_out_file):
     write_coref_scorer_results(all_mentions, scorer_out_file)
 
 
@@ -83,9 +97,8 @@ if __name__ == '__main__':
 
     print("loading configuration file-" + configuration.load_model_file)
 
-    # print_method = print_results
-    # print_method = print_scorer_results
-    _print_method = print_scorer_results_ment
+    # _print_method = print_results
+    _print_method = print_scorer_results
 
     _event_topics = Topics()
     _event_topics.create_from_file(configuration.mentions_file, True)

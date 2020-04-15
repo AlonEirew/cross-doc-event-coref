@@ -18,14 +18,14 @@ def run_split(split, out_file_full, out_file_single):
 
     name = multiprocessing.current_process().name
     print(name, 'Starting')
-    mentions_full, mentions_single = extract_from_sql(connection, "VerbsMentions", split)
-    mentions_full = clean_long_mentions(mentions_full)
-    mentions_single = clean_long_mentions(mentions_single)
+    mentions_full, mentions_single = extract_from_sql(connection, "Validation3", split)
+    # mentions_full = clean_long_mentions(mentions_full)
+    # mentions_single = clean_long_mentions(mentions_single)
     # extract_constituency_trees(mentions_full, predictor)
     print("Writing new full context file: " + out_file_full)
     write_mention_to_json(out_file_full, mentions_full)
-    print("Writing new single sentence file: " + out_file_single)
-    write_mention_to_json(out_file_single, mentions_single)
+    # print("Writing new single sentence file: " + out_file_single)
+    # write_mention_to_json(out_file_single, mentions_single)
     print(name, 'Exiting')
 
 
@@ -43,7 +43,7 @@ def extract_from_sql(connection, table_name, split, limit=-1):
     print('Extract from sqlite and convert to mentions')
     if connection is not None:
         # clusters = select_from_validation(connection, table_name, split, limit=limit)
-        clusters = select_all_from_mentions(connection, table_name)
+        clusters = select_from_validation(connection, table_name)
         mentions_full_context, mentions_single_sent = gen_mentions(clusters)
         mentions_full_context.sort(key=lambda mention: mention.coref_chain)
         mentions_single_sent.sort(key=lambda mention: mention.coref_chain)
@@ -73,21 +73,21 @@ def gen_mentions(set_clusters):
 
 
 if __name__ == '__main__':
-    multiprocessing.set_start_method('spawn')
+    # multiprocessing.set_start_method('spawn')
 
     # Output json files to write to
-    verb_mentions_out_full = str(LIBRARY_ROOT) + '/resources/dataset/WEC_VERB_Full_Event_gold_mentions.json'
     # validation_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Full_Event_gold_mentions.json'
-    # train_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Full_Event_gold_mentions.json'
+    train_out_full = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json'
     # test_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Full_Event_gold_mentions.json'
 
-    verb_mentions_out_single = str(LIBRARY_ROOT) + '/resources/dataset/WEC_VERB_Single_Event_gold_mentions.json'
+    run_split('TRAIN', train_out_full, train_out_full)
+
     # validation_out_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Single_Event_gold_mentions.json'
     # train_out_full_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Train_Single_Event_gold_mentions.json'
     # test_out_full_single = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Single_Event_gold_mentions.json'
 
     # Extract the mentions from the sqlite table
-    run_split('VERB', verb_mentions_out_full, verb_mentions_out_single,)
+    # run_split('VERB', verb_mentions_out_full, verb_mentions_out_single,)
     # val_prc = multiprocessing.Process(target=run_split, args=('VALIDATION', validation_out_full, validation_out_single,))
     # train_prc = multiprocessing.Process(target=run_split, args=('TRAIN', train_out_full, train_out_full_single,))
     # test_prc = multiprocessing.Process(target=run_split, args=('TEST', test_out_full, test_out_full_single,))

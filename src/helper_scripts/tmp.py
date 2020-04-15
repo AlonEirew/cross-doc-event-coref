@@ -1,12 +1,14 @@
 import pickle
 
 import ntpath
+import re
 from os import listdir
 
 import random
 from sklearn import metrics
 
 from src import LIBRARY_ROOT
+from src.dataobjs.cluster import Clusters
 from src.dataobjs.dataset import Split
 from src.dataobjs.mention_data import MentionData
 from src.utils.embed_utils import EmbedFromFile
@@ -371,26 +373,17 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 #                           train_mentions)
 #
 # print('Done!!')
+#######################################################################
 
-#################################### FIX MENTION SPAN ########################################
-mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-                       '/resources/dataset_full/wec/test/Event_gold_mentions_validated.json')
+topics_ = Topics()
+topics_.create_from_file(
+    str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500_validated2.json', keep_order=True)
+clusters = topics_.convert_to_clusters()
 
-total_bad = 0
-final_mentions = list()
-for mention in mentions:
-    good = True
-    for i, tok_id in enumerate(mention.tokens_number):
-        mention_text = mention.tokens_str.split(" ")
-        if mention_text[i] != mention.mention_context[tok_id]:
-            total_bad += 1
-            good = False
-            break
-    if good:
-        final_mentions.append(mention)
+fin_mentions = list()
+for ments_list in clusters.values():
+    if len(ments_list) > 1:
+        fin_mentions.extend(ments_list)
 
-print(str(total_bad))
-print(len(final_mentions))
-write_mention_to_json(str(LIBRARY_ROOT) +
-                      '/resources/dataset_full/wec/test/WEC_Full_Train_Event_gold_mentions_validated2.json',
-                      final_mentions)
+write_mention_to_json(
+    str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json', fin_mentions)

@@ -91,7 +91,7 @@ if __name__ == '__main__':
     _split = Split.Train
     _ratio = -1
     _data_set = WecDataSet(ratio=_ratio, split=_split)
-    _res_file = "Event_gold_mentions_validated2.json"
+    _res_file = "Event_gold_mentions_limit500.json"
     print("Generating pairs for file-" + _res_folder + "/" + _res_file)
     generate_pairs()
     # validate_pairs()
