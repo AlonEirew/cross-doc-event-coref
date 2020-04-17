@@ -188,12 +188,12 @@ def create_split_stats(mentions_file, tokenizer, split):
 
 if __name__ == '__main__':
     # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit150_topic.json'
 
     _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
 
     # create_split_stats(_event_train, _tokenizer, "Train")
-    create_split_stats(_event_dev, _tokenizer, "Dev")
+    create_split_stats(_event_dev, _tokenizer, "Train")
 
     # calc_tp_fp_pairs_lemma()
     # extract_tp_lemma_pairs()

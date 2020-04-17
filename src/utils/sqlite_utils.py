@@ -6,7 +6,7 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 
-def select_from_validation(conn, table_name, split: str, coref_types: List[str] = None, limit: int = -1):
+def select_from_validation(conn, table_name, split: str = None, coref_types: List[str] = None, limit: int = -1):
     """
     Query all rows in the tasks table
     :param conn: the Connection object
@@ -16,21 +16,40 @@ def select_from_validation(conn, table_name, split: str, coref_types: List[str] 
     :return:
     """
     fields = 'coreChainId, mentionText, tokenStart, tokenEnd, extractedFromPage, ' \
-             'context, PartOfSpeech, corefValue, mentionsCount, corefType, mentionId, split'
+             'context, PartOfSpeech, corefValue, mentionsCount, corefType, mentionId'
+
+    if split:
+        fields += ', split'
 
     query = "SELECT " + fields + " from " + table_name + " INNER JOIN CorefChains ON " \
-                                 + table_name + ".coreChainId=CorefChains.corefId WHERE split=\"" + split + "\""
-    if coref_types is not None:
+                                 + table_name + ".coreChainId=CorefChains.corefId"
+
+    where = False
+    if coref_types:
+        query += add_multi(where)
+        where = True
         coref_types = ','.join(coref_types)
-        query += " and corefType in (" + coref_types + ")"
+        query += " corefType in (" + coref_types + ")"
+    if split:
+        query += add_multi(where)
+        where = True
+        query += " split=\"" + split + "\""
     if limit != -1:
+        query += add_multi(where)
         query += " limit " + str(limit)
 
+    print("sql query-" + query)
     cur = conn.cursor()
     cur.execute(query)
     rows = cur.fetchall()
 
     return extract_clusters(rows)
+
+
+def add_multi(where):
+    if not where:
+        return " WHERE"
+    return " AND"
 
 
 def select_all_from_mentions(conn, table_name="Mentions", limit=-1):

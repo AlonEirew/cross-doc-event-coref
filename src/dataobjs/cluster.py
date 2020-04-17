@@ -158,3 +158,13 @@ class Clusters(object):
             clusters[mention.predicted_coref_chain].append(mention)
 
         return clusters
+
+    @staticmethod
+    def from_mentions_to_gold_clusters(mentions):
+        clusters = dict()
+        for mention in mentions:
+            if mention.coref_chain not in clusters:
+                clusters[mention.coref_chain] = list()
+            clusters[mention.coref_chain].append(mention)
+
+        return clusters

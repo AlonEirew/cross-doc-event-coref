@@ -374,16 +374,45 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 #
 # print('Done!!')
 #######################################################################
+############################### REMOVE SINGLETONS ###############################
+# topics_ = Topics()
+# topics_.create_from_file(
+#     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500_validated2.json', keep_order=True)
+# clusters = topics_.convert_to_clusters()
+#
+# fin_mentions = list()
+# for ments_list in clusters.values():
+#     if len(ments_list) > 1:
+#         fin_mentions.extend(ments_list)
+#
+# write_mention_to_json(
+#     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json', fin_mentions)
+#############################################################################################
 
-topics_ = Topics()
-topics_.create_from_file(
-    str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500_validated2.json', keep_order=True)
-clusters = topics_.convert_to_clusters()
+train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+            '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json')
 
+MAX_CLUSTERS = 150
+MAX_IN_CLUSTER = 60
+to_topics = True
+
+clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
+type_cluster_count = dict()
 fin_mentions = list()
-for ments_list in clusters.values():
-    if len(ments_list) > 1:
-        fin_mentions.extend(ments_list)
+for cluster in clusters.values():
+    if len(cluster) <= MAX_IN_CLUSTER:
+        mention_type = cluster[0].mention_type
+        if mention_type not in type_cluster_count:
+            type_cluster_count[mention_type] = 0
+        if type_cluster_count[mention_type] < MAX_CLUSTERS:
+            type_cluster_count[mention_type] += 1
+            if to_topics:
+                for mention in cluster:
+                    mention.topic_id = mention_type
+
+            fin_mentions.extend(cluster)
 
 write_mention_to_json(
-    str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json', fin_mentions)
+    str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit' + str(MAX_CLUSTERS) + '_topic.json', fin_mentions)
+
+print('Done!')
