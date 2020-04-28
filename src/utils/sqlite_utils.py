@@ -16,7 +16,7 @@ def select_from_validation(conn, table_name, split: str = None, coref_types: Lis
     :return:
     """
     fields = 'coreChainId, mentionText, tokenStart, tokenEnd, extractedFromPage, ' \
-             'context, PartOfSpeech, corefValue, mentionsCount, corefType, mentionId'
+             'context, PartOfSpeech, corefValue, mentionsCount, corefType, corefSubType, mentionId'
 
     if split:
         fields += ', split'

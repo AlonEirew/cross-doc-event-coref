@@ -4,7 +4,7 @@ import pickle
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import WecDataSet, EcbDataSet, POLARITY, Split
+from src.dataobjs.dataset import WecDataSet, EcbDataSet, POLARITY, Split, DataSet
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
 
@@ -90,8 +90,8 @@ if __name__ == '__main__':
     _res_folder = "dataset_full"
     _split = Split.Train
     _ratio = -1
-    _data_set = WecDataSet() #WecDataSet(ratio=_ratio, split=_split)
-    _res_file = "Event_gold_mentions_limit150_topic.json"
+    _data_set = EcbDataSet()
+    _res_file = "Event_gold_mentions.json"
     print("Generating pairs for file-" + _res_folder + "/" + "/" + _res_file)
     generate_pairs()
     # validate_pairs()

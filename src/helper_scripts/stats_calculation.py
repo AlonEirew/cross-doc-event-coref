@@ -1,11 +1,27 @@
+import json
+import sys
+
 import random
+from collections import namedtuple
+
 from transformers import RobertaTokenizer
 
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import DataSet, WecDataSet, EcbDataSet, Split
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
+from src.utils import string_utils
 from src.utils.embed_utils import EmbedTransformersGenerics
+from src.utils.string_utils import StringUtils
+
+
+def count_verb_mentions(split_list):
+    verb_phrases = 0
+    for mention in split_list:
+        if StringUtils.is_verb_phrase(mention.tokens_str):
+            verb_phrases += 1
+
+    print("Total verb phrases=" + str(verb_phrases))
 
 
 def calc_longest_mention_and_context(split_list, message):
@@ -77,7 +93,11 @@ def calc_singletons(split_list, message, only_validated=False):
         else:
             final_mentions_list.append(mention)
 
+    distinct_lemmas = dict()
     for mention in final_mentions_list:
+        if mention.mention_head_lemma.lower() not in distinct_lemmas:
+            distinct_lemmas[mention.mention_head_lemma.lower()] = 0
+        distinct_lemmas[mention.mention_head_lemma.lower()] += 1
         if mention.coref_chain in result_dict:
             result_dict[mention.coref_chain] += 1
         else:
@@ -98,10 +118,14 @@ def calc_singletons(split_list, message, only_validated=False):
     average_length = mentions_length / len(final_mentions_list)
     print(message + '_Mentions=' + str(len(final_mentions_list)))
     print(message + '_Singletons=' + str(singletons_count))
+    print(message + '_Clusters=' + str(len(result_dict)))
     print(message + '_Non_singleton_Clusters=' + str(len(result_dict.keys()) - singletons_count))
-    print(message + 'Beggest cluster=' + str(biggest_cluster))
+    print(message + '_Biggest cluster=' + str(biggest_cluster))
     print(message + '_Average Length=' + str(average_length))
     print(message + '_Average Ment in Clust=' + str(avg_in_clust / (len(result_dict) - singletons_count)))
+    print(message + '_Distinct Lemmas in corpus=' + str(len(distinct_lemmas)))
+    # json.dump({k: v for k, v in sorted(distinct_lemmas.items(), key=lambda item: item[1])}, sys.stdout)
+    print()
 
 
 def cal_head_lemma_pairs(data_file, dataset, message, alpha):
@@ -160,6 +184,29 @@ def calc_tp_fp_pairs_lemma():
     print("#######################################")
 
 
+def cross_doc_clusters(mentions):
+    MentionKey = namedtuple("MentKey", ["coref", "doc_id"])
+    cross_doc_clust = dict()
+    documents = set()
+    for ment in mentions:
+        if ment.doc_id not in documents:
+            documents.add(ment.doc_id)
+
+        ment_key = MentionKey(ment.coref_chain, ment.doc_id)
+        if ment_key not in cross_doc_clust:
+            cross_doc_clust[ment_key] = list()
+        cross_doc_clust[ment_key].append(ment)
+
+    cross_clusters = dict()
+    for coref1, doc_id1 in cross_doc_clust.keys():
+        if coref1 not in cross_clusters:
+            cross_clusters[coref1] = 0
+        cross_clusters[coref1] += 1
+
+    print("Documents = " + str(len(documents)))
+    print("Cross Doc Clusters = " + str(sum(1 for value in cross_clusters.values() if value > 1)))
+
+
 def generate_pair_score(f):
     same_string = 0
     diff_string = 0
@@ -181,14 +228,16 @@ def create_split_stats(mentions_file, tokenizer, split):
     if mentions_list:
         print('############# ' + split + ' ###################')
         calc_singletons(mentions_list, split, only_validated=False)
-        # calc_longest_mention_and_context(mentions_list, split)
+        calc_longest_mention_and_context(mentions_list, split)
         # cal_head_lemma_pairs(mentions_file, dataset, split, 1)
-        # calc_cluster_head_lemma(mentions_file, split, 1)
+        # count_verb_mentions(mentions_list)
+        # cross_doc_clusters(mentions_list)
+        calc_cluster_head_lemma(mentions_file, split, 1)
 
 
 if __name__ == '__main__':
     # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit150_topic.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2_verbs.json'
 
     _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
 

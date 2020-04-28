@@ -159,3 +159,11 @@ class StringUtils(object):
     @staticmethod
     def get_tokens_from_list(in_token: List[str]):
         return StringUtils.spacy_parser.tokenizer.tokens_from_list(in_token)
+
+    @staticmethod
+    def is_verb_phrase(text):
+        doc = StringUtils.spacy_parser(text)
+        for tok in doc:
+            if tok.pos_ == "VERB":
+                return True
+        return False

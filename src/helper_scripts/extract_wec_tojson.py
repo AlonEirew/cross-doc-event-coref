@@ -14,11 +14,11 @@ def run_split(split, out_file_full, out_file_single):
     #     "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo-constituency-parser-2018.03.14.tar.gz",
     #     cuda_device=0)
 
-    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v9.db")
+    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v10.db")
 
     name = multiprocessing.current_process().name
     print(name, 'Starting')
-    mentions_full, mentions_single = extract_from_sql(connection, "Validation3", split)
+    mentions_full, mentions_single = extract_from_sql(connection, "Mentions", split)
     # mentions_full = clean_long_mentions(mentions_full)
     # mentions_single = clean_long_mentions(mentions_single)
     # extract_constituency_trees(mentions_full, predictor)
@@ -63,7 +63,7 @@ def gen_mentions(set_clusters):
             is_singleton = True
         for mention in cluster_ments:
             # gen_mention_full = MentionData.read_sqlite_mention_data_line_v8(mention, gen_lemma=True, extract_valid_sent=False)
-            gen_mention_full, gen_mention_single = MentionData.read_sqlite_mention_data_line_v9(mention, gen_lemma=True, extract_valid_sent=True)
+            gen_mention_full, gen_mention_single = MentionData.read_sqlite_mention_data_line_v10(mention, gen_lemma=True, extract_valid_sent=True)
             gen_mention_full.is_singleton = is_singleton
             gen_mention_single.is_singleton = is_singleton
             ret_mentions_full_context.append(gen_mention_full)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     # Output json files to write to
     # validation_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Full_Event_gold_mentions.json'
-    train_out_full = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json'
+    train_out_full = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/Event_gold_mentions_all_subtopic.json'
     # test_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Full_Event_gold_mentions.json'
 
     run_split('TRAIN', train_out_full, train_out_full)

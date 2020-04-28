@@ -290,6 +290,14 @@ class MentionData(MentionDataLight):
 
         return mention_data_full_context, mention_data_single_sent
 
+    @staticmethod
+    def read_sqlite_mention_data_line_v10(mention_line, gen_lemma=True, extract_valid_sent=True):
+        mention_data_full_context, mention_data_single_sent = MentionData.read_sqlite_mention_data_line_v9(
+            mention_line, gen_lemma, extract_valid_sent)
+        mention_data_full_context.topic_id = mention_line[10]
+        mention_data_single_sent.topic_id = mention_line[10]
+        return mention_data_full_context, mention_data_single_sent
+
     def get_tokens(self):
         return self.tokens_number
 

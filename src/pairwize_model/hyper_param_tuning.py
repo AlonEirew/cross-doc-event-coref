@@ -13,7 +13,6 @@ def set_experiment_configuration(context_set, tds, dds, ration):
     configuration.train_dataset = tds
     configuration.dev_dataset = dds
     configuration.train_ratio = ration
-    configuration.reload()
 
 
 if __name__ == '__main__':
@@ -28,7 +27,6 @@ if __name__ == '__main__':
     _alphas = [25]
     _iterations = 5
     _prcs = [50]
-    _use_cuda = True
     _save_model = True
 
     log_params_str = "hptunning_train_set_" + _train_dataset[0].name + "_dev_set_" + _dev_dataset[0].name + "_validated"

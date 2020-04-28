@@ -97,8 +97,8 @@ if __name__ == '__main__':
 
     print("loading configuration file-" + configuration.load_model_file)
 
-    _print_method = print_results
-    # _print_method = print_scorer_results
+    # _print_method = print_results
+    _print_method = print_scorer_results
 
     _event_topics = Topics()
     _event_topics.create_from_file(configuration.mentions_file, True)

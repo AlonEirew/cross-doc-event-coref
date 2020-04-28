@@ -1,4 +1,6 @@
+import json
 import pickle
+import sys
 
 import ntpath
 import re
@@ -18,31 +20,22 @@ from src.helper_scripts.extract_wec_tojson import clean_long_mentions, extract_f
 from src.utils.io_utils import load_pickle, write_mention_to_json
 from src.utils.sqlite_utils import create_connection, select_from_validation, select_all_from_mentions
 
-# all_mentions = list()
-# _event_file1 = str(LIBRARY_ROOT) + '/resources/validated/WEC_Test_Event_gold_mentions_validated.json'
-# _event_file2 = str(LIBRARY_ROOT) + '/resources/validated/oren_test_validated_mentions_v1.json'
-# _event_file3 = str(LIBRARY_ROOT) + '/resources/validated/validation_for_test.json'
-# _event_file4 = str(LIBRARY_ROOT) + '/resources/validated/alon_test_validated_mentions_v1.json'
-#
-# _out_file = str(LIBRARY_ROOT) + '/resources/validated/WEC_Test_Full_Event_gold_mentions_validated.json'
-#
-# all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event_file1))
-# all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event_file2))
-# all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event_file3))
-# all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event_file4))
-#
-# dups = set()
-# final_mentions = list()
-# for mention in all_mentions:
-#     # if hasattr(mention, "manual_score") and mention.manual_score >= 4:
-#     if mention.mention_id in dups:
-#         print("DUP!!!!")
-#     else:
-#         final_mentions.append(mention)
-#         dups.add(mention.mention_id)
-#
-# json_utils.write_mention_to_json(_out_file, final_mentions)
-# print("DONE!!! " + str(len(final_mentions)))
+_event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'
+train_mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
+output_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2_verbs.json'
+
+train_clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
+final_mentions = list()
+for cluster in train_clusters.values():
+    for mention in cluster:
+        if StringUtils.is_verb_phrase(mention.tokens_str):
+            final_mentions.extend(cluster)
+            break
+
+print(str(len(final_mentions)))
+write_mention_to_json(output_file, final_mentions)
+print("Done!")
+
 ###################################################################################
 # all_mentions = list()
 # _event_sent_unvalid1 = str(LIBRARY_ROOT) + '/resources/tmp/WEC_Dev_Full_Event_gold_mentions_not_validated.json'
@@ -389,30 +382,30 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 #     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json', fin_mentions)
 #############################################################################################
 
-train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-            '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json')
-
-MAX_CLUSTERS = 150
-MAX_IN_CLUSTER = 60
-to_topics = True
-
-clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
-type_cluster_count = dict()
-fin_mentions = list()
-for cluster in clusters.values():
-    if len(cluster) <= MAX_IN_CLUSTER:
-        mention_type = cluster[0].mention_type
-        if mention_type not in type_cluster_count:
-            type_cluster_count[mention_type] = 0
-        if type_cluster_count[mention_type] < MAX_CLUSTERS:
-            type_cluster_count[mention_type] += 1
-            if to_topics:
-                for mention in cluster:
-                    mention.topic_id = mention_type
-
-            fin_mentions.extend(cluster)
-
-write_mention_to_json(
-    str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit' + str(MAX_CLUSTERS) + '_topic.json', fin_mentions)
-
-print('Done!')
+# train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#             '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json')
+#
+# MAX_CLUSTERS = 150
+# MAX_IN_CLUSTER = 60
+# to_topics = True
+#
+# clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
+# type_cluster_count = dict()
+# fin_mentions = list()
+# for cluster in clusters.values():
+#     if len(cluster) <= MAX_IN_CLUSTER:
+#         mention_type = cluster[0].mention_type
+#         if mention_type not in type_cluster_count:
+#             type_cluster_count[mention_type] = 0
+#         if type_cluster_count[mention_type] < MAX_CLUSTERS:
+#             type_cluster_count[mention_type] += 1
+#             if to_topics:
+#                 for mention in cluster:
+#                     mention.topic_id = mention_type
+#
+#             fin_mentions.extend(cluster)
+#
+# write_mention_to_json(
+#     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit' + str(MAX_CLUSTERS) + '_topic.json', fin_mentions)
+#
+# print('Done!')

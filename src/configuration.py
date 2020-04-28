@@ -65,7 +65,7 @@ class Configuration(object):
         """ TRAIN CONFIGURATION """
         self.learning_rate = 1e-4
         self.batch_size = 32
-        self.ratio = -1
+        self.ratio = 5
         self.iterations = 10
         self.use_cuda = True
         self.save_model = True
@@ -75,19 +75,19 @@ class Configuration(object):
         self.hidden_n = 150
 
         self.context_set = "dataset_full"
-        self.train_dataset = WecDataSet() #WecDataSet(ratio=self.ratio, split=Split.Train)
+        self.train_dataset = WecDataSet(ratio=self.ratio, split=Split.Train)
         self.dev_dataset = EcbDataSet() #WecDataSet(split=Split.Dev)
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + self.train_dataset.name + "_" + self.dev_dataset.name + \
-                                "_150420_limit150_topic" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
+                                "_260420_verb" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
         self.event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_limit150_topic_PosPairs.pickle"
+                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_validated2_verbs_PosPairs.pickle"
         self.event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_limit150_topic_NegPairs.pickle"
+                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_validated2_verbs_NegPairs.pickle"
         self.event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
                                           self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_PosPairs_Subtopic.pickle"
         self.event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
@@ -124,7 +124,7 @@ class Configuration(object):
         """ COREF CONFIGURATION """
         # cluster_topics = experiment without topic classification first
         self.context_set = "dataset_full"
-        self.split = Split.Dev
+        self.split = Split.Test
         self.test_dataset = EcbDataSet() #WecDataSet(-1, self.split)
 
         self.cluster_topics = False
@@ -143,7 +143,7 @@ class Configuration(object):
                             "/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle"]
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_ECB_120420_max_roberta_large_30iter_8"
-        self.save_model_file = str(LIBRARY_ROOT) + "/output/event_scorer_150420_pred_WEC_" + \
+        self.save_model_file = str(LIBRARY_ROOT) + "/output/event_scorer_260420_max_" + \
                                 self.test_dataset.name + "_" + self.split.name
 
 ################################################################################

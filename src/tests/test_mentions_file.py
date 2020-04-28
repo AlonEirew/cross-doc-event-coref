@@ -147,7 +147,7 @@ def test_compare_embeddings():
             print("hidden1 == hidden2")
 
 
-def test_pairs_file():
+def test_pairs_file(pairs):
     pairs_dict = dict()
     for pair in pairs:
         if pair[0].mention_id == pair[1].mention_id:
@@ -166,22 +166,22 @@ def test_pairs_file():
 if __name__ == '__main__':
     mentions = list()
     mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'))
-    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_validated2.json'))
-    mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
-        str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_validated2.json'))
+        str(LIBRARY_ROOT) + '/resources/gvc/GVC_All_gold_event_mentions.json'))
+    # mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
+    #     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_validated2.json'))
+    # mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(
+    #     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_validated2.json'))
 
-    # test_mention_span()
-    # test_extract_mention_surrounding_context()
+    test_mention_span()
+    test_extract_mention_surrounding_context()
     # test_mention_feat_to_vec()
     # test_embedding()
     # test_compare_embeddings()
 
-    dataset = 'dataset_full'
-    data_set = WecDataSet()
-    pairs = data_set.load_pos_neg_pickle(
-        str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + data_set.name.lower() + '/train/Event_gold_mentions_validated2_PosPairs.pickle',
-        str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + data_set.name.lower() + '/train/Event_gold_mentions_validated2_NegPairs.pickle')
-    test_pairs_file()
+    # dataset = 'dataset_full'
+    # data_set = WecDataSet()
+    # _pairs = data_set.load_pos_neg_pickle(
+    #     str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + data_set.name.lower() + '/train/Event_gold_mentions_validated2_PosPairs.pickle',
+    #     str(LIBRARY_ROOT) + '/resources/' + dataset + '/' + data_set.name.lower() + '/train/Event_gold_mentions_validated2_NegPairs.pickle')
+    # test_pairs_file(_pairs)
 
