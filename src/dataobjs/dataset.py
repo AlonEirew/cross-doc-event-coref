@@ -147,7 +147,7 @@ class EcbDataSet(DataSet):
 
 class WecDataSet(DataSet):
     def __init__(self, ratio=-1, split=Split.NA):
-        super(WecDataSet, self).__init__("WEC", ratio)
+        super(WecDataSet, self).__init__(name="WEC", ratio=ratio)
         self.split = split
 
     def create_pos_neg_pairs(self, topics, sub_topics):

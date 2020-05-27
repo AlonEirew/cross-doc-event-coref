@@ -96,8 +96,7 @@ def calc_singletons(split_list, message, only_validated=False):
     distinct_lemmas = dict()
     for mention in final_mentions_list:
         if mention.mention_head_lemma.lower() not in distinct_lemmas:
-            distinct_lemmas[mention.mention_head_lemma.lower()] = 0
-        distinct_lemmas[mention.mention_head_lemma.lower()] += 1
+            distinct_lemmas[mention.mention_head_lemma.lower()] = mention
         if mention.coref_chain in result_dict:
             result_dict[mention.coref_chain] += 1
         else:
@@ -124,6 +123,8 @@ def calc_singletons(split_list, message, only_validated=False):
     print(message + '_Average Length=' + str(average_length))
     print(message + '_Average Ment in Clust=' + str(avg_in_clust / (len(result_dict) - singletons_count)))
     print(message + '_Distinct Lemmas in corpus=' + str(len(distinct_lemmas)))
+
+    count_verb_mentions(distinct_lemmas.values())
     # json.dump({k: v for k, v in sorted(distinct_lemmas.items(), key=lambda item: item[1])}, sys.stdout)
     print()
 
@@ -228,16 +229,15 @@ def create_split_stats(mentions_file, tokenizer, split):
     if mentions_list:
         print('############# ' + split + ' ###################')
         calc_singletons(mentions_list, split, only_validated=False)
-        calc_longest_mention_and_context(mentions_list, split)
+        # calc_longest_mention_and_context(mentions_list, split)
         # cal_head_lemma_pairs(mentions_file, dataset, split, 1)
-        # count_verb_mentions(mentions_list)
-        # cross_doc_clusters(mentions_list)
+        cross_doc_clusters(mentions_list)
         calc_cluster_head_lemma(mentions_file, split, 1)
 
 
 if __name__ == '__main__':
     # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2_verbs.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/gvc/train/GVC_All_gold_event_mentions.json'
 
     _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
 
