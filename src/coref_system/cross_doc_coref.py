@@ -103,7 +103,7 @@ if __name__ == '__main__':
     _event_topics = Topics()
     _event_topics.create_from_file(configuration.mentions_file, True)
 
-    if configuration.cluster_topics and len(_event_topics.topics_dict) > 1:
+    if configuration.to_single_topic and len(_event_topics.topics_dict) > 1:
         _event_topics.to_single_topic()
 
     _cluster_algo = None

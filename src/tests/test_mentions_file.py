@@ -6,12 +6,13 @@ from src import LIBRARY_ROOT
 from src.dataobjs.dataset import EcbDataSet, WecDataSet
 from src.dataobjs.mention_data import MentionData, MentionDataLight
 from src.utils.embed_utils import EmbedTransformersGenerics, EmbeddingEnum, EmbeddingConfig
+from src.utils.string_utils import StringUtils
 
 
 def test_mention_span():
     for mention in mentions:
         for i, tok_id in enumerate(mention.tokens_number):
-            mention_text = mention.tokens_str.split(" ")
+            mention_text = list(list(zip(*StringUtils.get_tokenized_string(mention.tokens_str)[0]))[0])
             if mention_text[i] != mention.mention_context[tok_id]:
                 raise Exception("Issue with mention-" + str(mention.mention_id))
 

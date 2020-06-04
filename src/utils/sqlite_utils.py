@@ -1,5 +1,6 @@
 import logging
 import sqlite3
+from collections import namedtuple
 from typing import List
 
 
@@ -75,6 +76,19 @@ def select_all_from_mentions(conn, table_name="Mentions", limit=-1):
     rows = cur.fetchall()
 
     return extract_clusters(rows)
+
+
+def select_all_from_clusters(conn):
+    # ClusterPairs = namedtuple("ClusterPairs", "corefid, coref_link")
+    ret_cluster = dict()
+    cur = conn.cursor()
+    cur.execute("SELECT * from CorefChains;")
+    rows = cur.fetchall()
+    for cluster in rows:
+        # ret_cluster.append(ClusterPairs(corefid=cluster[0], coref_link=cluster[1]))
+        ret_cluster[cluster[0]] = cluster[1]
+
+    return ret_cluster
 
 
 def extract_clusters(rows):

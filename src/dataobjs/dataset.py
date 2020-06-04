@@ -151,6 +151,9 @@ class WecDataSet(DataSet):
         self.split = split
 
     def create_pos_neg_pairs(self, topics, sub_topics):
+        if not sub_topics:
+            topics.to_single_topic()
+
         positive_pairs = EcbDataSet.create_pairs(topics, POLARITY.POSITIVE)
 
         if self.split == Split.Train:

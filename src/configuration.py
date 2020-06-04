@@ -2,7 +2,7 @@ from enum import Enum
 
 from src import LIBRARY_ROOT
 from src.coref_system.relation_extraction import RelationTypeEnum
-from src.dataobjs.dataset import Split, EcbDataSet, WecDataSet
+from src.dataobjs.dataset import Split, EcbDataSet, WecDataSet, DataSet
 from src.utils.clustering_utils import ClusteringType
 from src.utils.embed_utils import EmbeddingConfig, EmbeddingEnum
 
@@ -49,7 +49,7 @@ class Configuration(object):
         self.mentions_file = None
 
         self.cluster_extractor = None
-        self.cluster_topics = False
+        self.to_single_topic = False
         self.cluster_algo_type = None
         self.cluster_pairs_thresh = None
         self.cluster_average_link_thresh = None
@@ -65,7 +65,7 @@ class Configuration(object):
         """ TRAIN CONFIGURATION """
         self.learning_rate = 1e-4
         self.batch_size = 32
-        self.ratio = 5
+        self.ratio = 1
         self.iterations = 10
         self.use_cuda = True
         self.save_model = True
@@ -80,23 +80,24 @@ class Configuration(object):
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + self.train_dataset.name + "_" + self.dev_dataset.name + \
-                                "_260420_verb" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
+                                "_310520_" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
         self.event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_validated2_verbs_PosPairs.pickle"
+                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_validated4_PosPairs.pickle"
         self.event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_validated2_verbs_NegPairs.pickle"
+                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_validated4_NegPairs.pickle"
         self.event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_PosPairs_Subtopic.pickle"
+                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_validated2_PosPairs.pickle"
         self.event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_NegPairs_Subtopic.pickle"
+                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_validated2_NegPairs.pickle"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.train_dataset.name.lower() +
-                             "/train/Event_gold_mentions_validated2_" + self.embed_config.embed_type.name.lower() + ".pickle",
+                             "/train/Event_gold_mentions_validated4_" + self.embed_config.embed_type.name.lower() + ".pickle",
                              str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.dev_dataset.name.lower() +
-                             "/dev/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle"]
+                             "/dev/Event_gold_mentions_validated2_" + self.embed_config.embed_type.name.lower() + ".pickle",
+                            ]
 
     def init_inference(self):
         """ INFERENCE CONFIGURATION """
@@ -124,26 +125,26 @@ class Configuration(object):
         """ COREF CONFIGURATION """
         # cluster_topics = experiment without topic classification first
         self.context_set = "dataset_full"
-        self.split = Split.Test
-        self.test_dataset = EcbDataSet() #WecDataSet(-1, self.split)
+        self.split = Split.Dev
+        self.test_dataset = WecDataSet()
 
-        self.cluster_topics = False
-        self.cluster_extractor = RelationTypeEnum.PAIRWISE
-        self.cluster_algo_type = ClusteringType.AgglomerativeClustering
+        self.to_single_topic = True
+        self.cluster_extractor = RelationTypeEnum.SAME_HEAD_LEMMA
+        self.cluster_algo_type = ClusteringType.NaiveClustering
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.cluster_pairs_thresh = [1.0]
-        self.cluster_average_link_thresh = [0.5]
+        self.cluster_average_link_thresh = [1.0]
 
         self.mentions_file = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.test_dataset.name.lower() + \
-                        "/" + self.split.name.lower() + "/" + "Event_gold_mentions.json"
+                        "/" + self.split.name.lower() + "/" + "Event_gold_mentions_clean11.json"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set +
                             "/" + self.test_dataset.name.lower() + "/" + self.split.name.lower() +
                             "/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle"]
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_ECB_120420_max_roberta_large_30iter_8"
-        self.save_model_file = str(LIBRARY_ROOT) + "/output/event_scorer_260420_max_" + \
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_020520_EcbWecDev10_roberta_large_-1iter_4"
+        self.save_model_file = str(LIBRARY_ROOT) + "/output/event_scorer_lemma_" + \
                                 self.test_dataset.name + "_" + self.split.name
 
 ################################################################################

@@ -23,6 +23,7 @@ DISAMBIGUATION_CATEGORY = ['disambig', 'disambiguation']
 class StringUtils(object):
     spacy_parser = spacy.load('en_core_web_sm')
     spacy_no_parser = spacy.load('en_core_web_sm', disable=['parser'])
+    spacy_no_tok = spacy.load('en_core_web_sm', disable=['tokenizer'])
     stop_words = []
     pronouns = []
     preposition = []
@@ -167,3 +168,26 @@ class StringUtils(object):
             if tok.pos_ == "VERB":
                 return True
         return False
+
+    @staticmethod
+    def extract_verb_phrase_index(mention):
+        doc = spacy.tokens.doc.Doc(StringUtils.spacy_no_tok.vocab, words=mention.mention_context)
+
+        for name, proc in StringUtils.spacy_no_tok.pipeline:
+            doc = proc(doc)
+
+        ment_doc = doc[mention.tokens_number[0]:mention.tokens_number[-1] + 1]
+        ret_index = list()
+        for i, tok in enumerate(ment_doc):
+            if tok.pos_ == "VERB" and not tok.text.istitle():
+                ret_index.append(mention.tokens_number[i])
+
+        last_tok = -1
+        for tok in ret_index:
+            if last_tok == -1:
+                last_tok = tok
+            elif (tok - last_tok) > 1:
+                ret_index = list()
+                break
+
+        return ret_index

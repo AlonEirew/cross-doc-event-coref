@@ -36,7 +36,7 @@ class MentionDataLight(object):
 class MentionData(MentionDataLight):
     def __init__(self, mention_id, topic_id: str, doc_id: str, sent_id: int, tokens_numbers: List[int],
                  tokens_str: str, mention_context: List[str], mention_head: str,
-                 mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA',
+                 mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA', coref_link: str = "NA",
                  is_continuous: bool = True, is_singleton: bool = False, score: float = float(-1),
                  predicted_coref_chain: str = None, mention_pos: str = None,
                  mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False,
@@ -77,6 +77,7 @@ class MentionData(MentionDataLight):
         self.predicted_coref_chain = predicted_coref_chain
         self.min_span_str = min_span_str
         self.min_span_ids = min_span_ids
+        self.coref_link = coref_link
 
         if manual_score > 0:
             self.manual_score = manual_score
@@ -108,6 +109,7 @@ class MentionData(MentionDataLight):
             tokens_numbers = None
             score = -1
             mention_type = None
+            coref_link = "NA"
             predicted_coref_chain = None
             mention_context = None
             is_continue = False
@@ -181,12 +183,30 @@ class MentionData(MentionDataLight):
             if 'manual_score' in mention_line:
                 manual_score = mention_line['manual_score']
 
-            mention_data = MentionData(mention_id, topic_id, doc_id, sent_id, tokens_numbers, mention_text,
+            if 'coref_link' in mention_line:
+                coref_link = mention_line['coref_link']
+
+            mention_data = MentionData(mention_id,
+                                       topic_id,
+                                       doc_id,
+                                       sent_id,
+                                       tokens_numbers,
+                                       mention_text,
                                        mention_context,
-                                       mention_head, mention_head_lemma,
-                                       coref_chain, mention_type, is_continue, is_singleton, score,
-                                       predicted_coref_chain, mention_pos, mention_ner,
-                                       mention_index, min_span_str=min_span_str, min_span_ids=min_span_ids,
+                                       mention_head=mention_head,
+                                       mention_head_lemma=mention_head_lemma,
+                                       coref_chain=coref_chain,
+                                       mention_type=mention_type,
+                                       coref_link=coref_link,
+                                       is_continuous=is_continue,
+                                       is_singleton=is_singleton,
+                                       score=score,
+                                       predicted_coref_chain=predicted_coref_chain,
+                                       mention_pos=mention_pos,
+                                       mention_ner=mention_ner,
+                                       mention_index=mention_index,
+                                       min_span_str=min_span_str,
+                                       min_span_ids=min_span_ids,
                                        manual_score=manual_score)
         except Exception:
             print('Unexpected error:', sys.exc_info()[0])
@@ -203,7 +223,7 @@ class MentionData(MentionDataLight):
         doc_id = mention_line[4]
         mention_context = mention_line[5]
         mention_type = mention_line[9]
-        mention_id = mention_line[10]
+        mention_id = mention_line[11]
 
         if extract_valid_sent:
             accum_sent_start = 0
@@ -263,17 +283,17 @@ class MentionData(MentionDataLight):
                                                [tok for tok in mention_data_full_context.tokens_number],
                                                mention_data_full_context.tokens_str,
                                                mention_data_full_context.mention_context,
-                                               mention_data_full_context.mention_head,
-                                               mention_data_full_context.mention_head_lemma,
-                                               mention_data_full_context.coref_chain,
-                                               mention_data_full_context.mention_type,
-                                               mention_data_full_context.is_continuous,
-                                               mention_data_full_context.is_singleton,
-                                               mention_data_full_context.score,
-                                               mention_data_full_context.predicted_coref_chain,
-                                               mention_data_full_context.mention_head_pos,
-                                               mention_data_full_context.mention_ner,
-                                               mention_data_full_context.mention_index)
+                                               mention_head=mention_data_full_context.mention_head,
+                                               mention_head_lemma=mention_data_full_context.mention_head_lemma,
+                                               coref_chain=mention_data_full_context.coref_chain,
+                                               mention_type=mention_data_full_context.mention_type,
+                                               is_continuous=mention_data_full_context.is_continuous,
+                                               is_singleton=mention_data_full_context.is_singleton,
+                                               score=mention_data_full_context.score,
+                                               predicted_coref_chain=mention_data_full_context.predicted_coref_chain,
+                                               mention_pos=mention_data_full_context.mention_head_pos,
+                                               mention_ner=mention_data_full_context.mention_ner,
+                                               mention_index=mention_data_full_context.mention_index)
         if extract_valid_sent:
             tmp_context = context_json[mention_data_single_sent.sent_id]
             sentence_start_token = tmp_context[0]

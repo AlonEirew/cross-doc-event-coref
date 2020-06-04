@@ -14,7 +14,7 @@ def run_split(split, out_file_full, out_file_single):
     #     "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo-constituency-parser-2018.03.14.tar.gz",
     #     cuda_device=0)
 
-    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v10.db")
+    connection = create_connection("/Users/aeirew/workspace/DataBase/EnWikiLinks_v11.db")
 
     name = multiprocessing.current_process().name
     print(name, 'Starting')
@@ -46,7 +46,7 @@ def extract_from_sql(connection, table_name, split, limit=-1):
         clusters = select_from_validation(connection, table_name)
         mentions_full_context, mentions_single_sent = gen_mentions(clusters)
         mentions_full_context.sort(key=lambda mention: mention.coref_chain)
-        mentions_single_sent.sort(key=lambda mention: mention.coref_chain)
+        # mentions_single_sent.sort(key=lambda mention: mention.coref_chain)
         print(split + ' total mentions full context=' + str(len(mentions_full_context)))
         print(split + ' total mentions sentence context=' + str(len(mentions_single_sent)))
         return mentions_full_context, mentions_single_sent
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     # Output json files to write to
     # validation_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Dev_Full_Event_gold_mentions.json'
-    train_out_full = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/Event_gold_mentions_all_subtopic.json'
+    train_out_full = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_clean1.json'
     # test_out_full = str(LIBRARY_ROOT) + '/resources/final_dataset/WEC_Test_Full_Event_gold_mentions.json'
 
     run_split('TRAIN', train_out_full, train_out_full)

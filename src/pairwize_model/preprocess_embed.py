@@ -52,14 +52,14 @@ def worker(resource_file):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     _res_folder = "dataset_full"
-    _dataset_name = EcbDataSet("WEC")
+    _dataset_name = WecDataSet()
 
-    all_files = [#str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 # "/dev/Event_gold_mentions.json",
-                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 # "/test/Event_gold_mentions.json",
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
+                 "/dev/Event_gold_mentions_clean11.json",
                  str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/train/Event_gold_mentions_validated2_Subtopic.json"
+                 "/test/Event_gold_mentions_clean11.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
+                 "/train/Event_gold_mentions_clean11.json"
                  ]
 
     print("Processing files-" + str(all_files))
