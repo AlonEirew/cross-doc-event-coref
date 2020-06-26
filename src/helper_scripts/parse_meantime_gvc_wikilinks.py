@@ -215,15 +215,16 @@ def convert_from_wikilinks(mention_line):
 
 
 def main_wiki():
-    clusters = json.load(open(str(LIBRARY_ROOT) + '/resources/wikilinks/wikilinks_3stem.json', 'r'))
+    clusters = json.load(open(str(LIBRARY_ROOT) + '/resources/wikilinks/wikilinks_full.json', 'r'))
     parsed_mentions = list()
     for cluster in clusters.values():
         mentions_list = cluster['mentions']
         for ment in mentions_list:
             parsed_mentions.append(convert_from_wikilinks(ment))
 
-    output = str(LIBRARY_ROOT) + '/resources/wikilinks/Event_gold_mentions_3stem.json'
+    output = str(LIBRARY_ROOT) + '/resources/wikilinks/Event_gold_mentions.json'
     write_mention_to_json(output, parsed_mentions)
+    print("Total mentions unfiltered=" + str(len(parsed_mentions)))
     print("Done!")
 
 

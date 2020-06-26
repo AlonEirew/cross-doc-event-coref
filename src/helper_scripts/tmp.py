@@ -13,6 +13,7 @@ from src import LIBRARY_ROOT
 from src.dataobjs.cluster import Clusters
 from src.dataobjs.dataset import Split
 from src.dataobjs.mention_data import MentionData
+from src.helper_scripts.stats_calculation import calc_singletons
 from src.utils.embed_utils import EmbedFromFile
 from src.utils.string_utils import StringUtils
 from src.dataobjs.topics import Topics, Topic
@@ -20,45 +21,78 @@ from src.helper_scripts.extract_wec_tojson import clean_long_mentions, extract_f
 from src.utils.io_utils import load_pickle, write_mention_to_json
 from src.utils.sqlite_utils import create_connection, select_from_validation, select_all_from_mentions
 
-_event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'
-train_mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
-output_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2_verbs.json'
-
-train_clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
-final_mentions = list()
-for cluster in train_clusters.values():
-    for mention in cluster:
-        if StringUtils.is_verb_phrase(mention.tokens_str):
-            final_mentions.extend(cluster)
-            break
-
-print(str(len(final_mentions)))
-write_mention_to_json(output_file, final_mentions)
-print("Done!")
-
-###################################################################################
-# all_mentions = list()
-# _event_sent_unvalid1 = str(LIBRARY_ROOT) + '/resources/tmp/WEC_Dev_Full_Event_gold_mentions_not_validated.json'
-# _event_sent_unvalid2 = str(LIBRARY_ROOT) + '/resources/tmp/WEC_Test_Full_Event_gold_mentions_not_validated.json'
-# _event_validated_full_clean = str(LIBRARY_ROOT) + '/resources/tmp/WEC_Dev_Event_gold_mentions_validated.json'
+# _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'
+# train_mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
+# output_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2_10_per.json'
 #
-# _out_file = str(LIBRARY_ROOT) + '/resources/tmp/WEC_Dev_Full_Event_gold_mentions_validated.json'
-#
-# un_validated = MentionData.read_mentions_json_to_mentions_data_list(_event_sent_unvalid1)
-# un_validated.extend(MentionData.read_mentions_json_to_mentions_data_list(_event_sent_unvalid2))
-# validated = MentionData.read_mentions_json_to_mentions_data_list(_event_validated_full_clean)
-#
-#
+# train_clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
 # final_mentions = list()
-# for mention_val in validated:
-#     for mention_unval in un_validated:
-#         if str(mention_unval.mention_id) == str(mention_val.mention_id):
-#             final_mentions.append(mention_unval)
+# for cluster in train_clusters.values():
+#     for mention in cluster:
+#         if StringUtils.is_verb_phrase(mention.tokens_str):
+#             final_mentions.extend(cluster)
 #             break
 #
-# json_utils.write_mention_to_json(_out_file, final_mentions)
+# print(str(len(final_mentions)))
+# write_mention_to_json(output_file, final_mentions)
+# print("Done!")
+
+###################################################################################
+# PERCENT = 80
+# _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'
+# train_mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_train)
+# output_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2_' + str(PERCENT) + '_per.json'
 #
-# print("DONE!!! " + str(len(final_mentions)))
+# train_clusters = Clusters.from_mentions_to_gold_clusters(train_mentions)
+# cluster_amount = (len(train_clusters) * PERCENT) / 100
+# final_mentions = list()
+# for cluster in train_clusters.values():
+#     if cluster_amount < 0:
+#         break
+#     cluster_amount -= 1
+#     final_mentions.extend(cluster)
+#
+# print(str(len(final_mentions)))
+# write_mention_to_json(output_file, final_mentions)
+# print("Done!")
+
+###################################################################################
+# PERCENT = 80
+# _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
+# topics_ = Topics()
+# topics_.create_from_file(_event_train, keep_order=True)
+# output_file = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions_' + str(PERCENT) + '_per.json'
+#
+# topics_amount = (len(topics_.topics_dict) * PERCENT) / 100
+# final_mentions = list()
+# for top in topics_.topics_dict.values():
+#     if topics_amount < 0:
+#         break
+#     topics_amount -= 1
+#     final_mentions.extend(top.mentions)
+#
+# print(str(len(final_mentions)))
+# write_mention_to_json(output_file, final_mentions)
+# print("Done!")
+
+# ecb_pos_pairs = pickle.load(open(str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_PosPairs_Subtopic.pickle", "rb"))
+# ecb_neg_pairs = pickle.load(open(str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_NegPairs_Subtopic.pickle", "rb"))
+#
+# wec_pos_pairs_dev = pickle.load(open(str(LIBRARY_ROOT) + "/resources/dataset_full/wec/dev/Event_gold_mentions_validated2_PosPairs.pickle", "rb"))
+# wec_neg_pairs_dev = pickle.load(open(str(LIBRARY_ROOT) + "/resources/dataset_full/wec/dev/Event_gold_mentions_validated2_NegPairs.pickle", "rb"))
+#
+# wec_pos_pairs_test = pickle.load(open(str(LIBRARY_ROOT) + "/resources/dataset_full/wec/test/Event_gold_mentions_validated2_PosPairs.pickle", "rb"))
+# wec_neg_pairs_test = pickle.load(open(str(LIBRARY_ROOT) + "/resources/dataset_full/wec/test/Event_gold_mentions_validated2_NegPairs.pickle", "rb"))
+#
+#
+# all_pos_pairs = ecb_pos_pairs + wec_pos_pairs_dev + wec_pos_pairs_test
+# all_neg_pairs = ecb_neg_pairs + random.sample(wec_neg_pairs_dev, int(((len(wec_neg_pairs_dev) * 10) / 100)))
+#
+# pickle.dump(all_pos_pairs, open(str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_PosPairs_WecDev_ECB.pickle", "w+b"))
+# pickle.dump(all_neg_pairs, open(str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_NegPairs_WecDev_ECB.pickle", "w+b"))
+
+###################################################################################
+
 ####################################################################################
 # all_mentions = list()
 # _event_file1 = str(LIBRARY_ROOT) + '/resources/validated/WEC_CLEAN_JOIN_ALL.json'
@@ -91,14 +125,27 @@ print("Done!")
 #
 # print(set(keys1.keys()).difference(keys2.keys()))
 ####################################################################################
-# _event_file1 = str(LIBRARY_ROOT) + '/resources/validated/WEC_Test_Event_gold_mentions_validated.json'
-# # output_file = str(LIBRARY_ROOT) + '/resources/validated/WEC_Test_Event_gold_mentions_validated.json'
+# _event_file1 = str(LIBRARY_ROOT) + '/resources/dataset_full/gvc/train/GVC_All_gold_event_mentions.json'
+# # output_file = str(LIBRARY_ROOT) + '/resources/wikilinks/Event_gold_mentions_3stem_clean.json'
 #
 # mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_file1)
-# final_mentions = clean_long_mentions(mentions)
-# print("DONE!-" + str(len(final_mentions)))
+#
+# final_mentions = dict()
+# count = 0
+# for mention in mentions:
+#     count += 1
+#     if mention.mention_head_lemma.lower() not in final_mentions:
+#         final_mentions[mention.mention_head_lemma.lower()] = 0
+#     final_mentions[mention.mention_head_lemma.lower()] += 1
+#
+# final_mentions = {k: v for k, v in sorted(final_mentions.items(), key=lambda item: item[1])}
+# # print("Before!-" + str(len(mentions)))
+# print("Total=" + str(count))
+# print("After!-" + str(sum(final_mentions.values())))
+# print(str(final_mentions))
 
-# json_utils.write_mention_to_json(output_file, final_mentions)
+# write_mention_to_json(output_file, final_mentions)
+
 ####################################################################################
 # all_mentions = list()
 # _event_file1 = str(LIBRARY_ROOT) + '/resources/validated/validation_for_test.json'
@@ -197,13 +244,35 @@ print("Done!")
 # print(str(len(final_results)))
 # ###############################################
 # all_mentions = list()
-# _event1 = str(LIBRARY_ROOT) + '/resources/validated/arie_dev_validated_mentions_v2.json'
-# _event2 = str(LIBRARY_ROOT) + '/resources/validated/alon_dev_validated_mentions_v2.json'
-# _event3 = str(LIBRARY_ROOT) + '/resources/validated/oren_test_validated_mentions_v1.json'
-# all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event1))
+# # _event1 = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated3.json'
+# _event2 = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/dev/Event_gold_mentions.json'
+# _event3 = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/test/Event_gold_mentions.json'
+# # all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event1))
 # all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event2))
 # all_mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(_event3))
 #
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/Event_dev_test_gold_mentions_validated', all_mentions)
+
+
+# _event1 = str(LIBRARY_ROOT) + '/resources/dataset_full/meantime/train/Event_gold_mentions.json'
+# mentions = MentionData.read_mentions_json_to_mentions_data_list(_event1)
+# top1 = [item for item in mentions if item.topic_id == 'corpus_airbus']
+# print('corpus_airbus=' + str(len(top1)))
+#
+# top2 = [item for item in mentions if item.topic_id == 'corpus_apple']
+# print('corpus_apple=' + str(len(top2)))
+#
+# top3 = [item for item in mentions if item.topic_id == 'corpus_gm']
+# print('corpus_gm=' + str(len(top3)))
+#
+# top4 = [item for item in mentions if item.topic_id == 'corpus_stock']
+# print('corpus_stock=' + str(len(top4)))
+
+
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/meantime/test/Event_gold_mentions.json', flat_list)
+
+
+
 # good = 0
 # bad = 0
 #
@@ -268,33 +337,6 @@ print("Done!")
 ######################## CLEAN NER #############################
 # embed_utils = EmbedFromFile([str(LIBRARY_ROOT) + "/resources/dataset_full/ecb/train/Event_gold_mentions_roberta-large.pickle"], 1024)
 #
-# split = Split.Dev.name.lower()
-# origin_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-#                        '/resources/dataset_full/wec/' + split + '/Event_gold_mentions_validated.json')
-# new_mention = list()
-# removed = 0
-# for mention in origin_mentions:
-#     ners = StringUtils.find_all_ners(mention.mention_context)
-#
-#     head_token_id = -1
-#     for i in mention.tokens_number:
-#         if mention.mention_context[i] == mention.mention_head:
-#             head_token_id = i
-#
-#     if head_token_id == -1:
-#         removed += 1
-#         print("Bad mention in split-" + str(mention.mention_id))
-#         # raise Exception("Couldnt find mention head in context")
-#     # else:
-#     #     ment_ners = ners[head_token_id]
-#     #     if ment_ners in ["GPE", "LOC"]:
-#     #         removed += 1
-#     #     else:
-#     #         new_mention.append(mention)
-#
-# print("total mentions remove=" + str(removed))
-# print("total mentions in split-" + str(len(new_mention)))
-# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full_clean/wec/' + split + '/Event_gold_mentions_validated.json', new_mention)
 
 ###################### Add Context and Topic Id to Shany file ##################
 # shany_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
@@ -321,67 +363,6 @@ print("Done!")
 # write_mention_to_json(str(LIBRARY_ROOT) + '/gold_scorer/shany_ecb/ECB_Test_Event_gold_mentions_context.json', shany_mentions)
 # print("Done!")
 ##########################################################################################
-
-# dev_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-#             '/resources/dataset/wec/dev/WEC_Dev_Event_gold_mentions_validated.json')
-#
-# test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-#             '/resources/dataset/wec/test/WEC_Test_Event_gold_mentions_validated.json')
-#
-# train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
-#             '/resources/dataset/wec/train/WEC_Train_Event_gold_mentions_validated.json')
-#
-# connection = create_connection(str(LIBRARY_ROOT) + "/resources/EnWikiLinks_v9.db")
-# # clusters = select_all_from_mentions(connection, 'Validation3', limit=-1)
-# mentions_full_context, _ = extract_from_sql(connection, "Validation3", "split")
-# all_mentions = dev_mentions + test_mentions + train_mentions
-#
-# print("Total mentions from files=" + str(len(all_mentions)))
-# print("Total mentions from sql=" + str(len(mentions_full_context)))
-#
-# mentions_by_ids = dict()
-# for mention_from_file in all_mentions:
-#     if mention_from_file.mention_id in mentions_by_ids:
-#         raise Exception("Mention - " + mention_from_file.mention_id + " exist twice!!")
-#     mentions_by_ids[mention_from_file.mention_id] = mention_from_file
-#
-# total_changed = 0
-# for mention_from_sql in mentions_full_context:
-#     if mention_from_sql.mention_id in mentions_by_ids:
-#         total_changed += 1
-#         mentions_by_ids[mention_from_sql.mention_id].mention_context = mention_from_sql.mention_context
-#         mentions_by_ids[mention_from_sql.mention_id].tokens_number = mention_from_sql.tokens_number
-#
-# if total_changed < len(all_mentions):
-#     print("Total changed is smaller then the sum of all mentions: " + str(total_changed) + "<" + str(len(all_mentions)))
-# else:
-#     print('Writing files...')
-#     write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/WEC_Full_Dev_Event_gold_mentions_validated.json',
-#                           dev_mentions)
-#
-#     write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/WEC_Full_Test_Event_gold_mentions_validated.json',
-#                           test_mentions)
-#
-#     write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/WEC_Full_Train_Event_gold_mentions_validated.json',
-#                           train_mentions)
-#
-# print('Done!!')
-#######################################################################
-############################### REMOVE SINGLETONS ###############################
-# topics_ = Topics()
-# topics_.create_from_file(
-#     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500_validated2.json', keep_order=True)
-# clusters = topics_.convert_to_clusters()
-#
-# fin_mentions = list()
-# for ments_list in clusters.values():
-#     if len(ments_list) > 1:
-#         fin_mentions.extend(ments_list)
-#
-# write_mention_to_json(
-#     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit500.json', fin_mentions)
-#############################################################################################
-
 # train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
 #             '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json')
 #
@@ -409,3 +390,73 @@ print("Done!")
 #     str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_limit' + str(MAX_CLUSTERS) + '_topic.json', fin_mentions)
 #
 # print('Done!')
+
+################# SHAFFEL #####################
+
+
+# def shuffel_clust(mentions):
+#     clusters = Clusters.from_mentions_to_gold_clusters(mentions)
+#     clusters = list(clusters.values())
+#     random.shuffle(clusters)
+#     return clusters
+#
+#
+# def new_index(clust_of_clust):
+#     index = 1
+#     ret_mentions = list()
+#     for clust in clust_of_clust:
+#         for ment in clust:
+#             ment.mention_index = index
+#             ret_mentions.append(ment)
+#             index += 1
+#
+#     return ret_mentions
+
+# train_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#              '/resources/dataset_full/wec/train/Event_gold_mentions_clean11.json')
+#
+# dev_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#              '/resources/dataset_full/wec/dev/Event_gold_mentions_clean11.json')
+#
+# test_mentions = MentionData.read_mentions_json_to_mentions_data_list(str(LIBRARY_ROOT) +
+#              '/resources/dataset_full/wec/test/Event_gold_mentions_clean11.json')
+#
+# train_clust = shuffel_clust(train_mentions)
+# dev_clust = shuffel_clust(dev_mentions)
+# test_clust = shuffel_clust(test_mentions)
+#
+# train_ment_fin = new_index(train_clust)
+# dev_ment_fin = new_index(dev_clust)
+# test_ment_fin = new_index(test_clust)
+#
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_clean11.json', train_ment_fin)
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean11.json', dev_ment_fin)
+# write_mention_to_json(str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_clean11.json', test_ment_fin)
+
+
+# calc_singletons(dev_mentions, "dev")
+# print("################################")
+# calc_singletons(test_mentions, "test")
+# print("################################")
+# calc_singletons(train_mentions, "train")
+# print("################################")
+# print("################################")
+#
+# print("Done!")
+
+#####################################################
+
+in_file1 = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/dev_filtered_mentions_dont_use.json'
+in_file2 = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean11_validated.json'
+
+out_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/mixed_valid_disq.json'
+
+mentions = MentionData.read_mentions_json_to_mentions_data_list(in_file1)
+# mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(in_file2))
+
+score = 0
+for ment in mentions:
+    if ment.manual_score == 3:
+        score += 1
+print(str(score))
+# write_mention_to_json(out_file, mentions)

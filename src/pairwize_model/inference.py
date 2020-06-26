@@ -140,7 +140,7 @@ if __name__ == '__main__':
     split_feat = dataset.load_pos_neg_pickle(_event_test_file_pos, _event_test_file_neg)
     # _, _, _, _, pairs_tp, pairs_fp, pairs_tn, pairs_fn = accuracy_on_dataset_local("", 0, _pairwize_model,
     #                                                                                split_feat, extract_on_mention)
-    accuracy_on_dataset("", 0, _pairwize_model, split_feat)
+    accuracy_on_dataset("", 0, _pairwize_model, split_feat, batch_size=30000)
 
     # with open(pairs_tp_out_file, 'w') as f:
     #     for item in pairs_tp:

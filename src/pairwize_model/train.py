@@ -75,9 +75,8 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
     return best_result_for_save
 
 
-def accuracy_on_dataset(testset, epoch, pairwize_model, features):
+def accuracy_on_dataset(testset, epoch, pairwize_model, features, batch_size=10000):
     dataset_size = len(features)
-    batch_size = 10000
     end_index = batch_size
     labels = list()
     predictions = list()

@@ -11,6 +11,12 @@ from src.dataobjs.topics import Topics, Topic
 logger = logging.getLogger(__name__)
 
 
+class TopicConfig(enum.Enum):
+    SubTopic = 1,
+    Topic = 2,
+    SingleTopic = 3
+
+
 # creating enumerations using class
 class Split(enum.Enum):
     Test = 1
@@ -44,7 +50,7 @@ class DataSet(object):
         logger.info('neg-' + str(len(neg_pairs)))
         return self.create_features_from_pos_neg(pos_pairs, neg_pairs)
 
-    def get_pairwise_feat(self, data_file, to_topics=False):
+    def get_pairwise_feat(self, data_file, to_topics=TopicConfig.SubTopic):
         topics_ = Topics()
         topics_.create_from_file(data_file, keep_order=True)
         logger.info('Create pos/neg examples')
@@ -99,8 +105,10 @@ class EcbDataSet(DataSet):
 
     @classmethod
     def create_pos_neg_pairs(cls, topics, to_topic):
-        if not to_topic:
+        if to_topic == TopicConfig.Topic:
             topics = cls.from_ecb_subtopic_to_topic(topics)
+        elif to_topic == TopicConfig.SingleTopic:
+            topics.to_single_topic()
 
         # create positive examples
         positive_pairs = cls.create_pairs(topics, POLARITY.POSITIVE)
@@ -146,12 +154,12 @@ class EcbDataSet(DataSet):
 
 
 class WecDataSet(DataSet):
-    def __init__(self, ratio=-1, split=Split.NA):
-        super(WecDataSet, self).__init__(name="WEC", ratio=ratio)
+    def __init__(self, ratio=-1, split=Split.NA, name="WEC"):
+        super(WecDataSet, self).__init__(name=name, ratio=ratio)
         self.split = split
 
     def create_pos_neg_pairs(self, topics, sub_topics):
-        if not sub_topics:
+        if sub_topics == TopicConfig.SingleTopic:
             topics.to_single_topic()
 
         positive_pairs = EcbDataSet.create_pairs(topics, POLARITY.POSITIVE)
@@ -189,7 +197,7 @@ class WecDataSet(DataSet):
 
     @staticmethod
     def create_combinations(mentions, list_combined_pairs):
-        MAX_SELECT = 1000000
+        MAX_SELECT = 3000000
         pair_list = list(combinations(mentions, 2))
         if len(pair_list) > MAX_SELECT:
             pair_list = random.sample(pair_list, MAX_SELECT)

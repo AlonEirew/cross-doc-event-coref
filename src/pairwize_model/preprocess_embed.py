@@ -55,11 +55,11 @@ if __name__ == '__main__':
     _dataset_name = WecDataSet()
 
     all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/dev/Event_gold_mentions_clean11.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/test/Event_gold_mentions_clean11.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/train/Event_gold_mentions_clean11.json"
+                 "/dev/Event_gold_mentions_clean11_validated.json",
+                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
+                 # "/test/Event_gold_mentions_clean10.json",
+                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
+                 # "/train/Event_gold_mentions_clean10.json"
                  ]
 
     print("Processing files-" + str(all_files))

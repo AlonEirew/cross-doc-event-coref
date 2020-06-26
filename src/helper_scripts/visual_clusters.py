@@ -5,6 +5,7 @@ import spacy
 
 from src import LIBRARY_ROOT
 from src.dataobjs.topics import Topics
+from src.utils.string_utils import StringUtils
 
 
 class VisualCluster(object):
@@ -80,17 +81,24 @@ def visualize_clusters(clusters):
         cluster_ments = clusters.get(cluster_id)
         context_mentions = dict()
         unique_mentions_head = set()
+        unique_mentions_str = set()
         cluster_ments_count = 0
         for mention in cluster_ments:
-            if not hasattr(mention, "manual_score"):
-            # if mention.manual_score in threash:
-                cluster_ments_count += 1
-                unique_mentions_head.add(mention.tokens_str.lower())
-                context, start, end = get_context_start_end(mention)
-                if context not in context_mentions:
-                    context_mentions[context] = list()
-
-                heappush(context_mentions[context], (start, end, mention.mention_id, str(cluster_id)))
+            # if mention.tokens_str not in unique_mentions_str:
+            #     unique_mentions_str.add(mention.tokens_str)
+            # if hasattr(mention, "manual_score"):
+            # if mention.mention_type == 8:
+            cluster_ments_count += 1
+            unique_mentions_head.add(mention.tokens_str.lower())
+            context, start, end = get_context_start_end(mention)
+            if context not in context_mentions:
+                context_mentions[context] = list()
+            if mention.manual_score > 3:
+                is_verb = "NA" #StringUtils.is_verb_phrase(mention.tokens_str)
+                heappush(context_mentions[context], (start, end, "ID:" + mention.mention_id))
+                                                 # str(is_verb) + ", " + mention.mention_ner))
+            else:
+                heappush(context_mentions[context], (start, end, "XX:" + mention.mention_id))
 
         cluster_context = ""
         ents = list()
@@ -100,14 +108,14 @@ def visualize_clusters(clusters):
                 ment_pair = heappop(mentions_heap)
                 real_start = len(cluster_context) + 1 + ment_pair[0]
                 real_end = len(cluster_context) + 1 + ment_pair[1]
-                ent_label = ment_pair[2] + '(' + ment_pair[3] + ')'
+                ent_label = '(' + ment_pair[2] + ')' #+ '(' + ment_pair[3] + ')'
                 ents.append({'start': real_start, 'end': real_end, 'label': ent_label})
 
             cluster_context = cluster_context + '\n' + context
 
         if cluster_ments_count > 0:
-            clust_title = str(cluster_id) + '(mentions:' + str(len(cluster_ments)) \
-                          + ', unique:' + str(len(unique_mentions_head)) + ')'
+            clust_title = str(clusters[cluster_id][0].coref_link) + ' (cluster:' + str(clusters[cluster_id][0].coref_chain) + \
+                          ', mentions:' + str(len(cluster_ments)) + ', unique:' + str(len(unique_mentions_head)) + ')'
 
             dispacy_obj.append({
                 'text': cluster_context,
@@ -138,6 +146,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/dataset_full_clean/wec/train/Event_gold_mentions_validated.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/mixed_valid_disq.json'
     threash = [-1]
     main(_event_file)

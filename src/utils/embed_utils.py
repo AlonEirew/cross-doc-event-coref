@@ -162,6 +162,9 @@ class EmbedForSequenceClassification(EmbedTransformersGenerics):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
             mention, self.tokenizer, self.max_surrounding_contx, self.pad)
 
+        if len(ment1_ids) > 512:
+            logger.info("Mention with ID=" + mention.mention_id + ", exceed models max allowed tokens")
+
         try:
             if self.use_cuda:
                 ment1_ids = ment1_ids.cuda()
@@ -197,6 +200,9 @@ class EmbedModel(EmbedTransformersGenerics):
     def get_mention_full_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
             mention, self.tokenizer, self.max_surrounding_contx, self.pad)
+
+        if len(ment1_ids) > 512:
+            logger.info("Mention with ID=" + mention.mention_id + ", exceed models max allowed tokens")
 
         if self.use_cuda:
             ment1_ids = ment1_ids.cuda()

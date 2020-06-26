@@ -4,7 +4,7 @@ import pickle
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import WecDataSet, EcbDataSet, POLARITY, Split, DataSet
+from src.dataobjs.dataset import WecDataSet, EcbDataSet, POLARITY, Split, DataSet, TopicConfig
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
 
@@ -13,15 +13,15 @@ def generate_pairs():
     event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _data_set.name.lower() + \
                                 "/" + _split.name.lower() + "/" + _res_file
 
-    positive_, negative_ = _data_set.get_pairwise_feat(event_validation_file, to_topics=False)
+    positive_, negative_ = _data_set.get_pairwise_feat(event_validation_file, to_topics=_topic_config)
     # positive_, negative_ = get_feat_alternative(data_set, event_validation_file)
 
     validate_pairs(positive_, negative_)
 
     basename = path.basename(path.splitext(event_validation_file)[0])
     dirname = os.path.dirname(event_validation_file)
-    positive_file = dirname + "/" + basename + "_PosPairs.pickle"
-    negative_file = dirname + "/" + basename + "_NegPairs.pickle"
+    positive_file = dirname + "/" + basename + "_PosPairs2.pickle"
+    negative_file = dirname + "/" + basename + "_NegPairs2.pickle"
 
     print("Positives=" + str(len(positive_)))
     pickle.dump(positive_, open(positive_file, "w+b"))
@@ -90,6 +90,7 @@ if __name__ == '__main__':
     _res_folder = "dataset_full"
     _split = Split.Train
     _ratio = -1
+    _topic_config = TopicConfig.SingleTopic
     _data_set = WecDataSet(ratio=_ratio, split=_split)
     _res_file = "Event_gold_mentions_clean11.json"
     print("Generating pairs for file-" + _res_folder + "/" + "/" + _res_file)
