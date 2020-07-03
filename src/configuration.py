@@ -65,7 +65,7 @@ class Configuration(object):
         """ TRAIN CONFIGURATION """
         self.learning_rate = 1e-4
         self.batch_size = 32
-        self.ratio = 35
+        self.ratio = 5
         self.iterations = 10
         self.use_cuda = True
         self.save_model = True
@@ -80,23 +80,23 @@ class Configuration(object):
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + self.train_dataset.name + "_" + self.dev_dataset.name + \
-                                "_valid_dev_220620_" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
+                                "_valid_dev_260620_" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
         self.event_train_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_clean11_PosPairs.pickle"
+                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_clean12_PosPairs.pickle"
         self.event_train_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_clean11_NegPairs.pickle"
+                                     self.train_dataset.name.lower() + "/train/Event_gold_mentions_clean12_NegPairs.pickle"
         self.event_validation_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_clean11_validated_PosPairs.pickle"
+                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_clean12_validated_PosPairs.pickle"
         self.event_validation_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
-                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_clean11_validated_NegPairs.pickle"
+                                          self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_clean12_validated_NegPairs.pickle"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.train_dataset.name.lower() +
-                             "/train/Event_gold_mentions_clean11_" + self.embed_config.embed_type.name.lower() + ".pickle",
+                             "/train/Event_gold_mentions_clean12_" + self.embed_config.embed_type.name.lower() + ".pickle",
                              str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.dev_dataset.name.lower() +
-                             "/dev/Event_gold_mentions_clean11_validated_" + self.embed_config.embed_type.name.lower() + ".pickle",
+                             "/dev/Event_gold_mentions_clean12_validated_" + self.embed_config.embed_type.name.lower() + ".pickle",
                             ]
 
     def init_inference(self):
@@ -126,7 +126,7 @@ class Configuration(object):
         # cluster_topics = experiment without topic classification first
         self.context_set = "dataset_full"
         self.split = Split.Test
-        self.test_dataset = EcbDataSet()
+        self.test_dataset = WecDataSet()
         self.to_single_topic = True
 
         self.cluster_extractor = RelationTypeEnum.PAIRWISE
@@ -134,17 +134,17 @@ class Configuration(object):
         self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
         self.cluster_pairs_thresh = [1.0]
-        self.cluster_average_link_thresh = [0.1, 0.6]
+        self.cluster_average_link_thresh = [0.85]
 
         self.mentions_file = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.test_dataset.name.lower() + \
-                        "/" + self.split.name.lower() + "/" + "Event_gold_mentions.json"
+                        "/" + self.split.name.lower() + "/" + "Event_gold_mentions_clean12_validated.json"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set +
                             "/" + self.test_dataset.name.lower() + "/" + self.split.name.lower() +
-                            "/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle"]
+                            "/Event_gold_mentions_clean12_validated_" + self.embed_config.embed_type.name.lower() + ".pickle"]
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_130620_roberta_large_20iter_4"
-        self.save_model_file = str(LIBRARY_ROOT) + "/output/120620_trnsf_wec_" + \
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_valid_dev_260620_roberta_large_10iter_5"
+        self.save_model_file = str(LIBRARY_ROOT) + "/output/280620_" + \
                                 self.test_dataset.name + "_" + self.split.name
 
 ################################################################################

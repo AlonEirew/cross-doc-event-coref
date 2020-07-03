@@ -259,7 +259,7 @@ def create_split_stats(mentions_file, tokenizer, split):
 
 if __name__ == '__main__':
     # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean11_validated.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean12_validated.json'
 
     _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
 

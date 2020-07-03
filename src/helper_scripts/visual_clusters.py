@@ -84,6 +84,8 @@ def visualize_clusters(clusters):
         unique_mentions_str = set()
         cluster_ments_count = 0
         for mention in cluster_ments:
+            if mention.mention_type == 1:
+                continue
             # if mention.tokens_str not in unique_mentions_str:
             #     unique_mentions_str.add(mention.tokens_str)
             # if hasattr(mention, "manual_score"):
@@ -93,12 +95,12 @@ def visualize_clusters(clusters):
             context, start, end = get_context_start_end(mention)
             if context not in context_mentions:
                 context_mentions[context] = list()
-            if mention.manual_score > 3:
-                is_verb = "NA" #StringUtils.is_verb_phrase(mention.tokens_str)
-                heappush(context_mentions[context], (start, end, "ID:" + mention.mention_id))
+            # if mention.manual_score > 3:
+            is_verb = "NA" #StringUtils.is_verb_phrase(mention.tokens_str)
+            heappush(context_mentions[context], (start, end, "ID:" + mention.mention_id))
                                                  # str(is_verb) + ", " + mention.mention_ner))
-            else:
-                heappush(context_mentions[context], (start, end, "XX:" + mention.mention_id))
+            # else:
+            #     heappush(context_mentions[context], (start, end, "XX:" + mention.mention_id))
 
         cluster_context = ""
         ents = list()
@@ -146,6 +148,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/mixed_valid_disq.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/tmp/elect.json'
     threash = [-1]
     main(_event_file)

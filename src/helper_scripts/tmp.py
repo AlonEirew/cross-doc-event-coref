@@ -446,17 +446,25 @@ from src.utils.sqlite_utils import create_connection, select_from_validation, se
 
 #####################################################
 
-in_file1 = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/dev_filtered_mentions_dont_use.json'
-in_file2 = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean11_validated.json'
+in_all = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/all/Event_gold_mentions_clean8_uncut_span7.json'
+in_splt = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_clean11_validated.json'
 
-out_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/mixed_valid_disq.json'
+out_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean12_validated.json'
 
-mentions = MentionData.read_mentions_json_to_mentions_data_list(in_file1)
-# mentions.extend(MentionData.read_mentions_json_to_mentions_data_list(in_file2))
+mentions_all = MentionData.read_mentions_json_to_mentions_data_list(in_all)
+mentions_splt = MentionData.read_mentions_json_to_mentions_data_list(in_splt)
 
 score = 0
-for ment in mentions:
-    if ment.manual_score == 3:
-        score += 1
-print(str(score))
-# write_mention_to_json(out_file, mentions)
+out_splt = list()
+for ment_splt in mentions_splt:
+    for ment_all in mentions_all:
+        if ment_splt.mention_id == ment_all.mention_id:
+            ment_splt.tokens_str = ment_all.tokens_str
+            ment_splt.tokens_number = ment_all.tokens_number
+            ment_splt.mention_head = ment_all.mention_head
+            ment_splt.mention_head_lemma = ment_all.mention_head_lemma
+            ment_splt.mention_head_pos = ment_all.mention_head_pos
+
+
+write_mention_to_json(out_file, mentions_splt)
+print("Done!")

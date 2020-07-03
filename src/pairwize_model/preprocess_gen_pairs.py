@@ -20,8 +20,8 @@ def generate_pairs():
 
     basename = path.basename(path.splitext(event_validation_file)[0])
     dirname = os.path.dirname(event_validation_file)
-    positive_file = dirname + "/" + basename + "_PosPairs2.pickle"
-    negative_file = dirname + "/" + basename + "_NegPairs2.pickle"
+    positive_file = dirname + "/" + basename + "_PosPairs.pickle"
+    negative_file = dirname + "/" + basename + "_NegPairs.pickle"
 
     print("Positives=" + str(len(positive_)))
     pickle.dump(positive_, open(positive_file, "w+b"))
@@ -88,11 +88,11 @@ def output_examples():
 
 if __name__ == '__main__':
     _res_folder = "dataset_full"
-    _split = Split.Train
+    _split = Split.Test
     _ratio = -1
     _topic_config = TopicConfig.SingleTopic
     _data_set = WecDataSet(ratio=_ratio, split=_split)
-    _res_file = "Event_gold_mentions_clean11.json"
-    print("Generating pairs for file-" + _res_folder + "/" + "/" + _res_file)
+    _res_file = "Event_gold_mentions_clean12_validated.json"
+    print("Generating pairs for file-/" + _res_folder + "/" + _split.name + "/" + _res_file)
     generate_pairs()
     # output_examples()
