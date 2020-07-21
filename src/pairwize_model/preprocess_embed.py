@@ -31,9 +31,10 @@ def extract_feature_dict(topics: Topics, embed_utils):
     return result_train
 
 
-def worker(resource_file):
-    embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
-    embed_utils = embed_config.get_embed_utils(max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False)
+def worker(resource_file, embed_enum, max_surrounding_contx, finetune, use_cuda, pad):
+    embed_config = EmbeddingConfig(embed_enum)
+    embed_utils = embed_config.get_embed_utils(max_surrounding_contx=max_surrounding_contx,
+                                               finetune=finetune, use_cuda=use_cuda, pad=pad)
     name = multiprocessing.current_process().name
     print(name, "Starting")
 
@@ -52,21 +53,28 @@ def worker(resource_file):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     _res_folder = "dataset_full"
-    _dataset_name = WecDataSet()
+    _dataset_name = EcbDataSet()
 
-    all_files = [#str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 # "/dev/Event_gold_mentions_clean12_validated.json",
+    _embed_enum = EmbeddingEnum.ROBERTA_LARGE
+    _max_surrounding_contx = -1
+    _finetune = False
+    _use_cuda = True
+    _pad = False
+
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
+                 "/dev/Event_gold_mentions.json",
                  str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 "/test/Event_gold_mentions_clean12_validated.json",
-                 # str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
-                 # "/train/Event_gold_mentions_clean12.json"
+                 "/test/Event_gold_mentions.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _res_folder + "/" + _dataset_name.name.lower() +
+                 "/train/Event_gold_mentions.json"
                  ]
 
     print("Processing files-" + str(all_files))
 
     jobs = list()
     for _resource_file in all_files:
-        job = multiprocessing.Process(target=worker, args=(_resource_file,))
+        job = multiprocessing.Process(target=worker, args=(_resource_file, _embed_enum,
+                                                           _max_surrounding_contx, _finetune, _use_cuda, _pad))
         jobs.append(job)
         job.start()
 

@@ -5,7 +5,10 @@ import torch
 from enum import Enum
 from torch import nn
 from transformers import BertTokenizer, BertForSequenceClassification, RobertaTokenizer, RobertaModel, \
-    RobertaForSequenceClassification, BertModel, RobertaConfig
+    RobertaForSequenceClassification, BertModel, ReformerTokenizer, ReformerModel, \
+    AutoTokenizer, AutoModelWithLMHead, ReformerModelWithLMHead
+
+from src.utils.MyReformerTokenizer import MyReforemerTokenizer
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +18,8 @@ class EmbeddingEnum(Enum):
     BERT_FOR_SEQ_CLASSIFICATION = 2
     ROBERTA_LARGE = 3
     ROBERTA_FOR_SEQ_CLASSIFICATION = 4
+    REFORMERS_CRIME = 5
+    REFORMERS_WIKI = 6
 
 
 class EmbeddingConfig(object):
@@ -43,12 +48,27 @@ class EmbeddingConfig(object):
             self.model = RobertaForSequenceClassification.from_pretrained(
                 self.model_name, output_hidden_states=True, output_attentions=True)
             self.tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
+        elif embed_enum == EmbeddingEnum.REFORMERS_CRIME:
+            self.model_name = "google/reformer-crime-and-punishment"
+            self.model_size = 512
+            self.tokenizer = ReformerTokenizer.from_pretrained(self.model_name)
+            self.model = ReformerModel.from_pretrained(self.model_name)
+        # elif embed_enum == EmbeddingEnum.REFORMERS_WIKI:
+        #     self.model_name = "google/reformer-enwik8"
+        #     self.model_size = 512
+        #     self.model = ReformerModelWithLMHead.from_pretrained("google/reformer-enwik8")
+        #     self.tokenizer = MyReforemerTokenizer()
+        else:
+            raise Exception("Embedding enum=" + embed_enum.name + ", not defined!")
 
     def get_embed_utils(self, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False):
-        if self.embed_type in [EmbeddingEnum.BERT_LARGE_CASED, EmbeddingEnum.ROBERTA_LARGE]:
+        if self.embed_type in [EmbeddingEnum.BERT_LARGE_CASED, EmbeddingEnum.ROBERTA_LARGE,
+                               EmbeddingEnum.REFORMERS_WIKI, EmbeddingEnum.REFORMERS_CRIME]:
             return EmbedModel(self, max_surrounding_contx, finetune, use_cuda, pad)
         elif self.embed_type in [EmbeddingEnum.BERT_FOR_SEQ_CLASSIFICATION, EmbeddingEnum.ROBERTA_FOR_SEQ_CLASSIFICATION]:
             return EmbedForSequenceClassification(self, max_surrounding_contx, finetune, use_cuda, pad)
+        else:
+            raise Exception("Embedding enum=" + self.embed_type.name + ", not defined!")
 
 
 class EmbedTransformersGenerics(nn.Module):
@@ -59,7 +79,7 @@ class EmbedTransformersGenerics(nn.Module):
         super(EmbedTransformersGenerics, self).__init__()
         self.model = model
         self.tokenizer = tokenizer
-        self.max_surrounding_contx=max_surrounding_contx
+        self.max_surrounding_contx = max_surrounding_contx
         self.pad = pad
         self.use_cuda = use_cuda
         self.finetune = finetune
@@ -75,12 +95,12 @@ class EmbedTransformersGenerics(nn.Module):
     def extract_mention_surrounding_context(mention, max_surrounding_contx):
         tokens_inds = mention.tokens_number
         context = mention.mention_context
-        start_mention_id = tokens_inds[0]
-        end_mention_id = tokens_inds[-1] + 1
+        start_mention_index = tokens_inds[0]
+        end_mention_index = tokens_inds[-1] + 1
 
         if max_surrounding_contx != -1:
-            context_before = start_mention_id - max_surrounding_contx
-            context_after = end_mention_id + max_surrounding_contx
+            context_before = start_mention_index - max_surrounding_contx
+            context_after = end_mention_index + max_surrounding_contx
             if context_before < 0:
                 context_before = 0
 
@@ -90,9 +110,9 @@ class EmbedTransformersGenerics(nn.Module):
             context_before = 0
             context_after = len(context)
 
-        ret_context_before = context[context_before:start_mention_id]
-        ret_mention = context[start_mention_id:end_mention_id]
-        ret_context_after = context[end_mention_id:context_after]
+        ret_context_before = context[context_before:start_mention_index]
+        ret_mention = context[start_mention_index:end_mention_index]
+        ret_context_after = context[end_mention_index:context_after]
 
         return ret_context_before, ret_mention, ret_context_after
 
@@ -104,19 +124,20 @@ class EmbedTransformersGenerics(nn.Module):
         cntx_before, cntx_after = cntx_before_str, cntx_after_str
         try:
             if len(cntx_before_str) != 0:
-                cntx_before = tokenizer.encode(" ".join(cntx_before_str))[0:-1]
+                cntx_before = tokenizer.encode(" ".join(cntx_before_str), add_special_tokens=False)
             if len(cntx_after_str) != 0:
-                cntx_after = tokenizer.encode(" ".join(cntx_after_str))[1:]
+                cntx_after = tokenizer.encode(" ".join(cntx_after_str), add_special_tokens=False)
         except:
             print("FAILD on MentionID=" + mention.mention_id)
             raise
 
-        if len(cntx_before) > max_surrounding_contx:
-            cntx_before = [cntx_before[0]] + cntx_before[-max_surrounding_contx+1:]
-        if len(cntx_after) > max_surrounding_contx:
-            cntx_after = cntx_after[:max_surrounding_contx-1] + [cntx_after[-1]]
+        if max_surrounding_contx != -1:
+            if len(cntx_before) > max_surrounding_contx:
+                cntx_before = [cntx_before[0]] + cntx_before[-max_surrounding_contx+1:]
+            if len(cntx_after) > max_surrounding_contx:
+                cntx_after = cntx_after[:max_surrounding_contx-1] + [cntx_after[-1]]
 
-        ment_span = tokenizer.encode(" ".join(ment_span_str))[1:-1]
+        ment_span = tokenizer.encode(" ".join(ment_span_str), add_special_tokens=False)
         tokens_length = len(cntx_before) + len(cntx_after) + len(ment_span)
         att_mask = [1] * tokens_length
 
@@ -201,17 +222,17 @@ class EmbedModel(EmbedTransformersGenerics):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
             mention, self.tokenizer, self.max_surrounding_contx, self.pad)
 
-        if len(ment1_ids) > 512:
-            logger.info("Mention with ID=" + mention.mention_id + ", exceed models max allowed tokens")
+        # if len(ment1_ids) > 512:
+        #     logger.info("Mention with ID=" + mention.mention_id + ", exceed models max allowed tokens")
 
         if self.use_cuda:
             ment1_ids = ment1_ids.cuda()
 
         if not self.finetune:
             with torch.no_grad():
-                last_hidden_span, _ = self.model(ment1_ids)
+                last_hidden_span = self.model(ment1_ids)[0]
         else:
-            last_hidden_span, _ = self.model(ment1_ids)
+            last_hidden_span = self.model(ment1_ids)[0]
 
         last_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[ment1_inx_start:ment1_inx_end]
 
