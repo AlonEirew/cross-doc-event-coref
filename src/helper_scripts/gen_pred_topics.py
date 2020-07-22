@@ -81,6 +81,6 @@ def main(full_context_file, test_mentions_json, predicted_mentions_out_json):
 
 
 if __name__ == '__main__':
-    main(str(LIBRARY_ROOT) + "/resources/dataset_full/ecb_full_contest_file.json",
+    main(str(LIBRARY_ROOT) + "/resources/ecb/ecb_full_contest_file.json",
          str(LIBRARY_ROOT) + '/resources/dataset_full/ECB_Test_Full_Event_gold_mentions.json',
          str(LIBRARY_ROOT) + '/resources/dataset_full/ECB_Test_Full_Event_gold_predicted_topic_mentions.json')

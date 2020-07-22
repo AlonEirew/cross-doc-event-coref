@@ -1,25 +1,6 @@
-import json
-import pickle
-import sys
-
-import ntpath
-import re
-from os import listdir
-
-import random
-from sklearn import metrics
-
 from src import LIBRARY_ROOT
-from src.dataobjs.cluster import Clusters
-from src.dataobjs.dataset import Split
 from src.dataobjs.mention_data import MentionData
-from src.helper_scripts.stats_calculation import calc_singletons
-from src.utils.embed_utils import EmbedFromFile
-from src.utils.string_utils import StringUtils
-from src.dataobjs.topics import Topics, Topic
-from src.helper_scripts.extract_wec_tojson import clean_long_mentions, extract_from_sql
-from src.utils.io_utils import load_pickle, write_mention_to_json
-from src.utils.sqlite_utils import create_connection, select_from_validation, select_all_from_mentions
+from src.utils.io_utils import write_mention_to_json
 
 # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/train/Event_gold_mentions_validated2.json'
 # train_mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_train)

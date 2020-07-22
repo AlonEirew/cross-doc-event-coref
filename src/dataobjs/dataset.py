@@ -187,7 +187,7 @@ class WecDataSet(DataSet):
                     all_mentions[all_ment_index].append(mentions_list[index])
                     found = True
 
-        # create WEC negative challenging examples
+        # create WEC negative examples
         list_combined_pairs = list()
         for mention_list in all_mentions:
             if len(mention_list) > 2:

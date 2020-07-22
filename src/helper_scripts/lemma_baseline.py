@@ -3,7 +3,7 @@ import logging
 import torch
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import EcbDataSet, WecDataSet, Split
+from src.dataobjs.dataset import EcbDataSet
 from src.pairwize_model.train import get_measurements_bool_clasification
 
 logger = logging.getLogger(__name__)

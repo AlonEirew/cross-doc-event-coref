@@ -2,9 +2,10 @@ from enum import Enum
 
 from src import LIBRARY_ROOT
 from src.coref_system.relation_extraction import RelationTypeEnum
-from src.dataobjs.dataset import Split, EcbDataSet, WecDataSet, DataSet
+from src.dataobjs.dataset import Split, EcbDataSet, WecDataSet
 from src.utils.clustering_utils import ClusteringType
 from src.utils.embed_utils import EmbeddingConfig, EmbeddingEnum
+
 
 ########################## Train Model Params ################################
 

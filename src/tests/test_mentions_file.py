@@ -1,11 +1,8 @@
-import unittest
-
 import torch
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import EcbDataSet, WecDataSet
-from src.dataobjs.mention_data import MentionData, MentionDataLight
-from src.utils.embed_utils import EmbedTransformersGenerics, EmbeddingEnum, EmbeddingConfig
+from src.dataobjs.mention_data import MentionData
+from src.utils.embed_utils import EmbedTransformersGenerics
 from src.utils.string_utils import StringUtils
 
 

@@ -2,88 +2,28 @@ import logging
 import pickle
 
 import torch
-from enum import Enum
 from torch import nn
-from transformers import BertTokenizer, BertForSequenceClassification, RobertaTokenizer, RobertaModel, \
-    RobertaForSequenceClassification, BertModel, ReformerTokenizer, ReformerModel, \
-    AutoTokenizer, AutoModelWithLMHead, ReformerModelWithLMHead
-
-from src.utils.MyReformerTokenizer import MyReforemerTokenizer
+from transformers import RobertaTokenizer, RobertaModel
 
 logger = logging.getLogger(__name__)
 
-
-class EmbeddingEnum(Enum):
-    BERT_LARGE_CASED = 1
-    BERT_FOR_SEQ_CLASSIFICATION = 2
-    ROBERTA_LARGE = 3
-    ROBERTA_FOR_SEQ_CLASSIFICATION = 4
-    REFORMERS_CRIME = 5
-    REFORMERS_WIKI = 6
-
-
-class EmbeddingConfig(object):
-    def __init__(self, embed_enum: EmbeddingEnum):
-        self.embed_type = embed_enum
-
-        if embed_enum == EmbeddingEnum.BERT_LARGE_CASED:
-            self.model_name = "bert-large-cased"
-            self.model_size = 1024
-            self.model = BertModel.from_pretrained(self.model_name)
-            self.tokenizer = BertTokenizer.from_pretrained(self.model_name)
-        elif embed_enum == EmbeddingEnum.BERT_FOR_SEQ_CLASSIFICATION:
-            self.model_name = "bert-large-cased"
-            self.model_size = 1024
-            self.model = BertForSequenceClassification.from_pretrained(
-                self.model_name, output_hidden_states=True, output_attentions=True)
-            self.tokenizer = BertTokenizer.from_pretrained(self.model_name)
-        elif embed_enum == EmbeddingEnum.ROBERTA_LARGE:
-            self.model_name = "roberta-large"
-            self.model_size = 1024
-            self.model = RobertaModel.from_pretrained(self.model_name)
-            self.tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
-        elif embed_enum == EmbeddingEnum.ROBERTA_FOR_SEQ_CLASSIFICATION:
-            self.model_name = "roberta-large"
-            self.model_size = 1024
-            self.model = RobertaForSequenceClassification.from_pretrained(
-                self.model_name, output_hidden_states=True, output_attentions=True)
-            self.tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
-        elif embed_enum == EmbeddingEnum.REFORMERS_CRIME:
-            self.model_name = "google/reformer-crime-and-punishment"
-            self.model_size = 512
-            self.tokenizer = ReformerTokenizer.from_pretrained(self.model_name)
-            self.model = ReformerModel.from_pretrained(self.model_name)
-        # elif embed_enum == EmbeddingEnum.REFORMERS_WIKI:
-        #     self.model_name = "google/reformer-enwik8"
-        #     self.model_size = 512
-        #     self.model = ReformerModelWithLMHead.from_pretrained("google/reformer-enwik8")
-        #     self.tokenizer = MyReforemerTokenizer()
-        else:
-            raise Exception("Embedding enum=" + embed_enum.name + ", not defined!")
-
-    def get_embed_utils(self, max_surrounding_contx=250, finetune=False, use_cuda=True, pad=False):
-        if self.embed_type in [EmbeddingEnum.BERT_LARGE_CASED, EmbeddingEnum.ROBERTA_LARGE,
-                               EmbeddingEnum.REFORMERS_WIKI, EmbeddingEnum.REFORMERS_CRIME]:
-            return EmbedModel(self, max_surrounding_contx, finetune, use_cuda, pad)
-        elif self.embed_type in [EmbeddingEnum.BERT_FOR_SEQ_CLASSIFICATION, EmbeddingEnum.ROBERTA_FOR_SEQ_CLASSIFICATION]:
-            return EmbedForSequenceClassification(self, max_surrounding_contx, finetune, use_cuda, pad)
-        else:
-            raise Exception("Embedding enum=" + self.embed_type.name + ", not defined!")
+# self.model_name = "roberta-large"
+# self.model_size = 1024
+# self.model = RobertaModel.from_pretrained(self.model_name)
+# self.tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
 
 
 class EmbedTransformersGenerics(nn.Module):
-    def __init__(self, model=None, tokenizer=None, max_surrounding_contx=10,
-                 finetune=False, use_cuda=True, pad=False,
-                 embed_size=-1):
+    def __init__(self, max_surrounding_contx=10,
+                 finetune=False, use_cuda=True):
 
         super(EmbedTransformersGenerics, self).__init__()
-        self.model = model
-        self.tokenizer = tokenizer
+        self.model = RobertaModel.from_pretrained("roberta-large")
+        self.tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
         self.max_surrounding_contx = max_surrounding_contx
-        self.pad = pad
         self.use_cuda = use_cuda
         self.finetune = finetune
-        self.embed_size = embed_size
+        self.embed_size = 1024
 
         if self.use_cuda:
             self.model.cuda()
@@ -117,7 +57,7 @@ class EmbedTransformersGenerics(nn.Module):
         return ret_context_before, ret_mention, ret_context_after
 
     @staticmethod
-    def mention_feat_to_vec(mention, tokenizer, max_surrounding_contx, pad):
+    def mention_feat_to_vec(mention, tokenizer, max_surrounding_contx):
         cntx_before_str, ment_span_str, cntx_after_str = EmbedTransformersGenerics.\
             extract_mention_surrounding_context(mention, max_surrounding_contx)
 
@@ -148,82 +88,20 @@ class EmbedTransformersGenerics(nn.Module):
         if isinstance(cntx_after, torch.Tensor):
             cntx_after = cntx_after.tolist()
 
-        if pad:
-            padding_length = 75 - tokens_length
-            padding = [0] * padding_length
-            sent_tokens = cntx_before + ment_span + cntx_after + padding
-            att_mask += padding
-        else:
-            sent_tokens = cntx_before + ment_span + cntx_after
-
-        sent_tokens = torch.tensor([sent_tokens])
+        sent_tokens = torch.tensor([cntx_before + ment_span + cntx_after])
         att_mask = torch.tensor([att_mask])
         return sent_tokens, att_mask, len(cntx_before), len(cntx_before) + len(ment_span)
 
 
-class EmbedForSequenceClassification(EmbedTransformersGenerics):
-    def __init__(self, embed_config: EmbeddingConfig, max_surrounding_contx=10,
-                 finetune=False, use_cuda=True, pad=False):
-
-        super(EmbedForSequenceClassification, self).__init__(model=embed_config.model,
-                                                             tokenizer=embed_config.tokenizer,
-                                                             max_surrounding_contx=max_surrounding_contx,
-                                                             finetune=finetune, use_cuda=use_cuda, pad=pad,
-                                                             embed_size=embed_config.model_size)
-
-    def get_mentions_rep(self, mentions_list):
-        ret_embeds = list()
-        for mention in mentions_list:
-            hiddens, first_tok, last_tok, ment_size = self.get_mention_full_rep(mention)
-            ret_embeds.append((hiddens, first_tok, last_tok, ment_size))
-
-        return ret_embeds
-
-    def get_mention_full_rep(self, mention):
-        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-            mention, self.tokenizer, self.max_surrounding_contx, self.pad)
-
-        if len(ment1_ids) > 512:
-            logger.info("Mention with ID=" + mention.mention_id + ", exceed models max allowed tokens")
-
-        try:
-            if self.use_cuda:
-                ment1_ids = ment1_ids.cuda()
-                att_mask = att_mask.cuda()
-
-            if not self.finetune:
-                with torch.no_grad():
-                    all_hidden_states = self.model(ment1_ids, attention_mask=att_mask)[1]
-            else:
-                all_hidden_states = self.model(ment1_ids, attention_mask=att_mask)[1]
-        except:
-            print("FAILD on TopicId:" + mention.topic_id + " MentionID=" + mention.mention_id)
-            raise
-
-        last_hidden_span = all_hidden_states[-1].view(all_hidden_states[-1].shape[1], -1)[ment1_inx_start:ment1_inx_end]
-
-        return last_hidden_span, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
-
-    def get_embed_size(self):
-        return self.embed_size
-
-
 class EmbedModel(EmbedTransformersGenerics):
-    def __init__(self, embed_config: EmbeddingConfig,
-                 max_surrounding_contx=10, finetune=False, use_cuda=True, pad=False):
+    def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True):
 
-        super(EmbedModel, self).__init__(model=embed_config.model,
-                                         tokenizer=embed_config.tokenizer,
-                                         max_surrounding_contx=max_surrounding_contx,
-                                         finetune=finetune, use_cuda=use_cuda, pad=pad,
-                                         embed_size=embed_config.model_size)
+        super(EmbedModel, self).__init__(max_surrounding_contx=max_surrounding_contx,
+                                         finetune=finetune, use_cuda=use_cuda)
 
     def get_mention_full_rep(self, mention):
         ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-            mention, self.tokenizer, self.max_surrounding_contx, self.pad)
-
-        # if len(ment1_ids) > 512:
-        #     logger.info("Mention with ID=" + mention.mention_id + ", exceed models max allowed tokens")
+            mention, self.tokenizer, self.max_surrounding_contx)
 
         if self.use_cuda:
             ment1_ids = ment1_ids.cuda()
