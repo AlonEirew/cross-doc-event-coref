@@ -84,8 +84,8 @@ def visualize_clusters(clusters):
         unique_mentions_str = set()
         cluster_ments_count = 0
         for mention in cluster_ments:
-            if mention.mention_type == 1:
-                continue
+            # if mention.mention_type == 1:
+            #     continue
             # if mention.tokens_str not in unique_mentions_str:
             #     unique_mentions_str.add(mention.tokens_str)
             # if hasattr(mention, "manual_score"):
@@ -148,6 +148,6 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/tmp/elect.json'
-    threash = [-1]
+    _event_file = str(LIBRARY_ROOT) + '/resources/Event_gold_mentions.json'
+    threash = []
     main(_event_file)
