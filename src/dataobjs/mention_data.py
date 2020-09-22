@@ -37,10 +37,8 @@ class MentionData(MentionDataLight):
     def __init__(self, mention_id, topic_id: str, doc_id: str, sent_id: int, tokens_numbers: List[int],
                  tokens_str: str, mention_context: List[str], mention_head: str,
                  mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA', coref_link: str = "NA",
-                 is_continuous: bool = True, is_singleton: bool = False, score: float = float(-1),
-                 predicted_coref_chain: str = None, mention_pos: str = None,
-                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False,
-                 min_span_str: str = None, min_span_ids: List[int] = None, manual_score: int = -1) -> None:
+                 is_continuous: bool = True, is_singleton: bool = False, predicted_coref_chain: str = None, mention_pos: str = None,
+                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False, manual_score: int = -1) -> None:
         """
         Object represent a mention
 
@@ -59,8 +57,6 @@ class MentionData(MentionDataLight):
             mention_pos: str
             mention_ner: str
             mention_index: in case order is of value (default = -1)
-            min_span_str: the minimum span of the mention (extracted "Using Automatically
-                    Extracted Minimum Spans to Disentangle Coreference Evaluation from Boundary Detection")
         """
         super(MentionData, self).__init__(tokens_str, mention_context, mention_head,
                                           mention_head_lemma, mention_pos,
@@ -73,10 +69,7 @@ class MentionData(MentionDataLight):
         self.coref_chain = coref_chain
         self.is_continuous = is_continuous
         self.is_singleton = is_singleton
-        self.score = score
         self.predicted_coref_chain = predicted_coref_chain
-        self.min_span_str = min_span_str
-        self.min_span_ids = min_span_ids
         self.coref_link = coref_link
 
         if manual_score > 0:
@@ -107,7 +100,6 @@ class MentionData(MentionDataLight):
             doc_id = None
             sent_id = None
             tokens_numbers = None
-            score = -1
             mention_type = None
             coref_link = "NA"
             predicted_coref_chain = None
@@ -117,8 +109,6 @@ class MentionData(MentionDataLight):
             mention_pos = None
             mention_ner = None
             mention_index = -1
-            min_span_str = None
-            min_span_ids = None
             manual_score = -1
 
             mention_text = mention_line['tokens_str']
@@ -159,8 +149,6 @@ class MentionData(MentionDataLight):
 
             if 'mention_type' in mention_line:
                 mention_type = mention_line['mention_type']
-            if 'score' in mention_line:
-                score = mention_line['score']
 
             if 'is_continuous' in mention_line:
                 is_continue = mention_line['is_continuous']
@@ -173,12 +161,6 @@ class MentionData(MentionDataLight):
 
             if 'mention_index' in mention_line:
                 mention_index = mention_line['mention_index']
-
-            if 'min_span_str' in mention_line:
-                min_span_str = mention_line['min_span_str']
-
-            if 'min_span_ids' in mention_line:
-                min_span_ids = mention_line['min_span_ids']
 
             if 'manual_score' in mention_line:
                 manual_score = mention_line['manual_score']
@@ -200,13 +182,10 @@ class MentionData(MentionDataLight):
                                        coref_link=coref_link,
                                        is_continuous=is_continue,
                                        is_singleton=is_singleton,
-                                       score=score,
                                        predicted_coref_chain=predicted_coref_chain,
                                        mention_pos=mention_pos,
                                        mention_ner=mention_ner,
                                        mention_index=mention_index,
-                                       min_span_str=min_span_str,
-                                       min_span_ids=min_span_ids,
                                        manual_score=manual_score)
         except Exception:
             print('Unexpected error:', sys.exc_info()[0])

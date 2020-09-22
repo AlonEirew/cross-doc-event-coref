@@ -17,6 +17,11 @@ from src.utils.io_utils import write_mention_to_json
 # print(str(len(final_mentions)))
 # write_mention_to_json(output_file, final_mentions)
 # print("Done!")
+###################################################################################
+event_mentions_file = str(LIBRARY_ROOT) + '/resources/wec/train/Event_gold_mentions_clean12.json'
+output_file = str(LIBRARY_ROOT) + '/resources/wec/train/Event_gold_mentions_clean13.json'
+mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
+write_mention_to_json(output_file, mentions)
 
 ###################################################################################
 # PERCENT = 80
@@ -427,25 +432,25 @@ from src.utils.io_utils import write_mention_to_json
 
 #####################################################
 
-in_all = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/all/Event_gold_mentions_clean8_uncut_span7.json'
-in_splt = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_clean11_validated.json'
-
-out_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean12_validated.json'
-
-mentions_all = MentionData.read_mentions_json_to_mentions_data_list(in_all)
-mentions_splt = MentionData.read_mentions_json_to_mentions_data_list(in_splt)
-
-score = 0
-out_splt = list()
-for ment_splt in mentions_splt:
-    for ment_all in mentions_all:
-        if ment_splt.mention_id == ment_all.mention_id:
-            ment_splt.tokens_str = ment_all.tokens_str
-            ment_splt.tokens_number = ment_all.tokens_number
-            ment_splt.mention_head = ment_all.mention_head
-            ment_splt.mention_head_lemma = ment_all.mention_head_lemma
-            ment_splt.mention_head_pos = ment_all.mention_head_pos
-
-
-write_mention_to_json(out_file, mentions_splt)
-print("Done!")
+# in_all = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/all/Event_gold_mentions_clean8_uncut_span7.json'
+# in_splt = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/test/Event_gold_mentions_clean11_validated.json'
+#
+# out_file = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean12_validated.json'
+#
+# mentions_all = MentionData.read_mentions_json_to_mentions_data_list(in_all)
+# mentions_splt = MentionData.read_mentions_json_to_mentions_data_list(in_splt)
+#
+# score = 0
+# out_splt = list()
+# for ment_splt in mentions_splt:
+#     for ment_all in mentions_all:
+#         if ment_splt.mention_id == ment_all.mention_id:
+#             ment_splt.tokens_str = ment_all.tokens_str
+#             ment_splt.tokens_number = ment_all.tokens_number
+#             ment_splt.mention_head = ment_all.mention_head
+#             ment_splt.mention_head_lemma = ment_all.mention_head_lemma
+#             ment_splt.mention_head_pos = ment_all.mention_head_pos
+#
+#
+# write_mention_to_json(out_file, mentions_splt)
+# print("Done!")
