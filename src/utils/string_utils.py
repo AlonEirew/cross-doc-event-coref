@@ -1,10 +1,6 @@
-import collections
-
 import os
-import re
-import string
-from typing import List
 
+import nltk
 import spacy
 from spacy.tokens import Doc
 
@@ -83,3 +79,27 @@ class StringUtils(object):
                 return True
         return False
 
+    @staticmethod
+    def is_spacy_verb_phrase(mention):
+        doc = Doc(StringUtils.spacy_parser.vocab, words=mention.mention_context)
+        parsed_doc = StringUtils.spacy_parser.tagger(doc)
+        for i, tok in enumerate(parsed_doc):
+            if mention.tokens_number[0] <= i <= mention.tokens_number[-1]:
+                if tok.pos_ == "VERB":
+                    return True
+            elif i > mention.tokens_number[-1]:
+                return False
+
+        return False
+
+    @staticmethod
+    def is_nltk_verb_phrase(mention):
+        doc = nltk.pos_tag(mention.mention_context)
+        for i, tok in enumerate(doc):
+            if mention.tokens_number[0] <= i <= mention.tokens_number[-1]:
+                if tok[1] in ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]:
+                    return True
+            elif i > mention.tokens_number[-1]:
+                return False
+
+        return False

@@ -4,7 +4,6 @@ from src import LIBRARY_ROOT
 from src.coref_system.relation_extraction import RelationTypeEnum
 from src.dataobjs.dataset import Split, EcbDataSet, WecDataSet
 from src.utils.clustering_utils import ClusteringType
-from src.utils.embed_utils import EmbeddingConfig, EmbeddingEnum
 
 
 ########################## Train Model Params ################################
@@ -78,10 +77,9 @@ class Configuration(object):
         self.context_set = "dataset_full"
         self.train_dataset = EcbDataSet() #WecDataSet(ratio=self.ratio, split=Split.Train)
         self.dev_dataset = EcbDataSet() #WecDataSet(split=Split.Dev)
-        self.embed_config = EmbeddingConfig(EmbeddingEnum.REFORMERS_CRIME)
 
         self.save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + self.train_dataset.name + "_" + self.dev_dataset.name + \
-                                "_reformer_080720_" + self.embed_config.embed_type.name.lower() + "_" + str(self.ratio)
+                                "_080720_roberba_large_" + str(self.ratio)
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
@@ -95,56 +93,54 @@ class Configuration(object):
                                           self.dev_dataset.name.lower() + "/dev/Event_gold_mentions_NegPairs_Subtopic.pickle"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.train_dataset.name.lower() +
-                             "/train/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle",
+                             "/train/Event_gold_mentions_roberta_large.pickle",
                              str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.dev_dataset.name.lower() +
-                             "/dev/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle",
+                             "/dev/Event_gold_mentions_roberta_large.pickle",
                             ]
 
     def init_inference(self):
         """ INFERENCE CONFIGURATION """
         self.context_set = "dataset_full"
-        self.split = Split.Test
-        self.ratio = -1
+        self.split = Split.Dev
+        self.ratio = 10
         self.test_dataset = WecDataSet(ratio=self.ratio, split=self.split)
-        self.embed_config = EmbeddingConfig(EmbeddingEnum.ROBERTA_LARGE)
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_310520_roberta_large_30iter_1"
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_valid_dev_260620_roberta_large_10iter_5"
 
         self.event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + \
                             self.test_dataset.name.lower() + "/" + self.split.name.lower() + \
-                            "/Event_gold_mentions_clean11_PosPairs.pickle"
+                            "/Event_gold_mentions_clean13_validated_PosPairs.pickle"
 
         self.event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + self.context_set + \
                             "/" + self.test_dataset.name.lower() + "/" + self.split.name.lower() + \
-                            "/Event_gold_mentions_clean11_NegPairs.pickle"
+                            "/Event_gold_mentions_clean13_validated_NegPairs.pickle"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set +
                             "/" + self.test_dataset.name.lower() + "/" + self.split.name.lower() +
-                            "/Event_gold_mentions_clean11_" + self.embed_config.embed_type.name.lower() + ".pickle"]
+                            "/Event_gold_mentions_clean13_roberta_large.pickle"]
 
     def init_clustering(self):
         """ COREF CONFIGURATION """
         # cluster_topics = experiment without topic classification first
         self.context_set = "dataset_full"
         self.split = Split.Test
-        self.test_dataset = EcbDataSet()
+        self.test_dataset = WecDataSet(self.split)
         self.to_single_topic = False
 
         self.cluster_extractor = RelationTypeEnum.PAIRWISE
         self.cluster_algo_type = ClusteringType.AgglomerativeClustering
-        self.embed_config = EmbeddingConfig(EmbeddingEnum.REFORMERS_CRIME)
 
         self.cluster_pairs_thresh = [1.0]
-        self.cluster_average_link_thresh = [0.8]
+        self.cluster_average_link_thresh = [0.75]
 
-        self.mentions_file = str(LIBRARY_ROOT) + "/resources/" + self.context_set + "/" + self.test_dataset.name.lower() + \
-                        "/" + self.split.name.lower() + "/" + "Event_pred_mentions.json"
+        self.mentions_file = str(LIBRARY_ROOT) + "/resources/" + self.test_dataset.name.lower() + \
+                             "/" + self.split.name.lower() + "/" + "Event_pred_mentions.json"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.context_set +
                             "/" + self.test_dataset.name.lower() + "/" + self.split.name.lower() +
-                            "/Event_gold_mentions_" + self.embed_config.embed_type.name.lower() + ".pickle"]
+                            "/Event_gold_mentions_roberta_large.pickle"]
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_reformer_080720_reformers_crime_-1iter_3"
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_130620_roberta_large_20iter_8"
         self.save_model_file = str(LIBRARY_ROOT) + "/output/100720_reform_" + \
                                 self.test_dataset.name + "_" + self.split.name
 

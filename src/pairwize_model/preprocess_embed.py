@@ -49,14 +49,14 @@ def worker(resource_file, max_surrounding_contx, finetune, use_cuda):
 
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
-    _dataset_name = "ecb"
+    _dataset_name = "wec"
     _max_surrounding_contx = 250
     _finetune = False
     _use_cuda = True
 
-    all_files = [str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/dev/Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/test/Event_gold_mentions.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/train/Event_gold_mentions.json"
+    all_files = [str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/dev/Event_gold_mentions_clean13_validated.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/test/Event_gold_mentions_clean13_validated.json",
+                 str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/train/Event_gold_mentions_clean13.json"
                  ]
 
     print("Processing files-" + str(all_files))

@@ -8,3 +8,4 @@ torch
 transformers
 tensorflow
 scikit-learn
+nltk

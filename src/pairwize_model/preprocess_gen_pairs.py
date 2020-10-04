@@ -4,7 +4,7 @@ import os
 from os import path
 
 from src import LIBRARY_ROOT
-from src.dataobjs.dataset import WecDataSet, Split, TopicConfig
+from src.dataobjs.dataset import WecDataSet, Split, TopicConfig, EcbDataSet
 
 
 def generate_pairs():
@@ -41,9 +41,9 @@ def validate_pairs(pos_pairs, neg_pairs):
 if __name__ == '__main__':
     _split = Split.Test
     _ratio = -1
-    _topic_config = TopicConfig.SingleTopic
+    _topic_config = TopicConfig.SubTopic
     _data_set = WecDataSet(ratio=_ratio, split=_split)
-    _res_file = "Event_gold_mentions_clean12_validated.json"
+    _res_file = "Event_gold_mentions_clean13_validated.json"
 
     _event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _data_set.name.lower() + \
                              "/" + _split.name.lower() + "/" + _res_file
