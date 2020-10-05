@@ -80,7 +80,7 @@ def print_scorer_results(all_mentions, scorer_out_file):
 def get_pairwise_model():
     pairwize_model = torch.load(configuration.load_model_file)
     pairwize_model.set_embed_utils(EmbedFromFile(configuration.embed_files,
-                                                 configuration.embed_config.model_size))
+                                                 configuration.model_size))
     pairwize_model.eval()
     return pairwize_model
 

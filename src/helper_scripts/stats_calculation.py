@@ -40,8 +40,41 @@ def calc_longest_mention_and_context(split_list, message):
     # print(message + '_longest_context=' + str(longest_context))
 
 
-def calc_cluster_head_lemma(ment_list, message, clus_size_thresh):
+def produce_cluster_stats(clusters, message):
+    singletons_count = 0
+    sum_mentions = 0
+    sum_mentions_no_single = 0
+    all_lemmas = list()
+    all_lemmas_no_single = list()
+    print(message + '_Clusters=' + str(len(clusters)))
+    biggest_cluster = 0
+    for clust in clusters.values():
+        clust_len = len(clust)
+        clust_lemmas = set([ment.mention_head_lemma for ment in clust])
+        if clust_len == 1:
+            singletons_count += 1
+        else:
+            sum_mentions_no_single += clust_len
+            all_lemmas_no_single.extend(clust_lemmas)
+
+        if len(clust) > biggest_cluster:
+            biggest_cluster = clust_len
+
+        sum_mentions += len(clust)
+        all_lemmas.extend(clust_lemmas)
+
+    print(message + '_Singletons=' + str(singletons_count))
+    print(message + '_Non_singleton_Clusters=' + str(len(clusters) - singletons_count))
+    print(message + '_Biggest cluster=' + str(biggest_cluster))
+    print(message + '_Average Ment in Clust (include singletons)=' + str(sum_mentions / len(clusters)))
+    print(message + '_Average Ment in Clust (exclude singletons)=' + str(sum_mentions_no_single / (len(clusters) - singletons_count)))
+    print(message + '_Average Lemmas in Clust (include singletons)=' + str(len(all_lemmas) / len(clusters)))
+    print(message + '_Average Lemmas in Clust (exclude singletons)=' + str(len(all_lemmas_no_single) / (len(clusters) - singletons_count)))
+
+
+def calc_single_head_lemma_cluster(ment_list, message, clus_size_thresh):
     clusters = Clusters.from_mentions_to_gold_clusters(ment_list)
+    produce_cluster_stats(clusters, message)
     lemma_clust = dict()
     for clust_id, cluster in clusters.items():
         if len(cluster) > clus_size_thresh:
@@ -80,67 +113,26 @@ def extract_tp_lemma_pairs():
     print("".join(sample))
 
 
-def calc_singletons(split_list, message, only_validated=False):
-    result_dict = dict()
-    clusteres_lemmas = dict()
-    singletons_count = 0
-    mentions_length = 0.0
-    final_mentions_list = list()
-    for mention in split_list:
-        if only_validated:
-            if hasattr(mention, "manual_score") and mention.manual_score >= 4:
-                final_mentions_list.append(mention)
-        else:
-            final_mentions_list.append(mention)
-
+def calc_dist_lemmas_cross(split_list, message):
+    print(message + '_Mentions=' + str(len(split_list)))
+    mention_length_sum = sum([len(ment.tokens_number) for ment in split_list])
+    average_length = mention_length_sum / len(split_list)
+    print(message + '_Average Ment Length (tokens)=' + str(average_length))
 
     distinct_lemmas = dict()
     distinct_lemmas_cross = dict()
-    for mention in final_mentions_list:
+    for mention in split_list:
         if mention.mention_head_lemma.lower() not in distinct_lemmas:
             distinct_lemmas[mention.mention_head_lemma.lower()] = mention
-
-        if mention.coref_chain in result_dict:
-            clusteres_lemmas[mention.coref_chain].add(mention.mention_head_lemma.lower())
-            result_dict[mention.coref_chain] += 1
-        else:
-            result_dict[mention.coref_chain] = 1
-            clusteres_lemmas[mention.coref_chain] = {mention.mention_head_lemma.lower()}
 
         lem_id = mention.mention_head_lemma.lower() + '_' + ''.join(filter(lambda i: i.isdigit(), str(mention.topic_id)))
         if lem_id not in distinct_lemmas_cross:
             distinct_lemmas_cross[lem_id] = set()
         distinct_lemmas_cross[lem_id].add(mention.coref_chain)
 
-        mentions_length += len(mention.tokens_number)
-
-    avg_in_clust = 0.0
-    biggest_cluster = -1
-    for key, value in sorted(result_dict.items(), key=lambda kv: kv[1], reverse=True):
-        # print(str(key) + "=" + str(value))
-        if value == 1:
-            singletons_count += 1
-        else:
-            avg_in_clust += value
-            if value > biggest_cluster:
-                biggest_cluster = value
-
     sum_cross_clust_lem = sum([1 for clust_set in distinct_lemmas_cross.values() if len(clust_set) > 1])
     avg_cross_clust_lem = sum([len(clust_set) for clust_set in distinct_lemmas_cross.values()]) / len(distinct_lemmas_cross)
 
-    sum_lemmas = sum([len(lem_set) for lem_set in clusteres_lemmas.values()])
-
-    average_length = mentions_length / len(final_mentions_list)
-    print(message + '_Mentions=' + str(len(final_mentions_list)))
-    print(message + '_Singletons=' + str(singletons_count))
-    print(message + '_Clusters=' + str(len(result_dict)))
-    print(message + '_Non_singleton_Clusters=' + str(len(result_dict.keys()) - singletons_count))
-    print(message + '_Biggest cluster=' + str(biggest_cluster))
-    print(message + '_Average Length=' + str(average_length))
-    print(message + '_Average Ment in Clust (include singletons)=' + str(avg_in_clust / len(result_dict)))
-    print(message + '_Average Ment in Clust (exclude singletons)=' + str(avg_in_clust / (len(result_dict) - singletons_count)))
-    print(message + '_Average Lemmas in Clust (include singletons)=' + str(sum_lemmas / len(clusteres_lemmas)))
-    print(message + '_Average Lemmas in Clust (exclude singletons)=' + str(sum_lemmas / (len(clusteres_lemmas) - singletons_count)))
     print(message + '_Distinct Lemmas in corpus=' + str(len(distinct_lemmas)))
     print(message + '_Distinct Lemmas across clusters=' + str(sum_cross_clust_lem))
     print(message + '_Avg num of clusters with same Lemma=' + str(avg_cross_clust_lem))
@@ -250,21 +242,21 @@ def create_split_stats(mentions_file, tokenizer, split):
     mentions_list = MentionData.read_mentions_json_to_mentions_data_list(mentions_file)
     if mentions_list:
         print('############# ' + split + ' ###################')
-        calc_singletons(mentions_list, split, only_validated=False)
+        calc_dist_lemmas_cross(mentions_list, split)
         # calc_longest_mention_and_context(mentions_list, split)
         # cal_head_lemma_pairs(mentions_file, dataset, split, 1)
         cross_doc_clusters(mentions_list)
-        calc_cluster_head_lemma(mentions_list, split, 1)
+        calc_single_head_lemma_cluster(mentions_list, split, 1)
 
 
 if __name__ == '__main__':
     # _event_train = str(LIBRARY_ROOT) + '/resources/dataset_full/ecb/train/Event_gold_mentions.json'
-    _event_dev = str(LIBRARY_ROOT) + '/resources/dataset_full/wec/dev/Event_gold_mentions_clean12_validated.json'
+    _event_dev = str(LIBRARY_ROOT) + '/resources/GVC_All_gold_event_mentions.json'
 
     _tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
 
     # create_split_stats(_event_train, _tokenizer, "Train")
-    create_split_stats(_event_dev, _tokenizer, "Train")
+    create_split_stats(_event_dev, _tokenizer, "ECB")
 
     # calc_tp_fp_pairs_lemma()
     # extract_tp_lemma_pairs()

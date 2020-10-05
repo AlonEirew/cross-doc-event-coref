@@ -7,6 +7,7 @@ import torch
 from src.configuration import Configuration, ConfigType
 from src.pairwize_model.model import PairWiseModelKenton
 from src.utils.embed_utils import EmbedFromFile
+from src.utils.eval_utils import get_confusion_matrix, get_prec_rec_f1
 from src.utils.log_utils import create_logger_with_fh
 
 logger = logging.getLogger(__name__)
@@ -76,6 +77,18 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
 
 
 def accuracy_on_dataset(testset, epoch, pairwize_model, features, batch_size=10000):
+    all_labels, all_predictions = run_inference(pairwize_model, features, batch_size)
+    accuracy = torch.mean((all_labels == all_predictions).float())
+    tn, fp, fn, tp = get_confusion_matrix(all_labels, all_predictions)
+    precision, recall, f1 = get_prec_rec_f1(tp, fp, fn)
+
+    logger.info("%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" % \
+                (testset + "-Acc", epoch, accuracy.item(), precision, recall, f1))
+
+    return accuracy, precision, recall, f1
+
+
+def run_inference(pairwize_model, features, round_pred=True, batch_size=10000):
     dataset_size = len(features)
     end_index = batch_size
     labels = list()
@@ -87,7 +100,10 @@ def accuracy_on_dataset(testset, epoch, pairwize_model, features, batch_size=100
         batch_features = features[start_index:end_index].copy()
         batch_size = end_index - start_index
         batch_predictions, batch_label = pairwize_model.predict(batch_features, batch_size)
-        batch_predictions = torch.round(batch_predictions.reshape(-1)).long()
+
+        if round_pred:
+            batch_predictions = torch.round(batch_predictions.reshape(-1)).long()
+
         predictions.append(batch_predictions.detach())
         labels.append(batch_label.detach())
         end_index += batch_size
@@ -95,31 +111,7 @@ def accuracy_on_dataset(testset, epoch, pairwize_model, features, batch_size=100
     all_labels = torch.cat(labels).cpu()
     all_predictions = torch.cat(predictions).cpu()
 
-    measurements = get_measurements_bool_clasification(testset, epoch, all_labels, all_predictions)
-    return measurements
-
-
-def get_measurements_bool_clasification(testset, epoch, all_labels, all_predictions):
-    accuracy = torch.mean((all_labels == all_predictions).float())
-
-    tp = torch.sum(all_labels & all_predictions).float().item()
-    # tn = torch.sum(~all_labels & ~all_predictions)
-    fn = torch.sum(all_labels & ~all_predictions).float().item()
-    fp = torch.sum(~all_labels & all_predictions).float().item()
-    tpfp = tp + fp
-    tpfn = tp + fn
-    precision, recall, f1 = (0.0, 0.0, 0.0)
-    if tpfp != 0:
-        precision = tp / tpfp
-    if tpfn != 0:
-        recall = tp / tpfn
-    if precision != 0 or recall != 0:
-        f1 = (2 * precision * recall) / (precision + recall)
-
-    logger.info("%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" % \
-                (testset + "-Acc", epoch, accuracy.item(), precision, recall, f1))
-
-    return accuracy, precision, recall, f1
+    return all_labels, all_predictions
 
 
 def init_basic_training_resources():
@@ -127,7 +119,7 @@ def init_basic_training_resources():
     random.seed(1)
     np.random.seed(1)
 
-    embed_utils = EmbedFromFile(configuration.embed_files, configuration.embed_config.model_size)
+    embed_utils = EmbedFromFile(configuration.embed_files, configuration.model_size)
 
     if configuration.fine_tune:
         logger.info("Loading model to fine tune-" + configuration.load_model_file)

@@ -34,6 +34,11 @@ class StringUtils(object):
         return True
 
     @staticmethod
+    def get_lemma(x: str):
+        doc = StringUtils.spacy_parser(x)
+        return doc[0].lemma_
+
+    @staticmethod
     def find_head_lemma_pos_ner(x: str):
         """"
 

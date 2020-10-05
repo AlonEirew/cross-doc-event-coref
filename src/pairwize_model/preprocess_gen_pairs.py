@@ -39,11 +39,11 @@ def validate_pairs(pos_pairs, neg_pairs):
 
 
 if __name__ == '__main__':
-    _split = Split.Test
+    _split = Split.Dev
     _ratio = -1
     _topic_config = TopicConfig.SubTopic
-    _data_set = WecDataSet(ratio=_ratio, split=_split)
-    _res_file = "Event_gold_mentions_clean13_validated.json"
+    _data_set = EcbDataSet() #WecDataSet(ratio=_ratio, split=_split)
+    _res_file = "Event_gold_mentions.json"
 
     _event_validation_file = str(LIBRARY_ROOT) + "/resources/" + _data_set.name.lower() + \
                              "/" + _split.name.lower() + "/" + _res_file

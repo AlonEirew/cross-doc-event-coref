@@ -4,7 +4,7 @@ import random
 from src import LIBRARY_ROOT
 from src.dataobjs.cluster import Clusters
 from src.dataobjs.mention_data import MentionData
-from src.helper_scripts.stats_calculation import calc_singletons
+from src.helper_scripts.stats_calculation import calc_dist_lemmas_cross
 from src.utils.io_utils import write_mention_to_json
 
 
@@ -41,11 +41,11 @@ def remove_shared_docs(dev1_clust, dev2_clust, train_clust):
     #     else:
     #         train_split_ment.extend(clust)
     print("########### BEFORE ################")
-    calc_singletons(dev1_split_ment, "dev1")
+    calc_dist_lemmas_cross(dev1_split_ment, "dev1")
     print("################################")
-    calc_singletons(dev2_split_ment, "dev2")
+    calc_dist_lemmas_cross(dev2_split_ment, "dev2")
     print("################################")
-    calc_singletons(train_split_ment, "train")
+    calc_dist_lemmas_cross(train_split_ment, "train")
     print("################################")
     print("################################")
     # print("Before=" + str(len(dev1_split_ment)))
@@ -61,11 +61,11 @@ def remove_shared_docs(dev1_clust, dev2_clust, train_clust):
     train_split_ment = [ment for ment in train_split_ment if
                         ment.doc_id not in dev1_docs_set and ment.doc_id not in dev2_docs_set]
     print("########### AFTER BEFORE TRIM ################")
-    calc_singletons(dev1_split_ment, "dev1")
+    calc_dist_lemmas_cross(dev1_split_ment, "dev1")
     print("################################")
-    calc_singletons(dev2_split_ment, "dev2")
+    calc_dist_lemmas_cross(dev2_split_ment, "dev2")
     print("################################")
-    calc_singletons(train_split_ment, "train")
+    calc_dist_lemmas_cross(train_split_ment, "train")
     print("################################")
     print("################################")
     print("################################")
@@ -116,11 +116,11 @@ if __name__ == '__main__':
     _train_split_ment = set_max_same_string_mentions(_train_split_ment)
 
     print("########### AFTER TRIM ################")
-    calc_singletons(_dev1_split_ment, "dev1")
+    calc_dist_lemmas_cross(_dev1_split_ment, "dev1")
     print("################################")
-    calc_singletons(_dev2_split_ment, "dev2")
+    calc_dist_lemmas_cross(_dev2_split_ment, "dev2")
     print("################################")
-    calc_singletons(_train_split_ment, "train")
+    calc_dist_lemmas_cross(_train_split_ment, "train")
     print("################################")
     write_files(_dev1_split_ment, _dev2_split_ment, _train_split_ment)
 

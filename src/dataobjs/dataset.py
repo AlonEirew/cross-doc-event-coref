@@ -36,19 +36,28 @@ class DataSet(object):
         self.name = name
 
     def load_pos_neg_pickle(self, pos_file, neg_file):
-        logger.info("Loading pos file-" + pos_file)
-        logger.info("Loading neg file-" + neg_file)
-
-        pos_pairs = pickle.load(open(pos_file, "rb"))
-        neg_pairs = pickle.load(open(neg_file, "rb"))
+        pos_pairs = DataSet.load_pos_pickle(pos_file)
+        neg_pairs = DataSet.load_neg_pickle(neg_file)
 
         if self.ratio > 0:
             if len(neg_pairs) > (len(pos_pairs) * self.ratio):
                 neg_pairs = neg_pairs[0:len(pos_pairs) * self.ratio]
 
-        logger.info('pos-' + str(len(pos_pairs)))
-        logger.info('neg-' + str(len(neg_pairs)))
         return self.create_features_from_pos_neg(pos_pairs, neg_pairs)
+
+    @staticmethod
+    def load_neg_pickle(neg_file):
+        logger.info("Loading neg file-" + neg_file)
+        neg_pairs = pickle.load(open(neg_file, "rb"))
+        logger.info('neg-' + str(len(neg_pairs)))
+        return neg_pairs
+
+    @staticmethod
+    def load_pos_pickle(pos_file):
+        logger.info("Loading pos file-" + pos_file)
+        pos_pairs = pickle.load(open(pos_file, "rb"))
+        logger.info('pos-' + str(len(pos_pairs)))
+        return pos_pairs
 
     def get_pairwise_feat(self, data_file, to_topics=TopicConfig.SubTopic):
         topics_ = Topics()
@@ -111,12 +120,20 @@ class EcbDataSet(DataSet):
             topics.to_single_topic()
 
         # create positive examples
-        positive_pairs = cls.create_pairs(topics, POLARITY.POSITIVE)
+        positive_pairs = cls.create_pos_pairs(topics)
         # create negative examples
-        negative_pairs = cls.create_pairs(topics, POLARITY.NEGATIVE)
+        negative_pairs = cls.create_neg_pairs(topics)
         random.shuffle(negative_pairs)
 
         return positive_pairs, negative_pairs
+
+    @classmethod
+    def create_pos_pairs(cls, topics):
+        return cls.create_pairs(topics, POLARITY.POSITIVE)
+
+    @classmethod
+    def create_neg_pairs(cls, topics):
+        return cls.create_pairs(topics, POLARITY.NEGATIVE)
 
     @classmethod
     def create_pairs(cls, topics, polarity):
@@ -162,14 +179,23 @@ class WecDataSet(DataSet):
         if sub_topics == TopicConfig.SingleTopic:
             topics.to_single_topic()
 
-        positive_pairs = EcbDataSet.create_pairs(topics, POLARITY.POSITIVE)
+        positive_pairs = WecDataSet.create_pos_pairs(topics)
+        negative_pairs = self.create_neg_pairs(topics)
 
+        return positive_pairs, negative_pairs
+
+    @staticmethod
+    def create_pos_pairs(topics):
+        return EcbDataSet.create_pairs(topics, POLARITY.POSITIVE)
+
+    def create_neg_pairs(self, topics):
         if self.split == Split.Train:
             clusters = topics.convert_to_clusters()
             negative_pairs = self.create_neg_pairs_wec(clusters)
         else:
             negative_pairs = EcbDataSet.create_pairs(topics, POLARITY.NEGATIVE)
-        return positive_pairs, negative_pairs
+
+        return negative_pairs
 
     @classmethod
     def create_neg_pairs_wec(cls, clusters):
