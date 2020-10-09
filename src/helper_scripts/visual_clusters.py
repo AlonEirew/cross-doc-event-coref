@@ -80,13 +80,13 @@ def visualize_mentions(mentions):
     for mention in mentions:
         ents = list()
         context, start, end = get_context_start_end(mention)
-        spacy_verb_phrase = StringUtils.is_spacy_verb_phrase(mention)
-        if spacy_verb_phrase:
-            spacy_verb_count += 1
-        nltk_verb_phrase = StringUtils.is_nltk_verb_phrase(mention)
-        if nltk_verb_phrase:
-            nltk_verb_count += 1
-        label = str(spacy_verb_phrase) + "/" + str(nltk_verb_phrase)
+        # spacy_verb_phrase = StringUtils.get_pos_spacy(mention)
+        # if spacy_verb_phrase:
+        #     spacy_verb_count += 1
+        # nltk_verb_phrase = StringUtils.get_pos_nltk(mention)
+        # if nltk_verb_phrase:
+        #     nltk_verb_count += 1
+        label = "A" # str(spacy_verb_phrase) + "/" + str(nltk_verb_phrase)
         ents.append({'start': start, 'end': end + 1, 'label': label})
 
         dispacy_obj.append({
@@ -177,9 +177,9 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/wec/dev/Event_gold_mentions_clean13_validated.json'
+    _event_file = str(LIBRARY_ROOT) + '/resources/WEC_Dev_Single_Event_gold_mentions.json'
     threash = []
     # main(_event_file)
     mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_file)
-    sample = random.sample(mentions, 50)
-    visualize_mentions(sample)
+    # sample = random.sample(mentions, 100)
+    visualize_mentions(mentions)

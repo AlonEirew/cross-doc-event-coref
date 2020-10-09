@@ -108,3 +108,24 @@ class StringUtils(object):
                 return False
 
         return False
+
+    @staticmethod
+    def get_pos_nltk(mention):
+        ret_toks = list()
+        doc = nltk.pos_tag(mention.mention_context)
+        for i, tok in enumerate(doc):
+            if mention.tokens_number[0] <= i <= mention.tokens_number[-1]:
+                ret_toks.append(tok[1])
+
+        return ret_toks
+
+    @staticmethod
+    def get_pos_spacy(mention):
+        ret_toks = list()
+        doc = Doc(StringUtils.spacy_parser.vocab, words=mention.mention_context)
+        parsed_doc = StringUtils.spacy_parser.tagger(doc)
+        for i, tok in enumerate(parsed_doc):
+            if mention.tokens_number[0] <= i <= mention.tokens_number[-1]:
+                ret_toks.append(tok.pos_)
+
+        return ret_toks

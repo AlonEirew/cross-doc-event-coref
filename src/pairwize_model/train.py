@@ -77,7 +77,7 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
 
 
 def accuracy_on_dataset(testset, epoch, pairwize_model, features, batch_size=10000):
-    all_labels, all_predictions = run_inference(pairwize_model, features, batch_size)
+    all_labels, all_predictions = run_inference(pairwize_model, features, batch_size=batch_size)
     accuracy = torch.mean((all_labels == all_predictions).float())
     tn, fp, fn, tp = get_confusion_matrix(all_labels, all_predictions)
     precision, recall, f1 = get_prec_rec_f1(tp, fp, fn)

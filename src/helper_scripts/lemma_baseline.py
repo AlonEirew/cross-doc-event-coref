@@ -4,7 +4,7 @@ import torch
 
 from src import LIBRARY_ROOT
 from src.dataobjs.dataset import EcbDataSet
-from src.pairwize_model.train import get_measurements_bool_clasification
+from src.utils.eval_utils import get_confusion_matrix, get_prec_rec_f1
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def main():
     context_set = "dataset_full"
-    event_validation_file = str(LIBRARY_ROOT) + "/resources/" + context_set + "/wec/test/Event_gold_mentions_clean11.json"
+    event_validation_file = str(LIBRARY_ROOT) + "/resources/ecb/dev/Event_gold_mentions.json"
     dataset = EcbDataSet()
     ################ NO TOPICS ######################
     # positive_, negative_ = get_feat_alternative(event_validation_file)
@@ -35,7 +35,13 @@ def accuracy_on_dataset(features):
 
     all_labels = torch.tensor(labels).bool()
     all_predictions = torch.tensor(predictions).bool()
-    get_measurements_bool_clasification("Test", -1, all_labels, all_predictions)
+
+    accuracy = torch.mean((all_labels == all_predictions).float())
+    tn, fp, fn, tp = get_confusion_matrix(all_labels, all_predictions)
+    precision, recall, f1 = get_prec_rec_f1(tp, fp, fn)
+
+    logger.info("%s: %d: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" % \
+                ("LEAMM-Acc", 0, accuracy.item(), precision, recall, f1))
 
 
 if __name__ == '__main__':

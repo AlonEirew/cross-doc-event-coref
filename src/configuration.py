@@ -77,7 +77,7 @@ class Configuration(object):
         self.dev_dataset = EcbDataSet() #WecDataSet(split=Split.Dev)
 
         self.save_model_file = str(LIBRARY_ROOT) + "/saved_models/" + self.train_dataset.name + "_" + self.dev_dataset.name + \
-                                "_080720_roberba_large_" + str(self.ratio)
+                                "_021020_roberba_large_" + str(self.ratio)
 
         self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_200320_bert_large_35iter_18"
 
@@ -100,9 +100,9 @@ class Configuration(object):
         """ INFERENCE CONFIGURATION """
         self.split = Split.Dev
         self.ratio = -1
-        self.test_dataset = WecDataSet(ratio=self.ratio, split=self.split)
+        self.test_dataset = EcbDataSet() #WecDataSet(ratio=self.ratio, split=self.split)
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/WEC_WEC_valid_dev_260620_roberta_large_10iter_5"
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_max_roberta_large_-1iter_6"
 
         self.event_test_file_pos = str(LIBRARY_ROOT) + "/resources/" + \
                             self.test_dataset.name.lower() + "/" + self.split.name.lower() + \
@@ -111,10 +111,6 @@ class Configuration(object):
         self.event_test_file_neg = str(LIBRARY_ROOT) + "/resources/" + \
                             self.test_dataset.name.lower() + "/" + self.split.name.lower() + \
                             "/Event_gold_mentions_NegPairs.pickle"
-
-        self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + \
-                            self.test_dataset.name.lower() + "/" + self.split.name.lower() +
-                            "/Event_gold_mentions_roberta_large.pickle"]
 
     def init_clustering(self):
         """ COREF CONFIGURATION """
@@ -130,13 +126,13 @@ class Configuration(object):
         self.cluster_average_link_thresh = [0.75]
 
         self.mentions_file = str(LIBRARY_ROOT) + "/resources/" + self.test_dataset.name.lower() + \
-                             "/" + self.split.name.lower() + "/" + "Event_pred_mentions.json"
+                             "/" + self.split.name.lower() + "/" + "Event_gold_mentions.json"
 
         self.embed_files = [str(LIBRARY_ROOT) + "/resources/" + self.test_dataset.name.lower() + \
                             "/" + self.split.name.lower() + "/Event_gold_mentions_roberta_large.pickle"]
 
-        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_130620_roberta_large_20iter_8"
-        self.save_model_file = str(LIBRARY_ROOT) + "/output/100720_reform_" + \
+        self.load_model_file = str(LIBRARY_ROOT) + "/saved_models/ECB_ECB_max_roberta_large_-1iter_6"
+        self.save_model_file = str(LIBRARY_ROOT) + "/output/021020_test_pred_ECB_" + \
                                 self.test_dataset.name + "_" + self.split.name
 
 ################################################################################

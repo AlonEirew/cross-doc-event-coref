@@ -133,15 +133,15 @@ if __name__ == '__main__':
     # logger.info("%s: Accuracy: %.10f: precision: %.10f: recall: %.10f: f1: %.10f" %
     #             ("NEG-Dev-Acc", test_neg_accuracy.item(), test_neg_precision, test_neg_recall, test_neg_f1))
 
-    _, _, _, _, pairs_fn, pairs_fp, pairs_tn, pairs_tp = accuracy_on_dataset_local(_pairwize_model, split_feat, extract_on_mention)
-    # accuracy_on_dataset("", 0, _pairwize_model, split_feat)
+    # _, _, _, _, pairs_fn, pairs_fp, pairs_tn, pairs_tp = accuracy_on_dataset_local(_pairwize_model, split_feat, extract_on_mention)
+    accuracy_on_dataset("", 0, _pairwize_model, split_feat)
 
     # pairs_tp = filter_same_head(pairs_tp)
     # pairs_fp = filter_same_head(pairs_fp)
     # pairs_tn = filter_same_head(pairs_tn)
     # pairs_fn = filter_same_head(pairs_fn)
 
-    print_tlist(pairs_tp_out_file, pairs_tp)
-    print_tlist(pairs_fp_out_file, pairs_fp)
-    print_tlist(pairs_tn_out_file, pairs_tn)
-    print_tlist(pairs_fn_out_file, pairs_fn)
+    # print_tlist(pairs_tp_out_file, pairs_tp)
+    # print_tlist(pairs_fp_out_file, pairs_fp)
+    # print_tlist(pairs_tn_out_file, pairs_tn)
+    # print_tlist(pairs_fn_out_file, pairs_fn)

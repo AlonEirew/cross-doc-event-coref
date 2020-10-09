@@ -70,7 +70,7 @@ def visualize_clusters(mentions_dict, pairs_list):
             if context not in context_mentions:
                 context_mentions[context] = list()
 
-            heappush(context_mentions[context], (start, end, "ID:" + mention.mention_id))
+            heappush(context_mentions[context], (start, end, "COEF:" + str(mention.coref_chain)))
 
         cluster_context = ""
         ents = list()
@@ -114,12 +114,47 @@ def load_mentions(mention_file):
     return ment_dict
 
 
+def print_as_latex(pairs_list, ment_dict):
+    latex_mentions = list()
+    for pair in pairs_list:
+        ment1 = ment_dict[pair[1]]
+        ment2 = ment_dict[pair[3]]
+        # if ment1.mention_head_lemma == ment2.mention_head_lemma:
+        #     continue
+        #
+        # if not set(ment1.tokens_str.split(" ")).isdisjoint(ment2.tokens_str.split(" ")):
+        #     continue
+
+        latex_mentions.append(ment1.mention_id + "||" + ment2.mention_id + "||" + pair[4])
+        context1, start1, end1 = get_context_start_end(ment1)
+        context2, start2, end2 = get_context_start_end(ment2)
+        latex_mentions.append("\midrule\n")
+        latex_mentions.append("\multirow")
+        latex_mentions.append("{2}{*}{GEN} ")
+        latex_mentions.extend(get_row(context1, start1, end1))
+        latex_mentions.extend(get_row(context2, start2, end2))
+        latex_mentions.append("\n")
+
+    with open(str(LIBRARY_ROOT) + "/reports/pairs_final/latex.txt", 'w') as fs:
+        fs.writelines(latex_mentions)
+
+
+def get_row(context, start, end):
+    latex_row = list()
+    latex_row.append("&")
+    latex_row.append(" .." + context[0:start])
+    latex_row.append(" \emph{\\textcolor{blue}{" + context[start:end] + "}}" + context[end:-1] + "..")
+    latex_row.append(" \\\\ ")
+    return latex_row
+
+
 if __name__ == '__main__':
     mentions_file = str(LIBRARY_ROOT) + "/resources/wec/dev/Event_gold_mentions.json"
-    pairs_file = str(LIBRARY_ROOT) + "/reports/pairs_final/wec/TP_WEC_WEC_valid_dev_260620_roberta_large_10iter_5_Dev_paris.txt"
+    pairs_file = str(LIBRARY_ROOT) + "/reports/pairs_final/wec/FN_WEC_WEC_valid_dev_260620_roberta_large_10iter_5_Dev_paris.txt"
     print("Generating pairs for file-/" + pairs_file)
     print("Mentions file-/" + mentions_file)
     pairs_list = load_pairs(pairs_file)
     ment_dict = load_mentions(mentions_file)
+    # print_as_latex(pairs_list, ment_dict)
     visualize_clusters(ment_dict, pairs_list)
     print("Process Done!")

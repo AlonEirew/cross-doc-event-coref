@@ -22,23 +22,24 @@ from src.utils.io_utils import write_mention_to_json
 ###################################################################################
 from src.utils.string_utils import StringUtils
 
-# event_mentions_file = str(LIBRARY_ROOT) + '/resources/ecb/test/Event_gold_mentions.json'
-# mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
-# sample = random.sample(mentions, 100)
-# ret_spacy = [1 for ment in sample if StringUtils.is_spacy_verb_phrase(ment)]
-# print("Spacy=" + str(sum(ret_spacy)))
-# ret_nltk = [1 for ment in sample if StringUtils.is_nltk_verb_phrase(ment)]
-# print("NLTK=" + str(sum(ret_nltk)))
-
 event_mentions_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions.json'
 mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
-fin_mention = list()
-for ment in mentions:
-    ment.mention_head, ment.mention_head_lemma, ment.mention_head_pos, ment.mention_ner = StringUtils.find_head_lemma_pos_ner(ment.tokens_str)
-    fin_mention.append(ment)
+sample = random.sample(mentions, 100)
+ret_spacy = [str(StringUtils.get_pos_spacy(ment)) for ment in sample]
+ret_nltk = [str(StringUtils.get_pos_nltk(ment)) for ment in sample]
 
-output_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions1.json'
-write_mention_to_json(output_file, fin_mention)
+for i, ment in enumerate(sample):
+    print(ment.tokens_str + "=" + ret_spacy[i] + ":" + ret_nltk[i])
+
+# event_mentions_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions.json'
+# mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
+# fin_mention = list()
+# for ment in mentions:
+#     ment.mention_head, ment.mention_head_lemma, ment.mention_head_pos, ment.mention_ner = StringUtils.find_head_lemma_pos_ner(ment.tokens_str)
+#     fin_mention.append(ment)
+#
+# output_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions1.json'
+# write_mention_to_json(output_file, fin_mention)
 
 ###################################################################################
 # PERCENT = 80
