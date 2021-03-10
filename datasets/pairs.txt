@@ -1,0 +1,21 @@
+ECB+
+    Dev:
+        Positives=5881
+        Negative=50653
+    Test:
+        Positive=6889
+        Negative=87053
+    Train:
+        Positive=14944
+        Negative=170549
+
+WEC
+    Dev:
+        Positive-5193
+        Negative-775432
+    Test:
+        Positive=10248
+        Negative=1780530
+    Train:
+        Positive=403412
+        Negative=4034120

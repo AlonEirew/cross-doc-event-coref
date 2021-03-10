@@ -6,7 +6,7 @@ import enum
 import random
 import re
 
-from src.dataobjs.topics import Topics, Topic
+from dataobjs.topics import Topics, Topic
 
 logger = logging.getLogger(__name__)
 
@@ -14,15 +14,14 @@ logger = logging.getLogger(__name__)
 class TopicConfig(enum.Enum):
     SubTopic = 1,
     Topic = 2,
-    SingleTopic = 3
+    Corpus = 3
 
 
 # creating enumerations using class
 class Split(enum.Enum):
-    Test = 1
-    Dev = 2
-    Train = 3
-    NA = 4
+    Dev = 1
+    Train = 2
+    NA = 3
 
 
 class POLARITY(enum.Enum):
@@ -116,7 +115,7 @@ class EcbDataSet(DataSet):
     def create_pos_neg_pairs(cls, topics, to_topic):
         if to_topic == TopicConfig.Topic:
             topics = cls.from_ecb_subtopic_to_topic(topics)
-        elif to_topic == TopicConfig.SingleTopic:
+        elif to_topic == TopicConfig.Corpus:
             topics.to_single_topic()
 
         # create positive examples
@@ -176,7 +175,7 @@ class WecDataSet(DataSet):
         self.split = split
 
     def create_pos_neg_pairs(self, topics, sub_topics):
-        if sub_topics == TopicConfig.SingleTopic:
+        if sub_topics == TopicConfig.Corpus:
             topics.to_single_topic()
 
         positive_pairs = WecDataSet.create_pos_pairs(topics)

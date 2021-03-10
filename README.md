@@ -1,4 +1,35 @@
 # cross-doc-coref
+This project code was used in the paper <Add Paper Link> for the cross document event coreference baseline model. 
+
+## Prerequisites
+`#>pip install -r requirements.txt`
+
+## Preprocessing
+The main train process require the mentions pairs and embeddings from each set.<br/>
+Project contains both datasets/ecb.zip & datasets/wec.zip files already in the needed input format.  
+
+### Generate Pairs
+#### ECB+
+ECB+ pairs generation for ECB+ test/dev/train sets is straight forward, for example to generate dev set, just run:<br/>
+
+- `#>python src/preprocess_gen_pairs.py resources/ecb/dev/Event_gold_mentions.json --dataset=ecb`
+- `#>python src/preprocess_gen_pairs.py resources/ecb/test/Event_gold_mentions.json --dataset=ecb`
+- `#>python src/preprocess_gen_pairs.py resources/ecb/train/Event_gold_mentions.json --dataset=ecb`
+
+#### WEC
+Since WEC train set contains many mentions, generating all negative pairs is very resource and time consuming.
+ To that end, we added a control for the negative:positive ratio.<br/> 
+ For the Dev and Test sets, as they are much smaller in size, pairs generation is similar to ECB+ (all).
+- `#>python src/preprocess_gen_pairs.py resources/wec/dev/Event_gold_mentions.json --dataset=wec --split=dev`
+- `#>python src/preprocess_gen_pairs.py resources/wec/test/Event_gold_mentions.json --dataset=wec --split=test`
+- `#>python src/preprocess_gen_pairs.py resources/wec/train/Event_gold_mentions.json --dataset=wec --split=train --ratio=10`
+
+### Generate Embeddings
+
+
+## Training
+
+## Inference
 
 ### Helper Scripts:
 

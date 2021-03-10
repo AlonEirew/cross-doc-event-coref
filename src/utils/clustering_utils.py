@@ -7,9 +7,9 @@ import torch
 from enum import Enum
 from sklearn.cluster import AgglomerativeClustering
 
-from src.dataobjs.cluster import Cluster, Clusters
-from src.dataobjs.topics import Topic
-from src.coref_system.relation_extraction import RelationExtraction
+from dataobjs.cluster import Cluster, Clusters
+from dataobjs.topics import Topic
+from coref_system.relation_extraction import RelationExtraction
 
 logger = logging.getLogger(__name__)
 

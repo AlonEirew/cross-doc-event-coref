@@ -1,10 +1,9 @@
-import json
 import logging
 import sys
 from typing import List
 
-from src.utils.io_utils import load_json_file
-from src.utils.string_utils import StringUtils
+from utils.io_utils import load_json_file
+from utils.string_utils import StringUtils
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +36,8 @@ class MentionData(MentionDataLight):
     def __init__(self, mention_id, topic_id: str, doc_id: str, sent_id: int, tokens_numbers: List[int],
                  tokens_str: str, mention_context: List[str], mention_head: str,
                  mention_head_lemma: str, coref_chain: str, mention_type: str = 'NA', coref_link: str = "NA",
-                 is_continuous: bool = True, is_singleton: bool = False, predicted_coref_chain: str = None, mention_pos: str = None,
-                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False, manual_score: int = -1) -> None:
+                 predicted_coref_chain: str = None, mention_pos: str = None,
+                 mention_ner: str = None, mention_index: int = -1, gen_lemma: bool = False) -> None:
         """
         Object represent a mention
 
@@ -50,9 +49,6 @@ class MentionData(MentionDataLight):
             mention_context: List[str] - list of tokens strings
             coref_chain: str
             mention_type: str one of (HUM/NON/TIM/LOC/ACT/NEG)
-            is_continuous: bool
-            is_singleton: bool
-            score: float
             predicted_coref_chain: str (should be field while evaluated)
             mention_pos: str
             mention_ner: str
@@ -67,13 +63,8 @@ class MentionData(MentionDataLight):
         self.tokens_number = tokens_numbers
         self.mention_type = mention_type
         self.coref_chain = coref_chain
-        self.is_continuous = is_continuous
-        self.is_singleton = is_singleton
         self.predicted_coref_chain = predicted_coref_chain
         self.coref_link = coref_link
-
-        if manual_score > 0:
-            self.manual_score = manual_score
 
         if mention_id is None:
             self.mention_id = self.gen_mention_id()
@@ -104,12 +95,9 @@ class MentionData(MentionDataLight):
             coref_link = "NA"
             predicted_coref_chain = None
             mention_context = None
-            is_continue = False
-            is_singleton = False
             mention_pos = None
             mention_ner = None
             mention_index = -1
-            manual_score = -1
 
             mention_text = mention_line['tokens_str']
 
@@ -150,20 +138,11 @@ class MentionData(MentionDataLight):
             if 'mention_type' in mention_line:
                 mention_type = mention_line['mention_type']
 
-            if 'is_continuous' in mention_line:
-                is_continue = mention_line['is_continuous']
-
-            if 'is_singleton' in mention_line:
-                is_singleton = mention_line['is_singleton']
-
             if 'predicted_coref_chain' in mention_line:
                 predicted_coref_chain = mention_line['predicted_coref_chain']
 
             if 'mention_index' in mention_line:
                 mention_index = mention_line['mention_index']
-
-            if 'manual_score' in mention_line:
-                manual_score = mention_line['manual_score']
 
             if 'coref_link' in mention_line:
                 coref_link = mention_line['coref_link']
@@ -180,13 +159,10 @@ class MentionData(MentionDataLight):
                                        coref_chain=coref_chain,
                                        mention_type=mention_type,
                                        coref_link=coref_link,
-                                       is_continuous=is_continue,
-                                       is_singleton=is_singleton,
                                        predicted_coref_chain=predicted_coref_chain,
                                        mention_pos=mention_pos,
                                        mention_ner=mention_ner,
-                                       mention_index=mention_index,
-                                       manual_score=manual_score)
+                                       mention_index=mention_index)
         except Exception:
             print('Unexpected error:', sys.exc_info()[0])
             raise Exception('failed reading json line-' + str(mention_line))

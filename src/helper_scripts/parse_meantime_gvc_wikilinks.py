@@ -34,10 +34,7 @@ def convert_from_meantime(mention_line):
         mention_type = None
         predicted_coref_chain = None
         mention_context = None
-        is_continue = False
-        is_singleton = False
         mention_index = -1
-        manual_score = -1
 
         mention_text = mention_line['tokens_str']
 
@@ -67,27 +64,16 @@ def convert_from_meantime(mention_line):
         if 'mention_type' in mention_line:
             mention_type = mention_line['mention_type']
 
-        if 'is_continuous' in mention_line:
-            is_continue = mention_line['is_continuous']
-
-        if 'is_singleton' in mention_line:
-            is_singleton = mention_line['is_singleton']
-
         if 'predicted_coref_chain' in mention_line:
             predicted_coref_chain = mention_line['predicted_coref_chain']
 
         if 'mention_index' in mention_line:
             mention_index = mention_line['mention_index']
 
-        if 'manual_score' in mention_line:
-            manual_score = mention_line['manual_score']
-
         mention_data = MentionData(mention_id, topic_id, doc_id, sent_id, tokens_numbers, mention_text,
-                                   mention_context,
-                                   mention_head, mention_head_lemma,
-                                   coref_chain, mention_type, is_continue, is_singleton,
-                                   predicted_coref_chain, mention_pos, mention_ner,
-                                   mention_index, manual_score=manual_score)
+                                   mention_context, mention_head, mention_head_lemma,
+                                   coref_chain, mention_type, predicted_coref_chain, mention_pos, mention_ner,
+                                   mention_index)
     except Exception:
         print('Unexpected error:', sys.exc_info()[0])
         raise Exception('failed reading json line-' + str(mention_line))
@@ -112,10 +98,7 @@ def convert_from_gvc(mention_line):
         tokens_numbers = None
         predicted_coref_chain = None
         mention_context = None
-        is_continue = False
-        is_singleton = False
         mention_index = -1
-        manual_score = -1
 
         mention_text = mention_line['MENTION_TEXT']
 
@@ -137,12 +120,9 @@ def convert_from_gvc(mention_line):
         mention_head, mention_head_lemma, mention_pos, mention_ner = StringUtils.find_head_lemma_pos_ner(str(mention_text))
 
         mention_data = MentionData(mention_id, "0", doc_id, sent_id, tokens_numbers, mention_text,
-                                   mention_context,
-                                   mention_head, mention_head_lemma,
-                                   coref_chain, "NA", is_continue, is_singleton,
-                                   predicted_coref_chain, mention_pos, mention_ner,
-                                   mention_index,
-                                   manual_score=manual_score)
+                                   mention_context, mention_head, mention_head_lemma,
+                                   coref_chain, "NA", predicted_coref_chain, mention_pos, mention_ner,
+                                   mention_index)
     except Exception:
         print('Unexpected error:', sys.exc_info()[0])
         raise Exception('failed reading json line-' + str(mention_line))
@@ -163,10 +143,7 @@ def convert_from_wikilinks(mention_line):
         coref_chain = None
         doc_id = None
         predicted_coref_chain = None
-        is_continue = False
-        is_singleton = False
         mention_index = -1
-        manual_score = -1
 
         mention_text = mention_line['mentionString']
 
@@ -180,10 +157,8 @@ def convert_from_wikilinks(mention_line):
 
         mention_data = MentionData(mention_id, "0", doc_id, -1, [], mention_text,
                                    [], mention_head, mention_head_lemma,
-                                   coref_chain, "NA", is_continue, is_singleton,
-                                   predicted_coref_chain, mention_pos, mention_ner,
-                                   mention_index,
-                                   manual_score=manual_score)
+                                   coref_chain, "NA", predicted_coref_chain, mention_pos, mention_ner,
+                                   mention_index)
     except Exception:
         print('Unexpected error:', sys.exc_info()[0])
         raise Exception('failed reading json line-' + str(mention_line))

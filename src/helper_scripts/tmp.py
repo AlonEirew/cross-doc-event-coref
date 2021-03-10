@@ -20,16 +20,16 @@ from src.utils.io_utils import write_mention_to_json
 # write_mention_to_json(output_file, final_mentions)
 # print("Done!")
 ###################################################################################
-from src.utils.string_utils import StringUtils
-
-event_mentions_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions.json'
-mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
-sample = random.sample(mentions, 100)
-ret_spacy = [str(StringUtils.get_pos_spacy(ment)) for ment in sample]
-ret_nltk = [str(StringUtils.get_pos_nltk(ment)) for ment in sample]
-
-for i, ment in enumerate(sample):
-    print(ment.tokens_str + "=" + ret_spacy[i] + ":" + ret_nltk[i])
+# from src.utils.string_utils import StringUtils
+#
+# event_mentions_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions.json'
+# mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
+# sample = random.sample(mentions, 100)
+# ret_spacy = [str(StringUtils.get_pos_spacy(ment)) for ment in sample]
+# ret_nltk = [str(StringUtils.get_pos_nltk(ment)) for ment in sample]
+#
+# for i, ment in enumerate(sample):
+#     print(ment.tokens_str + "=" + ret_spacy[i] + ":" + ret_nltk[i])
 
 # event_mentions_file = str(LIBRARY_ROOT) + '/resources/ecb/dev/Event_gold_mentions.json'
 # mentions = MentionData.read_mentions_json_to_mentions_data_list(event_mentions_file)
@@ -472,3 +472,11 @@ for i, ment in enumerate(sample):
 #
 # write_mention_to_json(out_file, mentions_splt)
 # print("Done!")
+
+############################################################
+
+in_all = str(LIBRARY_ROOT) + '/resources/ecb/train/Event_gold_mentions.json'
+out_file = str(LIBRARY_ROOT) + '/resources/ecb/train/Event_gold_mentions1.json'
+mentions_all = MentionData.read_mentions_json_to_mentions_data_list(in_all)
+write_mention_to_json(out_file, mentions_all)
+print("Done!")

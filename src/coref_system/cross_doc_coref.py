@@ -5,13 +5,13 @@ from typing import List
 import numpy as np
 import torch
 
-from src.configuration import Configuration, ConfigType
-from src.dataobjs.cluster import Clusters
-from src.dataobjs.topics import Topics
-from src.coref_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction, RelationTypeEnum
-from src.utils.clustering_utils import agglomerative_clustering, naive_clustering, ClusteringType
-from src.utils.embed_utils import EmbedFromFile
-from src.utils.io_utils import write_coref_scorer_results
+from configuration import Configuration, ConfigType
+from dataobjs.cluster import Clusters
+from dataobjs.topics import Topics
+from coref_system.relation_extraction import HeadLemmaRelationExtractor, PairWizeRelationExtraction, RelationTypeEnum
+from utils.clustering_utils import agglomerative_clustering, naive_clustering, ClusteringType
+from utils.embed_utils import EmbedFromFile
+from utils.io_utils import write_coref_scorer_results
 
 
 def run_cdc_pipeline(cluster_algo, model, print_method, event_topics):

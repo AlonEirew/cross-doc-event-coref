@@ -9,3 +9,4 @@ transformers
 tensorflow
 scikit-learn
 nltk
+docopt

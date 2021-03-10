@@ -5,8 +5,6 @@ import pickle
 import time
 from typing import List
 
-from src import LIBRARY_ROOT
-
 logger = logging.getLogger(__name__)
 
 

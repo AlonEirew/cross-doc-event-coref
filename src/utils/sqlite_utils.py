@@ -3,7 +3,7 @@ import logging
 import sqlite3
 from typing import List
 
-from src.dataobjs.mention_data import MentionData
+from dataobjs.mention_data import MentionData
 
 logger = logging.getLogger(__name__)
 
