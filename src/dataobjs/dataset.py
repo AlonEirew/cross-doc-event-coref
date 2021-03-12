@@ -58,6 +58,14 @@ class DataSet(object):
         logger.info('pos-' + str(len(pos_pairs)))
         return pos_pairs
 
+    @staticmethod
+    def get_dataset(dataset_name: str, ratio=-1, split=Split.NA):
+        if dataset_name == "ecb":
+            _data_set = EcbDataSet()
+        else:
+            _data_set = WecDataSet(ratio=ratio, split=split)
+        return _data_set
+
     def get_pairwise_feat(self, data_file, to_topics=TopicConfig.SubTopic):
         topics_ = Topics()
         topics_.create_from_file(data_file, keep_order=True)

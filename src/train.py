@@ -1,29 +1,50 @@
+"""
+
+Usage:
+    preprocess_gen_pairs.py --tpf=<TrainPosFile> --tnf=<TrainNegFile> --dpf=<DevPosFile> --dnf=<DevNegFile>
+                    --te=<TrainEmbed> --de=<DevEmbed> --mf=<ModelFile> [--bs=<x>] [--lr=<y>] [--ratio=<z>] [--itr=<k>]
+                    [--cuda=<b>] [--ft=<b1>] [--wd=<t>] [--hidden=<w>] [--dataset=<d>]
+
+Options:
+    -h --help       Show this screen.
+    --bs=<x>        Batch size [default: 32]
+    --lr=<y>        Learning rate [default: 1e-4]
+    --ratio=<z>     Ratio of positive:negative, were negative is the controlled list (ratio=-1 => no ratio) [default: -1]
+    --itr=<k>       Number of iterations [default: 10]
+    --cuda=<y>      True/False - Whether to use cuda device or not [default: True]
+    --ft=<b1>       Fine-tune the LM or not [default: False]
+    --wd=<t>        Adam optimizer Weight-decay [default: 0.01]
+    --hidden=<w>    hidden layers size [default: 150]
+    --dataset=<d>   wec/ecb - which dataset to generate for [default: wec]
+
+"""
 import logging
 
 import numpy as np
 import random
 import torch
 
-from src.configuration import Configuration, ConfigType
-from src.pairwize_model.model import PairWiseModelKenton
-from src.utils.embed_utils import EmbedFromFile
-from src.utils.eval_utils import get_confusion_matrix, get_prec_rec_f1
-from src.utils.log_utils import create_logger_with_fh
+from docopt import docopt
+from utils.embed_utils import EmbedFromFile
+from utils.eval_utils import get_confusion_matrix, get_prec_rec_f1
+from utils.log_utils import create_logger_with_fh
+from utils.io_utils import create_and_get_path
+
+from dataobjs.dataset import DataSet, Split
+from model import PairWiseModelKenton
 
 logger = logging.getLogger(__name__)
 
 
 def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
-                   lr=1e-5, save_model=False, model_out=None, best_model_to_save=0.1):
+                   lr=1e-5, model_out=None, weight_decay=0.01):
     # loss_func = torch.nn.CrossEntropyLoss()
     loss_func = torch.nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=configuration.weight_decay)
+    optimizer = torch.optim.Adam(pairwize_model.parameters(), lr, weight_decay=weight_decay)
     # optimizer = AdamW(pairwize_model.parameters(), lr)
     dataset_size = len(train)
 
-    best_result_for_save = best_model_to_save
-    improvement_seen = False
-    non_improved_epoch_count = 0
+    best_result_so_far = -1
 
     for epoch in range(epochs):
         pairwize_model.train()
@@ -59,21 +80,12 @@ def train_pairwise(pairwize_model, train, validation, batch_size, epochs=4,
         # accuracy_on_dataset(accum_count_btch / 10000, embed_utils, pairwize_model, test, use_cuda)
         pairwize_model.train()
 
-        if best_result_for_save < dev_f1:
-            if save_model:
-                logger.info("Found better model saving")
-                torch.save(pairwize_model, model_out + "iter_" + str(epoch + 1))
-                best_result_for_save = dev_f1
-                non_improved_epoch_count = 0
-                improvement_seen = True
-            elif improvement_seen:
-                if non_improved_epoch_count == 10:
-                    logger.info("No Improvement for 10 ephochs, ending test...")
-                    break
-                else:
-                    non_improved_epoch_count += 1
+        if best_result_so_far < dev_f1:
+            logger.info("Found better model saving")
+            torch.save(pairwize_model, model_out + "iter_" + str(epoch + 1))
+            best_result_so_far = dev_f1
 
-    return best_result_for_save
+    return best_result_so_far
 
 
 def accuracy_on_dataset(testset, epoch, pairwize_model, features, batch_size=10000):
@@ -119,48 +131,51 @@ def init_basic_training_resources():
     random.seed(1)
     np.random.seed(1)
 
-    embed_utils = EmbedFromFile(configuration.embed_files, configuration.model_size)
+    embed_files = [_train_embed, _dev_embed]
+    embed_utils = EmbedFromFile(embed_files)
 
-    if configuration.fine_tune:
-        logger.info("Loading model to fine tune-" + configuration.load_model_file)
-        pairwize_model = torch.load(configuration.load_model_file)
-        pairwize_model.set_embed_utils(embed_utils)
-    else:
-        # pairwize_model = PairWiseModelKenton(20736, 150, 2)
-        pairwize_model = PairWiseModelKenton(9 * embed_utils.embed_size, configuration.hidden_n, 1,
-                                             embed_utils, configuration.use_cuda)
+    pairwize_model = PairWiseModelKenton(9 * embed_utils.embed_size, _hidden_size, 1, embed_utils, _use_cuda)
+    train_dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=Split.Train)
+    dev_dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=Split.Dev)
+    train_feat = train_dataset.load_pos_neg_pickle(_train_pos_file, _train_neg_file)
+    validation_feat = dev_dataset.load_pos_neg_pickle(_dev_pos_file, _dev_neg_file)
 
-    train_feat = configuration.train_dataset.load_pos_neg_pickle(configuration.event_train_file_pos,
-                                                                 configuration.event_train_file_neg)
-    validation_feat = configuration.dev_dataset.load_pos_neg_pickle(configuration.event_validation_file_pos,
-                                                                    configuration.event_validation_file_neg)
-
-    if configuration.use_cuda:
-        # print(torch.cuda.get_device_name(1))
+    if _use_cuda:
         pairwize_model.cuda()
 
     return train_feat, validation_feat, pairwize_model
 
 
 if __name__ == '__main__':
-    configuration = Configuration(ConfigType.Train)
+    _arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    _output_folder = create_and_get_path("output")
+    _batch_size = int(_arguments.get("--bs"))
+    _learning_rate = float(_arguments.get("--lr"))
+    _ratio = int(_arguments.get("--ratio"))
+    _iterations = int(_arguments.get("--itr"))
+    _use_cuda = True if _arguments.get("--cuda").lower() == "true" else False
+    _fine_tune = True if _arguments.get("--ft").lower() == "true" else False
+    _weight_decay = float(_arguments.get("--wd"))
+    _hidden_size = int(_arguments.get("--hidden"))
+    _dataset_arg = _arguments.get("--dataset")
 
-    log_params_str = "train_ds" + configuration.train_dataset.name + "_dev_ds" + configuration.dev_dataset.name + \
-                     "_lr" + str(configuration.learning_rate) + "_bs" + str(configuration.batch_size) + "_a" + \
-                     str(configuration.ratio) + "_itr" + str(configuration.iterations)
+    _train_pos_file = _arguments.get("--tpf")
+    _train_neg_file = _arguments.get("--tnf")
+    _dev_pos_file = _arguments.get("--dpf")
+    _dev_neg_file = _arguments.get("--dnf")
+    _train_embed = _arguments.get("--te")
+    _dev_embed = _arguments.get("--de")
+    _model_file = _output_folder + "/" + _arguments.get("--mf")
+
+    log_params_str = "ds_" + _dataset_arg + "_lr_" + str(_learning_rate) + "_bs_" + str(_batch_size) + "_r" + \
+                     str(_ratio) + "_itr" + str(_iterations)
     create_logger_with_fh(log_params_str)
 
-    if configuration.save_model and configuration.fine_tune and \
-            configuration.save_model_file == configuration.load_model_file:
-        raise Exception('Fine Tune & Save model set with same model file for in & out')
-
-    logger.info("train_set=" + configuration.train_dataset.name + ", dev_set=" + configuration.dev_dataset.name +
-                ", lr=" + str(configuration.learning_rate) + ", bs=" + str(configuration.batch_size) +
-                ", ratio=1:" + str(configuration.ratio) + ", itr=" + str(configuration.iterations) +
-                ", hidden_n=" + str(configuration.hidden_n) + ", weight_decay=" + str(configuration.weight_decay))
+    logger.info("train_set=" + _dataset_arg + ", lr=" + str(_learning_rate) + ", bs=" + str(_batch_size) +
+                ", ratio=1:" + str(_ratio) + ", itr=" + str(_iterations) +
+                ", hidden_s=" + str(_hidden_size) + ", weight_decay=" + str(_weight_decay))
 
     _event_train_feat, _event_validation_feat, _pairwize_model = init_basic_training_resources()
 
-    train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, configuration.batch_size,
-                   configuration.iterations, configuration.learning_rate, save_model=configuration.save_model,
-                   model_out=configuration.save_model_file, best_model_to_save=configuration.save_model_threshold)
+    train_pairwise(_pairwize_model, _event_train_feat, _event_validation_feat, _batch_size,
+                   _iterations, _learning_rate, model_out=_model_file, weight_decay=_weight_decay)

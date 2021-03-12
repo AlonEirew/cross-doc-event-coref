@@ -7,11 +7,6 @@ from transformers import RobertaTokenizer, RobertaModel
 
 logger = logging.getLogger(__name__)
 
-# self.model_name = "roberta-large"
-# self.model_size = 1024
-# self.model = RobertaModel.from_pretrained(self.model_name)
-# self.tokenizer = RobertaTokenizer.from_pretrained(self.model_name)
-
 
 class EmbedTransformersGenerics(nn.Module):
     def __init__(self, max_surrounding_contx=10,
@@ -121,9 +116,9 @@ class EmbedModel(EmbedTransformersGenerics):
 
 
 class EmbedFromFile(object):
-    def __init__(self, files_to_load: list, embed_size):
+    def __init__(self, files_to_load: list):
+        self.embed_size = 1024
         bert_dict = dict()
-        self.embed_size = embed_size
 
         if files_to_load is not None and len(files_to_load) > 0:
             for file_ in files_to_load:

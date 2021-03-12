@@ -1,3 +1,17 @@
+"""
+Usage:
+    preprocess_gen_pairs.py <File> [<File2>] [<File3>]
+    preprocess_gen_pairs.py <File> [<File2>] [<File3>] [--max=<x>]
+    preprocess_gen_pairs.py <File> [<File2>] [<File3>] [--cuda=<y>]
+    preprocess_gen_pairs.py <File> [<File2>] [<File3>] [--max=<x>] [--cuda=<y>]
+
+Options:
+    -h --help     Show this screen.
+    --max=<x>   Maximum surrounding context [default: 250]
+    --cuda=<y>  True/False - Whether to use cuda device or not [default: True].
+
+"""
+
 import multiprocessing
 import pickle
 import time
@@ -5,9 +19,10 @@ import time
 import os
 from os import path
 
-from src import LIBRARY_ROOT
-from src.dataobjs.topics import Topics
-from src.utils.embed_utils import EmbedModel
+from docopt import docopt
+
+from dataobjs.topics import Topics
+from utils.embed_utils import EmbedModel
 
 USE_CUDA = True
 
@@ -30,8 +45,8 @@ def extract_feature_dict(topics: Topics, embed_model):
     return result_train
 
 
-def worker(resource_file, max_surrounding_contx, finetune, use_cuda):
-    embed_model = EmbedModel(max_surrounding_contx=max_surrounding_contx, finetune=finetune, use_cuda=use_cuda)
+def worker(resource_file, max_surrounding_contx, use_cuda):
+    embed_model = EmbedModel(max_surrounding_contx=max_surrounding_contx, use_cuda=use_cuda)
     name = multiprocessing.current_process().name
     print(name, "Starting")
 
@@ -49,21 +64,26 @@ def worker(resource_file, max_surrounding_contx, finetune, use_cuda):
 
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
-    _dataset_name = "wec"
-    _max_surrounding_contx = 250
-    _finetune = False
-    _use_cuda = True
+    arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    _file1 = arguments.get("<File>")
+    _file2 = arguments.get("<File2>")
+    _file3 = arguments.get("<File3>")
+    _max_surrounding_contx = int(arguments.get("--max"))
+    _use_cuda = True if arguments.get("--cuda").lower() == "true" else False
 
-    all_files = [str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/dev/Event_gold_mentions_clean13_validated.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/test/Event_gold_mentions_clean13_validated.json",
-                 str(LIBRARY_ROOT) + "/resources/" + _dataset_name + "/train/Event_gold_mentions_clean13.json"
-                 ]
+    _all_files = list()
+    if _file1:
+        _all_files.append(_file1)
+    if _file2:
+        _all_files.append(_file2)
+    if _file3:
+        _all_files.append(_file3)
 
-    print("Processing files-" + str(all_files))
+    print("Processing files-" + str(_all_files))
 
     jobs = list()
-    for _resource_file in all_files:
-        job = multiprocessing.Process(target=worker, args=(_resource_file, _max_surrounding_contx, _finetune, _use_cuda))
+    for _resource_file in _all_files:
+        job = multiprocessing.Process(target=worker, args=(_resource_file, _max_surrounding_contx, _use_cuda))
         jobs.append(job)
         job.start()
 

@@ -22,9 +22,11 @@ from docopt import docopt
 
 from dataobjs.dataset import Split, TopicConfig, EcbDataSet, WecDataSet
 
+from src.dataobjs.dataset import DataSet
+
 
 def generate_pairs():
-    positive_, negative_ = _data_set.get_pairwise_feat(_event_validation_file, to_topics=_topic_config)
+    positive_, negative_ = _dataset.get_pairwise_feat(_event_validation_file, to_topics=_topic_config)
 
     validate_pairs(positive_, negative_)
 
@@ -80,10 +82,7 @@ if __name__ == '__main__':
         _topic_config = TopicConfig.Corpus
 
     _dataset_arg = arguments.get("--dataset")
-    if _dataset_arg == "ecb":
-        _data_set = EcbDataSet()
-    else:
-        _data_set = WecDataSet(ratio=_ratio, split=_split)
+    _dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=_split)
 
     if _dataset_arg == "wec" and _split == Split.Train and _ratio == -1:
         print("Selected WEC dataset for train with a -1 ratio will generate all possible negative pairs!!")
@@ -91,4 +90,3 @@ if __name__ == '__main__':
     print("Generating pairs for file-/" + _event_validation_file)
     generate_pairs()
     print("Process Done!")
-

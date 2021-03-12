@@ -1,12 +1,13 @@
 import datetime
 import logging
 
-from src import LIBRARY_ROOT
+from utils.io_utils import create_and_get_path
 
 
 def create_logger_with_fh(params_str=""):
     running_timestamp = str(datetime.datetime.now().time().strftime("%H%M%S%m%d%Y"))
-    log_file = str(LIBRARY_ROOT) + "/logging/" + running_timestamp + "_" + params_str + ".log"
+    log_path = create_and_get_path("logging")
+    log_file = log_path + "/" + running_timestamp + "_" + params_str + ".log"
 
     logging.basicConfig(
         level=logging.INFO,

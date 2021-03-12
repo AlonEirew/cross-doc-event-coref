@@ -3,9 +3,15 @@ import json
 import logging
 import pickle
 import time
+import os
+from pathlib import Path
+from os import path
 from typing import List
 
 logger = logging.getLogger(__name__)
+
+
+LIBRARY_PATH = Path(path.realpath(__file__)).parent.parent.parent
 
 
 def load_json_file(file_path):
@@ -61,6 +67,13 @@ def load_pickle(file_path):
     with open(file_path, mode='rb') as pickle_file:
         loaded_file = pickle.load(pickle_file)
     return loaded_file
+
+
+def create_and_get_path(path_to_create):
+    path_to = str(LIBRARY_PATH) + "/" + path_to_create
+    if not os.path.exists(path_to):
+        os.makedirs(path_to)
+    return path_to
 
 
 def default(o):
