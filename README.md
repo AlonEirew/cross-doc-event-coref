@@ -34,11 +34,11 @@ To generate the embeddings for ECB+/WEC-Eng run the following script and provide
 ```
 
 ## Training
-Check `train.py` file header for the complete set of script parameters.
+See `train.py` file header for the complete set of script parameters.
 Model file will be saved at output folder (for each iteration that improves).
 - For training over ECB+:<br/>
 ```
-#> python src/train.py --tpf=resources/ecb/train/Event_gold_mentions_PosPairs.pickle --tnf=resources/ecb/train/Event_gold_mentions_NegPairs.pickle --dpf=resources/ecb/dev/Event_gold_mentions_PosPairs.pickle --dnf=resources/ecb/dev/Event_gold_mentions_NegPairs.pickle --te=resources/ecb/train/Event_gold_mentions_roberta_large.pickle --de=resources/ecb/dev/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_model --dataset=ecb --cuda=True
+#> python src/train.py --tpf=resources/ecb/train/Event_gold_mentions_PosPairs.pickle --tnf=resources/ecb/train/Event_gold_mentions_NegPairs.pickle --dpf=resources/ecb/dev/Event_gold_mentions_PosPairs.pickle --dnf=resources/ecb/dev/Event_gold_mentions_NegPairs.pickle --te=resources/ecb/train/Event_gold_mentions_roberta_large.pickle --de=resources/ecb/dev/Event_gold_mentions_roberta_large.pickle --mf=ecb_pairwise_model --dataset=ecb --cuda=True
 ```
 - For training over WEC-Eng:<br/>
 ```
@@ -46,6 +46,28 @@ Model file will be saved at output folder (for each iteration that improves).
 ```
 
 ## Inference
+See `inference.py` file header for the complete set of script parameters.
+Running pairwize evaluation example:
+```
+python src/inference.py --tpf=resources/ecb/test/Event_gold_mentions_PosPairs.pickle --tnf=resources/ecb/test/Event_gold_mentions_NegPairs.pickle --te=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_modeliter_6 --cuda=True
+```
+
+## CD Coreference
+See `cross_doc_coref.py` file header for the complete set of script parameters.
+Running the clustering algorithm:
+```
+python src/cross_doc_coref.py --tmf=resources/ecb/test/Event_gold_mentions.json --tef=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_modeliter_6 --cuda=True
+```
+
+## Calculating the CoNLL clustering score
+To score our model we used the official <a href="https://github.com/conll/reference-coreference-scorers">CoNLL coreference scorer</a>.<br/>
+Gold scorer files are at `gold_socrer/ecb/*` folder.<br/>
+**Usage Example**:
+
+```
+#>perl scorer/scorer.pl all gold_scorer/ecb/CD_test_event_mention_dataset.txt output/ecb_pairwise_modeliter_6_0.7 none
+```
+ 
 
 ### Helper Scripts:
 

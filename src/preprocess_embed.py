@@ -1,9 +1,9 @@
 """
 Usage:
-    preprocess_gen_pairs.py <File> [<File2>] [<File3>]
-    preprocess_gen_pairs.py <File> [<File2>] [<File3>] [--max=<x>]
-    preprocess_gen_pairs.py <File> [<File2>] [<File3>] [--cuda=<y>]
-    preprocess_gen_pairs.py <File> [<File2>] [<File3>] [--max=<x>] [--cuda=<y>]
+    preprocess_embed.py <File> [<File2>] [<File3>]
+    preprocess_embed.py <File> [<File2>] [<File3>] [--max=<x>]
+    preprocess_embed.py <File> [<File2>] [<File3>] [--cuda=<y>]
+    preprocess_embed.py <File> [<File2>] [<File3>] [--max=<x>] [--cuda=<y>]
 
 Options:
     -h --help     Show this screen.
@@ -23,8 +23,6 @@ from docopt import docopt
 
 from dataobjs.topics import Topics
 from utils.embed_utils import EmbedModel
-
-USE_CUDA = True
 
 
 def extract_feature_dict(topics: Topics, embed_model):
@@ -65,6 +63,7 @@ def worker(resource_file, max_surrounding_contx, use_cuda):
 if __name__ == '__main__':
     multiprocessing.set_start_method("spawn")
     arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    print(arguments)
     _file1 = arguments.get("<File>")
     _file2 = arguments.get("<File2>")
     _file3 = arguments.get("<File3>")

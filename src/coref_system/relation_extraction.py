@@ -13,11 +13,28 @@ class RelationExtraction(object):
     def __init__(self):
         self.cache = dict()
 
+    def predict(self, batch_features, bs):
+        prediction = list()
+        for pair in batch_features:
+            prediction.append(self.solve(pair[0], pair[1]))
+
+        return torch.tensor(prediction), None
+
     def solve(self, mention_x, mention_y):
         raise NotImplementedError()
 
     def get_supported_relation(self):
         raise NotImplementedError()
+
+    @staticmethod
+    def get_extract_method(extract_method_str: str):
+        if extract_method_str == "pairwize":
+            return RelationTypeEnum.PAIRWISE
+        elif extract_method_str == "head_lemma":
+            return RelationTypeEnum.SAME_HEAD_LEMMA
+        elif extract_method_str == "exact_string":
+            return RelationTypeEnum.EXACT_STRING
+        raise ValueError("Extract method=" + extract_method_str + " not supported")
 
 
 class ExactStringRelationExtractor(RelationExtraction):
@@ -25,12 +42,9 @@ class ExactStringRelationExtractor(RelationExtraction):
         super(ExactStringRelationExtractor, self).__init__()
 
     def solve(self, mention_x, mention_y):
-        relation = RelationTypeEnum.NO_RELATION_FOUND
         mention1_str = mention_x.tokens_str
         mention2_str = mention_y.tokens_str
-        if mention1_str.lower() == mention2_str.lower():
-            relation = RelationTypeEnum.EXACT_STRING
-        return relation
+        return 1 if mention1_str.lower() == mention2_str.lower() else 0
 
     def get_supported_relation(self):
         return RelationTypeEnum.EXACT_STRING
@@ -41,49 +55,7 @@ class HeadLemmaRelationExtractor(RelationExtraction):
         super(HeadLemmaRelationExtractor, self).__init__()
 
     def solve(self, mention_x, mention_y):
-        # if StringUtils.is_preposition(mention_x.mention_head_lemma.lower()) or \
-        #         StringUtils.is_preposition(mention_y.mention_head_lemma.lower()):
-        #     return RelationTypeEnum.NO_RELATION_FOUND
-        if mention_x.mention_head_lemma.lower() == mention_y.mention_head_lemma.lower():
-            return RelationTypeEnum.SAME_HEAD_LEMMA
-        return RelationTypeEnum.NO_RELATION_FOUND
+        return 1 if mention_x.mention_head_lemma.lower() == mention_y.mention_head_lemma.lower() else 0
 
     def get_supported_relation(self):
         return RelationTypeEnum.SAME_HEAD_LEMMA
-
-    def predict(self, batch_features, bs):
-        prediction = list()
-        for pair in batch_features:
-            rel = self.solve(pair[0], pair[1])
-            if rel == RelationTypeEnum.SAME_HEAD_LEMMA:
-                prediction.append(1)
-            else:
-                prediction.append(0)
-
-        return torch.tensor(prediction), None
-
-
-class PairWizeRelationExtraction(RelationExtraction):
-    def __init__(self, pairwize_model, pairthreshold=1.0):
-        super(PairWizeRelationExtraction, self).__init__()
-        self.pairwize_model = pairwize_model
-        self.pairthreshold = pairthreshold
-
-    def solve(self, mention_x, mention_y):
-        key1 = mention_x.mention_id + "_" + mention_y.mention_id
-        key2 = mention_y.mention_id + "_" + mention_x.mention_id
-        if key1 in self.cache:
-            return self.cache[key1]
-        if key2 in self.cache:
-            return self.cache[key2]
-
-        prediction, gold_labels = self.pairwize_model.predict(zip([mention_x], [mention_y]), bs=1)
-        if prediction.item() > self.pairthreshold:
-            self.cache[key1] = RelationTypeEnum.PAIRWISE
-            return RelationTypeEnum.PAIRWISE
-
-        self.cache[key1] = RelationTypeEnum.NO_RELATION_FOUND
-        return RelationTypeEnum.NO_RELATION_FOUND
-
-    def get_supported_relation(self):
-        return RelationTypeEnum.PAIRWISE

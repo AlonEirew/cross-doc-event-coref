@@ -1,7 +1,7 @@
 """
 
 Usage:
-    preprocess_gen_pairs.py --tpf=<TrainPosFile> --tnf=<TrainNegFile> --dpf=<DevPosFile> --dnf=<DevNegFile>
+    train.py --tpf=<TrainPosFile> --tnf=<TrainNegFile> --dpf=<DevPosFile> --dnf=<DevNegFile>
                     --te=<TrainEmbed> --de=<DevEmbed> --mf=<ModelFile> [--bs=<x>] [--lr=<y>] [--ratio=<z>] [--itr=<k>]
                     [--cuda=<b>] [--ft=<b1>] [--wd=<t>] [--hidden=<w>] [--dataset=<d>]
 
@@ -18,6 +18,7 @@ Options:
     --dataset=<d>   wec/ecb - which dataset to generate for [default: wec]
 
 """
+
 import logging
 
 import numpy as np
@@ -31,7 +32,7 @@ from utils.log_utils import create_logger_with_fh
 from utils.io_utils import create_and_get_path
 
 from dataobjs.dataset import DataSet, Split
-from model import PairWiseModelKenton
+from coref_system.pairwize_model import PairWiseModelKenton
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +135,7 @@ def init_basic_training_resources():
     embed_files = [_train_embed, _dev_embed]
     embed_utils = EmbedFromFile(embed_files)
 
-    pairwize_model = PairWiseModelKenton(9 * embed_utils.embed_size, _hidden_size, 1, embed_utils, _use_cuda)
+    pairwize_model = PairWiseModelKenton(embed_utils.embed_size, _hidden_size, 1, embed_utils, _use_cuda)
     train_dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=Split.Train)
     dev_dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=Split.Dev)
     train_feat = train_dataset.load_pos_neg_pickle(_train_pos_file, _train_neg_file)
@@ -166,6 +167,7 @@ if __name__ == '__main__':
     _train_embed = _arguments.get("--te")
     _dev_embed = _arguments.get("--de")
     _model_file = _output_folder + "/" + _arguments.get("--mf")
+    logger.info(_arguments)
 
     log_params_str = "ds_" + _dataset_arg + "_lr_" + str(_learning_rate) + "_bs_" + str(_batch_size) + "_r" + \
                      str(_ratio) + "_itr" + str(_iterations)

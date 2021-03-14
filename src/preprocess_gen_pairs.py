@@ -20,9 +20,8 @@ from os import path
 
 from docopt import docopt
 
-from dataobjs.dataset import Split, TopicConfig, EcbDataSet, WecDataSet
-
-from src.dataobjs.dataset import DataSet
+from dataobjs.dataset import Split, TopicConfig, EcbDataSet, WecDataSet, DataSet
+from dataobjs.topics import Topics
 
 
 def generate_pairs():
@@ -60,7 +59,7 @@ def validate_pairs(pos_pairs, neg_pairs):
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
-    # print(arguments)
+    print(arguments)
 
     _event_validation_file = arguments.get("<File>")
     _ratio = int(arguments.get("--ratio"))
@@ -74,12 +73,7 @@ if __name__ == '__main__':
 
     # subtopic/topic/corpus
     _topic_arg = arguments.get("--topic")
-    if _topic_arg == "subtopic":
-        _topic_config = TopicConfig.SubTopic
-    elif _topic_arg == "topic":
-        _topic_config = TopicConfig.Topic
-    else:
-        _topic_config = TopicConfig.Corpus
+    _topic_config = Topics.get_topic_config(_topic_arg)
 
     _dataset_arg = arguments.get("--dataset")
     _dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=_split)

@@ -6,15 +6,10 @@ import enum
 import random
 import re
 
-from dataobjs.topics import Topics, Topic
+from dataobjs.topics import TopicConfig, Topics, Topic
+
 
 logger = logging.getLogger(__name__)
-
-
-class TopicConfig(enum.Enum):
-    SubTopic = 1,
-    Topic = 2,
-    Corpus = 3
 
 
 # creating enumerations using class
@@ -61,10 +56,10 @@ class DataSet(object):
     @staticmethod
     def get_dataset(dataset_name: str, ratio=-1, split=Split.NA):
         if dataset_name == "ecb":
-            _data_set = EcbDataSet()
-        else:
-            _data_set = WecDataSet(ratio=ratio, split=split)
-        return _data_set
+            return EcbDataSet()
+        elif dataset_name == "wec":
+            return WecDataSet(ratio=ratio, split=split)
+        raise ValueError("Dataset name not supported-" + dataset_name)
 
     def get_pairwise_feat(self, data_file, to_topics=TopicConfig.SubTopic):
         topics_ = Topics()

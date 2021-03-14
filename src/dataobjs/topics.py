@@ -1,10 +1,18 @@
+import enum
 import logging
 from typing import Dict
 
 from dataobjs.mention_data import MentionData
 from utils.io_utils import load_mentions_from_json_file
 
+
 logger = logging.getLogger(__name__)
+
+
+class TopicConfig(enum.Enum):
+    SubTopic = 1,
+    Topic = 2,
+    Corpus = 3
 
 
 class Topic(object):
@@ -86,3 +94,13 @@ class Topics(object):
                 clusters[mention.coref_chain].append(mention)
             # break
         return clusters
+
+    @staticmethod
+    def get_topic_config(topic_arg: str):
+        if topic_arg == "subtopic":
+            topic_config = TopicConfig.SubTopic
+        elif topic_arg == "topic":
+            topic_config = TopicConfig.Topic
+        else:
+            topic_config = TopicConfig.Corpus
+        return topic_config

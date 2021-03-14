@@ -1,12 +1,11 @@
+allennlp
 spacy
 elasticsearch
 scipy
-allennlp
 num2words
 numpy
 torch
 transformers
-tensorflow
 scikit-learn
 nltk
 docopt

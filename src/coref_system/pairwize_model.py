@@ -8,7 +8,7 @@ class PairWiseModelKenton(nn.Module):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim, embed_utils, use_cuda):
         super(PairWiseModelKenton, self).__init__()
         self.W = nn.Linear(f_hid_dim, f_out_dim)
-        self.pairwize = self.get_sequential(f_in_dim, f_hid_dim)
+        self.pairwize = self.get_sequential(9 * f_in_dim, f_hid_dim)
         self.attend = self.get_sequential(embed_utils.get_embed_size(), f_hid_dim)
         self.w_alpha = nn.Linear(f_hid_dim, 1)
         self.embed_utils = embed_utils
@@ -17,7 +17,6 @@ class PairWiseModelKenton(nn.Module):
     @staticmethod
     def get_sequential(ind, hidd):
         return nn.Sequential(
-            nn.Dropout(0.2),
             nn.Linear(ind, hidd),
             nn.ReLU(),
             nn.Linear(hidd, hidd),
