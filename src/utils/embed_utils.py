@@ -1,15 +1,15 @@
 import logging
 import pickle
+from typing import List
 
 import torch
-from torch import nn
 from transformers import RobertaTokenizer, RobertaModel
 
 logger = logging.getLogger(__name__)
 
 
-class EmbedTransformersGenerics(nn.Module):
-    def __init__(self, max_surrounding_contx=10,
+class EmbedTransformersGenerics(object):
+    def __init__(self, max_surrounding_contx,
                  finetune=False, use_cuda=True):
 
         super(EmbedTransformersGenerics, self).__init__()
@@ -24,7 +24,19 @@ class EmbedTransformersGenerics(nn.Module):
             self.model.cuda()
 
     def get_mention_full_rep(self, mention):
-        raise NotImplementedError("Method implemented only in subclasses")
+        ment1_ids, ment1_inx_start, ment1_inx_end = self.mention_feat_to_vec(mention)
+
+        if self.use_cuda:
+            ment1_ids = ment1_ids.cuda()
+
+        if not self.finetune:
+            with torch.no_grad():
+                last_hidden_span = self.model(ment1_ids, output_hidden_states=True).last_hidden_state[0]
+        else:
+            last_hidden_span = self.model(ment1_ids, output_hidden_states=True).last_hidden_state[0]
+
+        last_hidden_span = last_hidden_span[ment1_inx_start:ment1_inx_end]
+        return last_hidden_span, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
 
     @staticmethod
     def extract_mention_surrounding_context(mention, max_surrounding_contx):
@@ -51,30 +63,27 @@ class EmbedTransformersGenerics(nn.Module):
 
         return ret_context_before, ret_mention, ret_context_after
 
-    @staticmethod
-    def mention_feat_to_vec(mention, tokenizer, max_surrounding_contx):
+    def mention_feat_to_vec(self, mention):
         cntx_before_str, ment_span_str, cntx_after_str = EmbedTransformersGenerics.\
-            extract_mention_surrounding_context(mention, max_surrounding_contx)
+            extract_mention_surrounding_context(mention, self.max_surrounding_contx)
 
         cntx_before, cntx_after = cntx_before_str, cntx_after_str
         try:
             if len(cntx_before_str) != 0:
-                cntx_before = tokenizer.encode(" ".join(cntx_before_str), add_special_tokens=False)
+                cntx_before = self.tokenizer.encode(" ".join(cntx_before_str), add_special_tokens=False)
             if len(cntx_after_str) != 0:
-                cntx_after = tokenizer.encode(" ".join(cntx_after_str), add_special_tokens=False)
+                cntx_after = self.tokenizer.encode(" ".join(cntx_after_str), add_special_tokens=False)
         except:
             print("FAILD on MentionID=" + mention.mention_id)
             raise
 
-        if max_surrounding_contx != -1:
-            if len(cntx_before) > max_surrounding_contx:
-                cntx_before = [cntx_before[0]] + cntx_before[-max_surrounding_contx+1:]
-            if len(cntx_after) > max_surrounding_contx:
-                cntx_after = cntx_after[:max_surrounding_contx-1] + [cntx_after[-1]]
+        if self.max_surrounding_contx != -1:
+            if len(cntx_before) > self.max_surrounding_contx:
+                cntx_before = [cntx_before[0]] + cntx_before[-self.max_surrounding_contx+1:]
+            if len(cntx_after) > self.max_surrounding_contx:
+                cntx_after = cntx_after[:self.max_surrounding_contx-1] + [cntx_after[-1]]
 
-        ment_span = tokenizer.encode(" ".join(ment_span_str), add_special_tokens=False)
-        tokens_length = len(cntx_before) + len(cntx_after) + len(ment_span)
-        att_mask = [1] * tokens_length
+        ment_span = self.tokenizer.encode(" ".join(ment_span_str), add_special_tokens=False)
 
         if isinstance(ment_span, torch.Tensor):
             ment_span = ment_span.tolist()
@@ -84,39 +93,17 @@ class EmbedTransformersGenerics(nn.Module):
             cntx_after = cntx_after.tolist()
 
         sent_tokens = torch.tensor([cntx_before + ment_span + cntx_after])
-        att_mask = torch.tensor([att_mask])
-        return sent_tokens, att_mask, len(cntx_before), len(cntx_before) + len(ment_span)
-
-
-class EmbedModel(EmbedTransformersGenerics):
-    def __init__(self, max_surrounding_contx=10, finetune=False, use_cuda=True):
-
-        super(EmbedModel, self).__init__(max_surrounding_contx=max_surrounding_contx,
-                                         finetune=finetune, use_cuda=use_cuda)
-
-    def get_mention_full_rep(self, mention):
-        ment1_ids, att_mask, ment1_inx_start, ment1_inx_end = EmbedTransformersGenerics.mention_feat_to_vec(
-            mention, self.tokenizer, self.max_surrounding_contx)
-
-        if self.use_cuda:
-            ment1_ids = ment1_ids.cuda()
-
-        if not self.finetune:
-            with torch.no_grad():
-                last_hidden_span = self.model(ment1_ids)[0]
-        else:
-            last_hidden_span = self.model(ment1_ids)[0]
-
-        last_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[ment1_inx_start:ment1_inx_end]
-
-        return last_hidden_span, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
+        return sent_tokens, len(cntx_before), len(cntx_before) + len(ment_span)
 
     def get_embed_size(self):
         return self.embed_size
 
 
 class EmbedFromFile(object):
-    def __init__(self, files_to_load: list):
+    def __init__(self, files_to_load: List[str]):
+        """
+        :param files_to_load: list of pre-generated embedding file names
+        """
         self.embed_size = 1024
         bert_dict = dict()
 

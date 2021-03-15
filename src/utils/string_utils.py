@@ -69,10 +69,8 @@ class StringUtils(object):
         tokenized_str = list()
         doc = StringUtils.spacy_parser(not_tokenized_str)
         for sentence in doc.sents:
-            sent_toks = list()
             for token in sentence:
-                sent_toks.append((token.text, token.i))
-            tokenized_str.append(sent_toks)
+                tokenized_str.append((token.text, token.i))
 
         return tokenized_str
 

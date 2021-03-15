@@ -23,13 +23,13 @@ logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
     _arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    print(_arguments)
     _dataset_arg = _arguments.get("--dataset")
     _model_in = _arguments.get("--mf")
     _event_test_file_pos = _arguments.get("--tpf")
     _event_test_file_neg = _arguments.get("--tnf")
     _embed_file = _arguments.get("--te")
     _use_cuda = True if _arguments.get("--cuda").lower() == "true" else False
-    logger.info(_arguments)
 
     _dataset = EcbDataSet()
 

@@ -142,6 +142,7 @@ def init_basic_training_resources():
     validation_feat = dev_dataset.load_pos_neg_pickle(_dev_pos_file, _dev_neg_file)
 
     if _use_cuda:
+        torch.cuda.manual_seed(0)
         pairwize_model.cuda()
 
     return train_feat, validation_feat, pairwize_model
@@ -149,6 +150,7 @@ def init_basic_training_resources():
 
 if __name__ == '__main__':
     _arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    print(_arguments)
     _output_folder = create_and_get_path("output")
     _batch_size = int(_arguments.get("--bs"))
     _learning_rate = float(_arguments.get("--lr"))
@@ -167,7 +169,6 @@ if __name__ == '__main__':
     _train_embed = _arguments.get("--te")
     _dev_embed = _arguments.get("--de")
     _model_file = _output_folder + "/" + _arguments.get("--mf")
-    logger.info(_arguments)
 
     log_params_str = "ds_" + _dataset_arg + "_lr_" + str(_learning_rate) + "_bs_" + str(_batch_size) + "_r" + \
                      str(_ratio) + "_itr" + str(_iterations)

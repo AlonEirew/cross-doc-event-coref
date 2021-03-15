@@ -14,15 +14,17 @@ Options:
 
 import multiprocessing
 import pickle
+import random
 import time
 
 import os
 from os import path
 
+import torch
 from docopt import docopt
 
 from dataobjs.topics import Topics
-from utils.embed_utils import EmbedModel
+from utils.embed_utils import EmbedTransformersGenerics
 
 
 def extract_feature_dict(topics: Topics, embed_model):
@@ -44,7 +46,7 @@ def extract_feature_dict(topics: Topics, embed_model):
 
 
 def worker(resource_file, max_surrounding_contx, use_cuda):
-    embed_model = EmbedModel(max_surrounding_contx=max_surrounding_contx, use_cuda=use_cuda)
+    embed_model = EmbedTransformersGenerics(max_surrounding_contx=max_surrounding_contx, use_cuda=use_cuda)
     name = multiprocessing.current_process().name
     print(name, "Starting")
 
@@ -77,6 +79,11 @@ if __name__ == '__main__':
         _all_files.append(_file2)
     if _file3:
         _all_files.append(_file3)
+
+    torch.manual_seed(0)
+    random.seed(0)
+    if _use_cuda:
+        torch.cuda.manual_seed(0)
 
     print("Processing files-" + str(_all_files))
 

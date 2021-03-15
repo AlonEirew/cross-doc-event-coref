@@ -96,6 +96,7 @@ def get_pairwise_model():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     _arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    print(_arguments)
     _mentions_file = _arguments.get("--tmf")
     _embed_file = _arguments.get("--tef")
     _model_file = _arguments.get("--mf")
@@ -103,7 +104,6 @@ if __name__ == '__main__':
     _topic_arg = _arguments.get("--topic")
     _extract_method_str = _arguments.get("--em")
     _average_link_thresh = float(_arguments.get("--alt"))
-    logger.info(_arguments)
 
     _topic_config = Topics.get_topic_config(_topic_arg)
     _extract_method = RelationExtraction.get_extract_method(_extract_method_str)

@@ -2,7 +2,8 @@
 This project code was used in the paper <Add Paper Link> for the cross document event coreference baseline model for WEC-Eng. 
 
 ## Prerequisites
-`#>pip install -r requirements.txt`
+- Python 3.6 or above<br/>
+- `#>pip install -r requirements.txt`
 
 ## Preprocessing
 The main train process require the mentions pairs and embeddings from each set.<br/>

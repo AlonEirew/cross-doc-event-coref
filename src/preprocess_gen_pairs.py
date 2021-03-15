@@ -16,6 +16,7 @@ Options:
 
 import os
 import pickle
+import random
 from os import path
 
 from docopt import docopt
@@ -74,6 +75,8 @@ if __name__ == '__main__':
     # subtopic/topic/corpus
     _topic_arg = arguments.get("--topic")
     _topic_config = Topics.get_topic_config(_topic_arg)
+
+    random.seed(0)
 
     _dataset_arg = arguments.get("--dataset")
     _dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=_split)

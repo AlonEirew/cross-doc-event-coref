@@ -1,10 +1,12 @@
 import math
+from abc import ABC
+
 import torch
 
 from torch import nn
 
 
-class PairWiseModelKenton(nn.Module):
+class PairWiseModelKenton(nn.Module, ABC):
     def __init__(self, f_in_dim, f_hid_dim, f_out_dim, embed_utils, use_cuda):
         super(PairWiseModelKenton, self).__init__()
         self.W = nn.Linear(f_hid_dim, f_out_dim)
