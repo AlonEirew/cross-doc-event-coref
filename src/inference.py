@@ -13,10 +13,10 @@ import ntpath
 
 import torch
 from docopt import docopt
-from train import accuracy_on_dataset
-from utils.log_utils import create_logger_with_fh
-from dataobjs.dataset import EcbDataSet
-from utils.embed_utils import EmbedFromFile
+from src.train import accuracy_on_dataset
+from src.utils.log_utils import create_logger_with_fh
+from src.dataobjs.dataset import EcbDataSet
+from src.utils.embed_utils import EmbedFromFile
 
 logger = logging.getLogger(__name__)
 

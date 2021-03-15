@@ -6,8 +6,8 @@ import numpy as np
 import torch
 from sklearn.cluster import AgglomerativeClustering
 
-from dataobjs.cluster import Cluster, Clusters
-from dataobjs.topics import Topic
+from src.dataobjs.cluster import Cluster, Clusters
+from src.dataobjs.topics import Topic
 
 logger = logging.getLogger(__name__)
 

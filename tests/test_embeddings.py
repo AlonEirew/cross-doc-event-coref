@@ -69,7 +69,7 @@ class TestEmbeddings(unittest.TestCase):
         self.assertEqual(mention_str, ret_mention)
 
         mentions = list()
-        mentions.extend(MentionData.read_mentions_json_to_mentions_data_list('test_res/Event_gold_mentions.json'))
+        mentions.extend(MentionData.read_mentions_json_to_mentions_data_list('tests/test_res/Event_gold_mentions.json'))
         for mention in mentions:
             ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics.extract_mention_surrounding_context(mention, 250)
 
@@ -84,7 +84,7 @@ class TestEmbeddings(unittest.TestCase):
 
     def test_mention_feat_to_vec(self):
         mentions = list()
-        mentions.extend(MentionData.read_mentions_json_to_mentions_data_list('test_res/Event_gold_mentions.json'))
+        mentions.extend(MentionData.read_mentions_json_to_mentions_data_list('tests/test_res/Event_gold_mentions.json'))
         config = EmbedTransformersGenerics(max_surrounding_contx=250, use_cuda=False)
         for mention in mentions:
             encoded = list(torch.tensor(config.tokenizer.encode(mention.tokens_str)[1:-1]))

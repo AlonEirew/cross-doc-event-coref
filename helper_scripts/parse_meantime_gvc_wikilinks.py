@@ -1,19 +1,9 @@
 import json
 import sys
 
-from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
 from src.utils.io_utils import write_mention_to_json
 from src.utils.string_utils import StringUtils
-
-
-def main(converter):
-    pass
-    # all_mentions = list()
-    # for ment in meantime_data:
-    #     all_mentions.append(converter(ment))
-    #
-    # write_mention_to_json(output, all_mentions)
 
 
 def convert_from_meantime(mention_line):
@@ -72,8 +62,9 @@ def convert_from_meantime(mention_line):
 
         mention_data = MentionData(mention_id, topic_id, doc_id, sent_id, tokens_numbers, mention_text,
                                    mention_context, mention_head, mention_head_lemma,
-                                   coref_chain, mention_type, predicted_coref_chain, mention_pos, mention_ner,
-                                   mention_index)
+                                   coref_chain, mention_type=mention_type, predicted_coref_chain=predicted_coref_chain,
+                                   mention_pos=mention_pos, mention_ner=mention_ner,
+                                   mention_index=mention_index)
     except Exception:
         print('Unexpected error:', sys.exc_info()[0])
         raise Exception('failed reading json line-' + str(mention_line))
@@ -91,14 +82,11 @@ def convert_from_gvc(mention_line):
     """
     try:
         mention_id = None
-        topic_id = None
         coref_chain = None
         doc_id = None
         sent_id = None
         tokens_numbers = None
-        predicted_coref_chain = None
         mention_context = None
-        mention_index = -1
 
         mention_text = mention_line['MENTION_TEXT']
 
@@ -121,8 +109,7 @@ def convert_from_gvc(mention_line):
 
         mention_data = MentionData(mention_id, "0", doc_id, sent_id, tokens_numbers, mention_text,
                                    mention_context, mention_head, mention_head_lemma,
-                                   coref_chain, "NA", predicted_coref_chain, mention_pos, mention_ner,
-                                   mention_index)
+                                   coref_chain, mention_pos=mention_pos, mention_ner=mention_ner)
     except Exception:
         print('Unexpected error:', sys.exc_info()[0])
         raise Exception('failed reading json line-' + str(mention_line))
@@ -142,8 +129,6 @@ def convert_from_wikilinks(mention_line):
         mention_id = None
         coref_chain = None
         doc_id = None
-        predicted_coref_chain = None
-        mention_index = -1
 
         mention_text = mention_line['mentionString']
 
@@ -157,8 +142,7 @@ def convert_from_wikilinks(mention_line):
 
         mention_data = MentionData(mention_id, "0", doc_id, -1, [], mention_text,
                                    [], mention_head, mention_head_lemma,
-                                   coref_chain, "NA", predicted_coref_chain, mention_pos, mention_ner,
-                                   mention_index)
+                                   coref_chain, mention_pos=mention_pos, mention_ner=mention_ner)
     except Exception:
         print('Unexpected error:', sys.exc_info()[0])
         raise Exception('failed reading json line-' + str(mention_line))
@@ -167,14 +151,14 @@ def convert_from_wikilinks(mention_line):
 
 
 def main_wiki():
-    clusters = json.load(open(str(LIBRARY_ROOT) + '/resources/wikilinks/wikilinks_full.json', 'r'))
+    clusters = json.load(open('resources/wikilinks/wikilinks_full.json', 'r'))
     parsed_mentions = list()
     for cluster in clusters.values():
         mentions_list = cluster['mentions']
         for ment in mentions_list:
             parsed_mentions.append(convert_from_wikilinks(ment))
 
-    output = str(LIBRARY_ROOT) + '/resources/wikilinks/Event_gold_mentions.json'
+    output = 'resources/wikilinks/Event_gold_mentions.json'
     write_mention_to_json(output, parsed_mentions)
     print("Total mentions unfiltered=" + str(len(parsed_mentions)))
     print("Done!")

@@ -1,7 +1,6 @@
 import logging
 
-from src import LIBRARY_ROOT
-from src.dataobjs.dataset import WecDataSet, Split, DataSet
+from src.dataobjs.dataset import WecDataSet
 from src.dataobjs.topics import Topics
 
 logger = logging.getLogger(__name__)

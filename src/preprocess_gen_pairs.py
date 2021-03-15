@@ -21,8 +21,8 @@ from os import path
 
 from docopt import docopt
 
-from dataobjs.dataset import Split, TopicConfig, EcbDataSet, WecDataSet, DataSet
-from dataobjs.topics import Topics
+from src.dataobjs.dataset import Split, DataSet
+from src.dataobjs.topics import Topics
 
 
 def generate_pairs():

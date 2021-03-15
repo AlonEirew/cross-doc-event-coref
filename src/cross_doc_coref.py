@@ -20,14 +20,14 @@ import numpy as np
 import torch
 
 from docopt import docopt
-from dataobjs.cluster import Clusters
-from dataobjs.topics import Topics
-from dataobjs.dataset import TopicConfig
-from coref_system.relation_extraction import HeadLemmaRelationExtractor, RelationTypeEnum
-from utils.clustering_utils import agglomerative_clustering
-from utils.embed_utils import EmbedFromFile
-from utils.io_utils import write_coref_scorer_results
-from coref_system.relation_extraction import RelationExtraction
+from src.dataobjs.cluster import Clusters
+from src.dataobjs.topics import Topics
+from src.dataobjs.dataset import TopicConfig
+from src.coref_system.relation_extraction import HeadLemmaRelationExtractor, RelationTypeEnum
+from src.utils.clustering_utils import agglomerative_clustering
+from src.utils.embed_utils import EmbedFromFile
+from src.utils.io_utils import write_coref_scorer_results
+from src.coref_system.relation_extraction import RelationExtraction
 
 
 logger = logging.getLogger(__name__)

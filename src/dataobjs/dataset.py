@@ -6,7 +6,7 @@ import enum
 import random
 import re
 
-from dataobjs.topics import TopicConfig, Topics, Topic
+from src.dataobjs.topics import TopicConfig, Topics, Topic
 
 
 logger = logging.getLogger(__name__)

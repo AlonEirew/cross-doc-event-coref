@@ -8,16 +8,16 @@ from src.preprocess_gen_pairs import validate_pairs
 class TestDataUtils(unittest.TestCase):
     def test_pairs_file(self):
         dataset = DataSet.get_dataset("ecb")
-        positive_, negative_ = dataset.get_pairwise_feat("test/test_res/Event_gold_mentions.json", to_topics=TopicConfig.SubTopic)
+        positive_, negative_ = dataset.get_pairwise_feat("tests/test_res/Event_gold_mentions.json", to_topics=TopicConfig.SubTopic)
         self.validate(dataset, negative_, positive_)
 
         dataset = DataSet.get_dataset("wec", split=Split.Train, ratio=10)
-        positive_, negative_ = dataset.get_pairwise_feat("test/test_res/Event_gold_mentions.json")
+        positive_, negative_ = dataset.get_pairwise_feat("tests/test_res/Event_gold_mentions.json")
         self.assertEqual(len(positive_) * 10, len(negative_))
         self.validate(dataset, negative_, positive_)
 
         dataset = DataSet.get_dataset("wec", split=Split.Dev)
-        positive_, negative_ = dataset.get_pairwise_feat("test/test_res/Event_gold_mentions.json")
+        positive_, negative_ = dataset.get_pairwise_feat("tests/test_res/Event_gold_mentions.json")
         self.validate(dataset, negative_, positive_)
 
     def validate(self, dataset, negative_, positive_):

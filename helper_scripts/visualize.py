@@ -3,10 +3,8 @@ from heapq import heappush, heappop
 
 import spacy
 
-from src import LIBRARY_ROOT
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
-from src.utils.string_utils import StringUtils
 
 
 class VisualCluster(object):
@@ -73,20 +71,14 @@ def main(event_file):
     visualize_clusters(event_clusters)
 
 
-def visualize_mentions(mentions):
+def visualize_mentions():
     dispacy_obj = list()
     spacy_verb_count = 0
     nltk_verb_count = 0
     for mention in mentions:
         ents = list()
         context, start, end = get_context_start_end(mention)
-        # spacy_verb_phrase = StringUtils.get_pos_spacy(mention)
-        # if spacy_verb_phrase:
-        #     spacy_verb_count += 1
-        # nltk_verb_phrase = StringUtils.get_pos_nltk(mention)
-        # if nltk_verb_phrase:
-        #     nltk_verb_count += 1
-        label = "A" # str(spacy_verb_phrase) + "/" + str(nltk_verb_phrase)
+        label = mention.mention_id
         ents.append({'start': start, 'end': end + 1, 'label': label})
 
         dispacy_obj.append({
@@ -110,26 +102,14 @@ def visualize_clusters(clusters):
         cluster_ments = clusters.get(cluster_id)
         context_mentions = dict()
         unique_mentions_head = set()
-        unique_mentions_str = set()
         cluster_ments_count = 0
         for mention in cluster_ments:
-            # if mention.mention_type == 1:
-            #     continue
-            # if mention.tokens_str not in unique_mentions_str:
-            #     unique_mentions_str.add(mention.tokens_str)
-            # if hasattr(mention, "manual_score"):
-            # if mention.mention_type == 8:
             cluster_ments_count += 1
             unique_mentions_head.add(mention.tokens_str.lower())
             context, start, end = get_context_start_end(mention)
             if context not in context_mentions:
                 context_mentions[context] = list()
-            # if mention.manual_score > 3:
-            is_verb = "NA" #StringUtils.is_verb_phrase(mention.tokens_str)
             heappush(context_mentions[context], (start, end, "ID:" + mention.mention_id))
-                                                 # str(is_verb) + ", " + mention.mention_ner))
-            # else:
-            #     heappush(context_mentions[context], (start, end, "XX:" + mention.mention_id))
 
         cluster_context = ""
         ents = list()
@@ -177,9 +157,9 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = str(LIBRARY_ROOT) + '/resources/WEC_Dev_Single_Event_gold_mentions.json'
+    _event_file = "resources/ecb/dev/Event_gold_mentions.json"
     threash = []
     # main(_event_file)
     mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_file)
     # sample = random.sample(mentions, 100)
-    visualize_mentions(mentions)
+    visualize_mentions()

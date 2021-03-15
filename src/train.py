@@ -8,7 +8,7 @@ Usage:
 Options:
     -h --help       Show this screen.
     --bs=<x>        Batch size [default: 32]
-    --lr=<y>        Learning rate [default: 1e-4]
+    --lr=<y>        Learning rate [default: 5e-4]
     --ratio=<z>     Ratio of positive:negative, were negative is the controlled list (ratio=-1 => no ratio) [default: -1]
     --itr=<k>       Number of iterations [default: 10]
     --cuda=<y>      True/False - Whether to use cuda device or not [default: True]
@@ -26,13 +26,13 @@ import random
 import torch
 
 from docopt import docopt
-from utils.embed_utils import EmbedFromFile
-from utils.eval_utils import get_confusion_matrix, get_prec_rec_f1
-from utils.log_utils import create_logger_with_fh
-from utils.io_utils import create_and_get_path
+from src.utils.embed_utils import EmbedFromFile
+from src.utils.eval_utils import get_confusion_matrix, get_prec_rec_f1
+from src.utils.log_utils import create_logger_with_fh
+from src.utils.io_utils import create_and_get_path
 
-from dataobjs.dataset import DataSet, Split
-from coref_system.pairwize_model import PairWiseModelKenton
+from src.dataobjs.dataset import DataSet, Split
+from src.coref_system.pairwize_model import PairWiseModelKenton
 
 logger = logging.getLogger(__name__)
 

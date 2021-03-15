@@ -2,8 +2,8 @@ import logging
 import sys
 from typing import List
 
-from utils.io_utils import load_json_file
-from utils.string_utils import StringUtils
+from src.utils.io_utils import load_json_file
+from src.utils.string_utils import StringUtils
 
 logger = logging.getLogger(__name__)
 

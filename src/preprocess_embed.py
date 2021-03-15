@@ -23,8 +23,8 @@ from os import path
 import torch
 from docopt import docopt
 
-from dataobjs.topics import Topics
-from utils.embed_utils import EmbedTransformersGenerics
+from src.dataobjs.topics import Topics
+from src.utils.embed_utils import EmbedTransformersGenerics
 
 
 def extract_feature_dict(topics: Topics, embed_model):
