@@ -73,9 +73,11 @@ Gold scorer files are at `gold_socrer/ecb/*` folder.<br/>
 
 ## Additional Scripts (`helper_scripts`)
 
-#### `stats_calculation.py`
+#### `stats.py`
 Calculate the dataset files statistics (mentions, singleton mentions, clusters...) <br/>
 `#>stats_calculation.py resources/ecb/dev/Event_gold_mentions.json`
 
-#### `visual_clusters.py`
-Create a page to visualize the clusters and mentions from the given set.<br/>
+#### `visualize.py`
+Create an HTML page to visualize clusters and mentions from the given set<br/>
+`#>visualize.py resources/ecb/dev/Event_gold_mentions.json --present=cluster`<br/>
+Page will be accessed via http://localhost:5000

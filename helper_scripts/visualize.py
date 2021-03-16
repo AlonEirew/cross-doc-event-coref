@@ -1,7 +1,18 @@
+"""
+Usage:
+    preprocess_embed.py <MentionsFile> --present=<x> [--sample=<y>]
+
+Options:
+    -h --help       Show this screen.
+    --present=<x>   topic/cluster - (topic relevant only to ECB+) Visualize the mentions grouped by topic or clusters
+    --sample=<y>    Sample y clusters/topics to visualize [default: -1]
+"""
+
 import random
 from heapq import heappush, heappop
 
 import spacy
+from docopt import docopt
 
 from src.dataobjs.mention_data import MentionData
 from src.dataobjs.topics import Topics
@@ -18,23 +29,11 @@ class VisualCluster(object):
 
 def from_topics_to_clusters(all_topics):
     clusters = dict()
-    cluster_id_to_num = dict()
-    running_num = 0
     for top in all_topics.topics_dict.values():
         for mention in top.mentions:
             if mention.coref_chain not in clusters:
                 clusters[mention.coref_chain] = list()
             clusters[mention.coref_chain].append(mention)
-
-            # mention_cluster = mention.topic_id + mention.coref_chain
-            # if mention_cluster in cluster_id_to_num:
-            #     mention_int_cluster_id = cluster_id_to_num[mention_cluster]
-            #     clusters[mention_int_cluster_id].append(mention)
-            # else:
-            #     cluster_id_to_num[mention_cluster] = running_num
-            #     clusters[running_num] = [mention]
-            #     running_num += 1
-
     return clusters
 
 
@@ -53,49 +52,48 @@ def print_num_of_mentions_in_cluster(clusters):
         print(str(key) + ': ' + str(value))
 
 
-def main(event_file):
-    print('Done Loading all pairs, loading topics')
-    event_topics = Topics()
-    event_topics.create_from_file(event_file, keep_order=True)
-    print('Done Loading topics, create stats')
-    # entity_clusters = from_topics_to_clusters(entity_topics)
-    event_clusters = from_topics_to_clusters(event_topics)
-
-    print('Entity cluster distribution')
-    # print_num_of_mentions_in_cluster(entity_clusters)
-
-    print()
-    print('Event cluster distribution')
-    print_num_of_mentions_in_cluster(event_clusters)
-
-    visualize_clusters(event_clusters)
-
-
 def visualize_mentions():
     dispacy_obj = list()
-    spacy_verb_count = 0
-    nltk_verb_count = 0
-    for mention in mentions:
+
+    pages_dict = dict()
+    for _mention in _mentions:
+        if _mention.doc_id not in pages_dict:
+            pages_dict[_mention.doc_id] = list()
+        pages_dict[_mention.doc_id].append(_mention)
+
+    for mentions in pages_dict.values():
+        mentions.sort(key=lambda x: x.tokens_number[0])
+
+    sampled = 1
+    for doc_id, mentions in pages_dict.items():
         ents = list()
-        context, start, end = get_context_start_end(mention)
-        label = mention.mention_id
-        ents.append({'start': start, 'end': end + 1, 'label': label})
+        context = ""
+        for mention in mentions:
+            context, start, end = get_context_start_end(mention)
+            label = mention.mention_id
+            ents.append({'start': start, 'end': end + 1, 'label': label})
 
-        dispacy_obj.append({
-            'text': context,
-            'ents': ents,
-            'title': mention.mention_id
-        })
-
-    print("Spacy=" + str(spacy_verb_count))
-    print("NLTK=" + str(nltk_verb_count))
+        if _sample < 0 or 0 < sampled <= _sample:
+            sampled += 1
+            if ents:
+                dispacy_obj.append({
+                    'text': context,
+                    'ents': ents,
+                    'title': doc_id
+                })
+        else:
+            break
 
     spacy.displacy.serve(dispacy_obj, style='ent', manual=True)
 
 
-def visualize_clusters(clusters):
-    dispacy_obj = list()
+def visualize_clusters():
+    event_topics = Topics()
+    event_topics.create_from_file(_event_file, keep_order=True)
+    clusters = from_topics_to_clusters(event_topics)
 
+    dispacy_obj = list()
+    sampled = 1
     clus_keys = list(clusters.keys())
     random.shuffle(clus_keys)
     for cluster_id in clus_keys:
@@ -109,7 +107,7 @@ def visualize_clusters(clusters):
             context, start, end = get_context_start_end(mention)
             if context not in context_mentions:
                 context_mentions[context] = list()
-            heappush(context_mentions[context], (start, end, "ID:" + mention.mention_id))
+            heappush(context_mentions[context], (start, end, mention.mention_id))
 
         cluster_context = ""
         ents = list()
@@ -119,14 +117,15 @@ def visualize_clusters(clusters):
                 ment_pair = heappop(mentions_heap)
                 real_start = len(cluster_context) + 1 + ment_pair[0]
                 real_end = len(cluster_context) + 1 + ment_pair[1]
-                ent_label = '(' + ment_pair[2] + ')' #+ '(' + ment_pair[3] + ')'
+                ent_label = ment_pair[2]
                 ents.append({'start': real_start, 'end': real_end, 'label': ent_label})
 
             cluster_context = cluster_context + '\n' + context
 
-        if cluster_ments_count > 0:
-            clust_title = str(clusters[cluster_id][0].coref_link) + ' (cluster:' + str(clusters[cluster_id][0].coref_chain) + \
-                          ', mentions:' + str(len(cluster_ments)) + ', unique:' + str(len(unique_mentions_head)) + ')'
+        if cluster_ments_count > 0 and (_sample < 0 or 0 < sampled <= _sample):
+            sampled += 1
+            clust_title = 'Cluster(' + str(clusters[cluster_id][0].coref_chain) + \
+                          '), Mentions(' + str(len(cluster_ments)) + ')'
 
             dispacy_obj.append({
                 'text': cluster_context,
@@ -157,9 +156,15 @@ def get_context_start_end(mention):
 
 
 if __name__ == '__main__':
-    _event_file = "resources/ecb/dev/Event_gold_mentions.json"
-    threash = []
-    # main(_event_file)
-    mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_file)
-    # sample = random.sample(mentions, 100)
-    visualize_mentions()
+    arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    print(arguments)
+    _event_file = arguments.get("<MentionsFile>")
+    _present = arguments.get("--present")
+    _sample = int(arguments.get("--sample"))
+    _mentions = MentionData.read_mentions_json_to_mentions_data_list(_event_file)
+    if _present.lower() == "topic":
+        visualize_mentions()
+    elif _present.lower() == "cluster":
+        visualize_clusters()
+    else:
+        raise ValueError("No such presentation-" + _present)
