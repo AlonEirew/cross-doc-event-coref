@@ -7,7 +7,7 @@ Options:
 
 """
 
-from collections import namedtuple
+from collections import namedtuple, Counter
 
 from docopt import docopt
 from transformers import RobertaTokenizer
@@ -48,11 +48,15 @@ def produce_cluster_stats(clusters):
     sum_mentions_no_single = 0
     all_lemmas = list()
     all_lemmas_no_single = list()
+    same_string_in_cluster = dict()
     print('Clusters=' + str(len(clusters)))
     biggest_cluster = 0
-    for clust in clusters.values():
+    for index, clust in enumerate(clusters.values()):
         clust_len = len(clust)
         clust_lemmas = set([ment.mention_head_lemma for ment in clust])
+        cluster_uniqe_str = Counter([ment.tokens_str for ment in clust])
+        same_string_in_cluster[index] = sum(cluster_uniqe_str.values()) / len(cluster_uniqe_str)
+
         if clust_len == 1:
             singletons_count += 1
         else:
@@ -72,6 +76,7 @@ def produce_cluster_stats(clusters):
     print('Average Ment in Clust (exclude singletons)=' + str(sum_mentions_no_single / (len(clusters) - singletons_count)))
     print('Average Lemmas in Clust (Diversity-include singletons)=' + str(len(all_lemmas) / len(clusters)))
     print('Average Lemmas in Clust (Diversity-exclude singletons)=' + str(len(all_lemmas_no_single) / (len(clusters) - singletons_count)))
+    print('Average Mentions with Same String in Clust=' + str(sum(same_string_in_cluster.values()) / (len(same_string_in_cluster))))
 
 
 def calc_single_head_lemma_cluster(ment_list, clus_size_thresh):
