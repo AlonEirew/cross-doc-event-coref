@@ -1,4 +1,4 @@
-# cross-doc-coref
+# cross-doc-event-coref
 This project code was used in the paper <Add Paper Link> for the cross document event coreference baseline model for WEC-Eng. 
 
 ## Prerequisites
