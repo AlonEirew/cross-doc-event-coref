@@ -1,5 +1,5 @@
 # cross-doc-event-coref
-This project code was used in the paper <Add Paper Link> for the cross document event coreference baseline model for WEC-Eng. 
+This project code was used in the paper <a href="https://arxiv.org/abs/2104.05022">״WEC: Deriving a Large-scale Cross-document Event Coreference dataset from Wikipedia״</a> for the cross document event coreference baseline model for WEC-Eng. 
 
 ## Prerequisites
 - Python 3.6 or above<br/>
