@@ -55,13 +55,21 @@ python src/inference.py --tpf=resources/ecb/test/Event_gold_mentions_PosPairs.pi
 ```
 
 ## CD Coreference
-See `cross_doc_coref.py` file header for the complete set of script parameters.<br/>
-Running the clustering algorithm:
+#### Generate Pairs Predictions
+See `generate_pairs_predictions.py` file header for the complete set of script parameters.<br/>
+Running the pairs prediction algorithm:
 ```
-python src/cross_doc_coref.py --tmf=resources/ecb/test/Event_gold_mentions.json --tef=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_modeliter_6 --cuda=True
+python src/generate_pairs_predictions.py --tmf=resources/ecb/test/Event_gold_mentions.json --tef=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_modeliter_6 --out=output/ecb_predictions --cuda=True
 ```
 
-## Calculating the CoNLL clustering score
+#### Clustering
+See `cluster.py` file header for the complete set of script parameters.<br/>
+Running the pairs prediction algorithm:
+```
+python src/cluster.py --tmf=resources/ecb/test/Event_gold_mentions.json --predictions=output/ecb_predictions --alt=0.7
+```
+
+#### Calculating the CoNLL clustering score
 To score our model we used the official <a href="https://github.com/conll/reference-coreference-scorers">CoNLL coreference scorer</a>.<br/>
 Gold scorer files are at `gold_socrer/ecb/*` folder.<br/>
 **Usage Example**:
@@ -75,9 +83,12 @@ Gold scorer files are at `gold_socrer/ecb/*` folder.<br/>
 
 #### `stats.py`
 Calculate the dataset files statistics (mentions, singleton mentions, clusters...) <br/>
-`#>stats_calculation.py resources/ecb/dev/Event_gold_mentions.json`
-
+```
+python helper_scripts/stats_calculation.py resources/ecb/dev/Event_gold_mentions.json`
+```
 #### `visualize.py`
 Create an HTML page to visualize clusters and mentions from the given set<br/>
-`#>visualize.py resources/ecb/dev/Event_gold_mentions.json --present=cluster`<br/>
+```
+python helper_scripts/visualize.py resources/ecb/dev/Event_gold_mentions.json --present=cluster`<br/>
+```
 Page will be accessed via http://localhost:5000
