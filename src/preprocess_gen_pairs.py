@@ -10,7 +10,7 @@ Options:
     --dataset=<dataset>   wec/ecb - which dataset to generate for [default: wec]
     --split=<set>    dev/test/train/na (split=na => doesnt matter) [default: na].
     --ratio=<x>  ratio of positive:negative, were negative is the controlled list (ratio=-1 => no ratio) [default: -1]
-    --topic=<type>  subtopic/topic/corpus - relevant only to ECB+, take pairs only from the same sub-topic, topic or corpus wide [default: subtopic]
+    --topic=<type>  subtopic/topic/corpus - relevant only to ECB+, take pairs only from the same sub-topic, topic or corpus wide [default: corpus]
 
 """
 

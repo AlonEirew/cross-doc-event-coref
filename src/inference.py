@@ -42,8 +42,8 @@ if __name__ == '__main__':
     _pairwize_model.set_embed_utils(_embed_utils)
     _pairwize_model.eval()
 
-    positive_ = _dataset.load_pos_pickle(_event_test_file_pos)
-    negative_ = _dataset.load_neg_pickle(_event_test_file_neg)
+    positive_ = _dataset.load_pair_pickle(_event_test_file_pos)
+    negative_ = _dataset.load_pair_pickle(_event_test_file_neg)
     split_feat = _dataset.create_features_from_pos_neg(positive_, negative_)
 
     accuracy_on_dataset("", 0, _pairwize_model, split_feat)

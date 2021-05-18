@@ -137,7 +137,7 @@ def init_basic_training_resources():
 
     pairwize_model = PairWiseModelKenton(embed_utils.embed_size, _hidden_size, 1, embed_utils, _use_cuda)
     train_dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=Split.Train)
-    dev_dataset = DataSet.get_dataset(_dataset_arg, ratio=_ratio, split=Split.Dev)
+    dev_dataset = DataSet.get_dataset(_dataset_arg, split=Split.Dev)
     train_feat = train_dataset.load_pos_neg_pickle(_train_pos_file, _train_neg_file)
     validation_feat = dev_dataset.load_pos_neg_pickle(_dev_pos_file, _dev_neg_file)
 

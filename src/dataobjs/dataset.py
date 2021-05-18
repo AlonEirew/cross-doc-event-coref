@@ -30,33 +30,28 @@ class DataSet(object):
         self.name = name
 
     def load_pos_neg_pickle(self, pos_file, neg_file):
-        pos_pairs = DataSet.load_pos_pickle(pos_file)
-        neg_pairs = DataSet.load_neg_pickle(neg_file)
+        pos_pairs = DataSet.load_pair_pickle(pos_file)
+        neg_pairs = DataSet.load_pair_pickle(neg_file)
 
         if self.ratio > 0:
             if len(neg_pairs) > (len(pos_pairs) * self.ratio):
                 neg_pairs = neg_pairs[0:len(pos_pairs) * self.ratio]
 
+        logger.info("Final pos pairs-" + str(len(pos_pairs)))
+        logger.info("Final neg pairs-" + str(len(neg_pairs)))
         return self.create_features_from_pos_neg(pos_pairs, neg_pairs)
 
     @staticmethod
-    def load_neg_pickle(neg_file):
-        logger.info("Loading neg file-" + neg_file)
+    def load_pair_pickle(neg_file):
+        logger.info("Loading file-" + neg_file)
         neg_pairs = pickle.load(open(neg_file, "rb"))
-        logger.info('neg-' + str(len(neg_pairs)))
+        logger.info('pairs loaded=' + str(len(neg_pairs)))
         return neg_pairs
-
-    @staticmethod
-    def load_pos_pickle(pos_file):
-        logger.info("Loading pos file-" + pos_file)
-        pos_pairs = pickle.load(open(pos_file, "rb"))
-        logger.info('pos-' + str(len(pos_pairs)))
-        return pos_pairs
 
     @staticmethod
     def get_dataset(dataset_name: str, ratio=-1, split=Split.NA):
         if dataset_name == "ecb":
-            return EcbDataSet()
+            return EcbDataSet(ratio=ratio)
         elif dataset_name == "wec":
             return WecDataSet(ratio=ratio, split=split)
         raise ValueError("Dataset name not supported-" + dataset_name)
@@ -93,6 +88,7 @@ class DataSet(object):
         feats.extend(negative_exps)
         # feats.extend(random.sample(negative_exps, len(positive_exps) * 2))
         random.shuffle(feats)
+        logger.info("Total pairs examples-" + str(len(feats)))
         return feats
 
     @staticmethod
@@ -111,14 +107,15 @@ class DataSet(object):
 
 
 class EcbDataSet(DataSet):
-    def __init__(self):
-        super(EcbDataSet, self).__init__(name="ECB")
+    def __init__(self, ratio=-1):
+        super(EcbDataSet, self).__init__(ratio=ratio, name="ECB")
 
     @classmethod
     def create_pos_neg_pairs(cls, topics, to_topic):
         if to_topic == TopicConfig.Topic:
             topics = cls.from_ecb_subtopic_to_topic(topics)
         elif to_topic == TopicConfig.Corpus:
+            # e.g., corpus
             topics.to_single_topic()
 
         # create positive examples
