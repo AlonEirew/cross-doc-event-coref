@@ -1,5 +1,5 @@
 # cross-doc-event-coref
-This project code was used in the paper <a href="https://arxiv.org/abs/2104.05022">״WEC: Deriving a Large-scale Cross-document Event Coreference dataset from Wikipedia״</a> for the cross document event coreference baseline model for WEC-Eng. 
+This project code was used in the paper <a href="https://www.aclweb.org/anthology/2021.naacl-main.198/">״WEC: Deriving a Large-scale Cross-document Event Coreference dataset from Wikipedia״</a> for the cross document event coreference baseline model for WEC-Eng. 
 
 ## Prerequisites
 - Python 3.6 or above<br/>
@@ -56,6 +56,7 @@ python src/inference.py --tpf=resources/ecb/test/Event_gold_mentions_PosPairs.pi
 
 ## CD Coreference
 #### Generate Pairs Predictions
+Generate the pairs predictions (distance) before running the agglomerative clustering script for final results<br/>
 See `generate_pairs_predictions.py` file header for the complete set of script parameters.<br/>
 Running the pairs prediction algorithm:
 ```
@@ -63,6 +64,7 @@ python src/generate_pairs_predictions.py --tmf=resources/ecb/test/Event_gold_men
 ```
 
 #### Clustering
+Running agglomerative clustering to get the final cluster configuration on the pairwise predictions.
 See `cluster.py` file header for the complete set of script parameters.<br/>
 Running the pairs prediction algorithm:
 ```
