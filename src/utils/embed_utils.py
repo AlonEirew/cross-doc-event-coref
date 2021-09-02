@@ -12,7 +12,6 @@ class EmbedTransformersGenerics(object):
     def __init__(self, max_surrounding_contx,
                  finetune=False, use_cuda=True):
 
-        super(EmbedTransformersGenerics, self).__init__()
         self.model = RobertaModel.from_pretrained("roberta-large")
         self.tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
         self.max_surrounding_contx = max_surrounding_contx
@@ -31,57 +30,45 @@ class EmbedTransformersGenerics(object):
 
         if not self.finetune:
             with torch.no_grad():
-                last_hidden_span = self.model(ment1_ids, output_hidden_states=True).last_hidden_state[0]
+                last_hidden_span = self.model(ment1_ids).last_hidden_state
         else:
-            last_hidden_span = self.model(ment1_ids, output_hidden_states=True).last_hidden_state[0]
+            last_hidden_span = self.model(ment1_ids).last_hidden_state
 
-        last_hidden_span = last_hidden_span[ment1_inx_start:ment1_inx_end]
-        return last_hidden_span, last_hidden_span[0], last_hidden_span[-1], last_hidden_span.shape[0]
+        mention_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[ment1_inx_start:ment1_inx_end]
+        return mention_hidden_span, mention_hidden_span[0], mention_hidden_span[-1], mention_hidden_span.shape[0]
 
     @staticmethod
-    def extract_mention_surrounding_context(mention, max_surrounding_contx):
+    def extract_mention_surrounding_context(mention):
         tokens_inds = mention.tokens_number
         context = mention.mention_context
         start_mention_index = tokens_inds[0]
         end_mention_index = tokens_inds[-1] + 1
+        assert len(tokens_inds) == len(mention.tokens_str.split(" "))
 
-        if max_surrounding_contx != -1:
-            context_before = start_mention_index - max_surrounding_contx
-            context_after = end_mention_index + max_surrounding_contx
-            if context_before < 0:
-                context_before = 0
-
-            if context_after > len(context):
-                context_after = len(context)
-        else:
-            context_before = 0
-            context_after = len(context)
-
-        ret_context_before = context[context_before:start_mention_index]
+        ret_context_before = context[0:start_mention_index]
         ret_mention = context[start_mention_index:end_mention_index]
-        ret_context_after = context[end_mention_index:context_after]
+        ret_context_after = context[end_mention_index:]
+
+        assert ret_mention == mention.tokens_str.split(" ")
+        assert len(ret_context_before + ret_mention + ret_context_after) == len(mention.mention_context)
 
         return ret_context_before, ret_mention, ret_context_after
 
     def mention_feat_to_vec(self, mention):
         cntx_before_str, ment_span_str, cntx_after_str = EmbedTransformersGenerics.\
-            extract_mention_surrounding_context(mention, self.max_surrounding_contx)
+            extract_mention_surrounding_context(mention)
 
         cntx_before, cntx_after = cntx_before_str, cntx_after_str
-        try:
-            if len(cntx_before_str) != 0:
-                cntx_before = self.tokenizer.encode(" ".join(cntx_before_str), add_special_tokens=False)
-            if len(cntx_after_str) != 0:
-                cntx_after = self.tokenizer.encode(" ".join(cntx_after_str), add_special_tokens=False)
-        except:
-            print("FAILD on MentionID=" + mention.mention_id)
-            raise
+        if len(cntx_before_str) != 0:
+            cntx_before = self.tokenizer.encode(" ".join(cntx_before_str), add_special_tokens=False)
+        if len(cntx_after_str) != 0:
+            cntx_after = self.tokenizer.encode(" ".join(cntx_after_str), add_special_tokens=False)
 
         if self.max_surrounding_contx != -1:
             if len(cntx_before) > self.max_surrounding_contx:
-                cntx_before = [cntx_before[0]] + cntx_before[-self.max_surrounding_contx+1:]
+                cntx_before = cntx_before[-self.max_surrounding_contx+1:]
             if len(cntx_after) > self.max_surrounding_contx:
-                cntx_after = cntx_after[:self.max_surrounding_contx-1] + [cntx_after[-1]]
+                cntx_after = cntx_after[:self.max_surrounding_contx-1]
 
         ment_span = self.tokenizer.encode(" ".join(ment_span_str), add_special_tokens=False)
 
@@ -92,8 +79,12 @@ class EmbedTransformersGenerics(object):
         if isinstance(cntx_after, torch.Tensor):
             cntx_after = cntx_after.tolist()
 
-        sent_tokens = torch.tensor([cntx_before + ment_span + cntx_after])
-        return sent_tokens, len(cntx_before), len(cntx_before) + len(ment_span)
+        all_sent_toks = [[0] + cntx_before + ment_span + cntx_after + [2]]
+        sent_tokens = torch.tensor(all_sent_toks)
+        mention_start_idx = len(cntx_before) + 1
+        mention_end_idx = len(cntx_before) + len(ment_span) + 1
+        assert all_sent_toks[0][mention_start_idx:mention_end_idx] == ment_span
+        return sent_tokens, mention_start_idx, mention_end_idx
 
     def get_embed_size(self):
         return self.embed_size

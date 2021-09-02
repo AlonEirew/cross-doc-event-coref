@@ -32,7 +32,7 @@ def calc_longest_mention_and_context(split_list):
     longest_context = 0
     for mention in split_list:
         mention_encode = _tokenizer.encode(mention.mention_context[mention.tokens_number[0]:mention.tokens_number[-1] + 1])
-        context_encode = EmbedTransformersGenerics.extract_mention_surrounding_context(mention, 205)
+        context_encode = EmbedTransformersGenerics.extract_mention_surrounding_context(mention)
         if len(mention_encode) > longest_mention:
             longest_mention = len(mention_encode)
         if len(mention.mention_context) > longest_context:

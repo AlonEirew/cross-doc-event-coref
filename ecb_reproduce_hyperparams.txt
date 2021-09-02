@@ -1,0 +1,33 @@
+## Train
+{'--bs': '32',
+ '--cuda': 'True',
+ '--dataset': 'ecb',
+ '--de': 'resources/ecb/dev/Event_gold_mentions_roberta_large.pickle',
+ '--dnf': 'resources/ecb/dev/Event_gold_mentions_NegPairs.pickle',
+ '--dpf': 'resources/ecb/dev/Event_gold_mentions_PosPairs.pickle',
+ '--ft': 'False',
+ '--hidden': '150',
+ '--itr': '10',
+ '--lr': '0.00005',
+ '--mf': 'ecb_pairwise_model',
+ '--ratio': '-1',
+ '--te': 'resources/ecb/train/Event_gold_mentions_roberta_large.pickle',
+ '--tnf': 'resources/ecb/train/Event_gold_mentions_NegPairs.pickle',
+ '--tpf': 'resources/ecb/train/Event_gold_mentions_PosPairs.pickle',
+ '--wd': '0.01'}
+
+ ## Pairwise generation
+ {'--cuda': 'True',
+ '--em': 'pairwize',
+ '--mf': 'checkpoints/01092021_171931/ecb_pairwise_modeliter_9',
+ '--out': 'checkpoints/01092021_171931/ecb_predictions',
+ '--tef': 'resources/ecb/test/Event_gold_mentions_roberta_large.pickle',
+ '--tmf': 'resources/ecb/test/Event_gold_mentions.json',
+ '--topic': 'subtopic'}
+
+ ## Cluster
+ {'--alt': '0.75',
+ '--predictions': 'output/ecb_predictions',
+ '--print': 'conll',
+ '--tmf': 'resources/ecb/test/Event_gold_mentions.json'}
+
