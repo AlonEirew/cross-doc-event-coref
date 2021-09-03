@@ -54,7 +54,7 @@ Model file will be saved at output folder (for each iteration that improves).
 See `inference.py` file header for the complete set of script parameters.
 Running pairwize evaluation example:
 ```
-python src/inference.py --tpf=resources/ecb/test/Event_gold_mentions_PosPairs.pickle --tnf=resources/ecb/test/Event_gold_mentions_NegPairs.pickle --te=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_modeliter_6 --cuda=True
+python src/inference.py --tpf=resources/ecb/test/Event_gold_mentions_PosPairs.pickle --tnf=resources/ecb/test/Event_gold_mentions_NegPairs.pickle --te=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=<checkpoint>/ecb_pairwise_modeliter_6 --cuda=True
 ```
 
 ## CD Coreference
@@ -63,7 +63,7 @@ Generate the pairs predictions (distance) before running the agglomerative clust
 See `generate_pairs_predictions.py` file header for the complete set of script parameters.<br/>
 Running the pairs prediction algorithm:
 ```
-python src/generate_pairs_predictions.py --tmf=resources/ecb/test/Event_gold_mentions.json --tef=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=output/ecb_pairwise_modeliter_6 --out=output/ecb_predictions --cuda=True
+python src/generate_pairs_predictions.py --tmf=resources/ecb/test/Event_gold_mentions.json --tef=resources/ecb/test/Event_gold_mentions_roberta_large.pickle --mf=<checkpoint>/ecb_pairwise_modeliter_6 --out=<checkpoint>/ecb_predictions --cuda=True
 ```
 
 #### Clustering
@@ -71,7 +71,7 @@ Running agglomerative clustering to get the final cluster configuration on the p
 See `cluster.py` file header for the complete set of script parameters.<br/>
 Running the pairs prediction algorithm:
 ```
-python src/cluster.py --tmf=resources/ecb/test/Event_gold_mentions.json --predictions=output/ecb_predictions --alt=0.7
+python src/cluster.py --tmf=resources/ecb/test/Event_gold_mentions.json --predictions=<checkpoint>/ecb_predictions --alt=0.7
 ```
 
 #### Calculating the CoNLL clustering score
@@ -80,7 +80,7 @@ Gold scorer files are at `gold_socrer/ecb/*` folder.<br/>
 **Usage Example**:
 
 ```
-#>perl scorer/scorer.pl all gold_scorer/ecb/CD_test_event_mention_dataset.txt output/ecb_pairwise_modeliter_6_0.7 none
+#>perl scorer/scorer.pl all gold_scorer/ecb/CD_test_event_mention_dataset.txt <checkpoint>/ecb_pairwise_modeliter_6_0.7 none
 ```
  
 
