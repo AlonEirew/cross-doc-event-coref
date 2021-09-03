@@ -115,7 +115,6 @@ class EcbDataSet(DataSet):
         if to_topic == TopicConfig.Topic:
             topics = cls.from_ecb_subtopic_to_topic(topics)
         elif to_topic == TopicConfig.Corpus:
-            # e.g., corpus
             topics.to_single_topic()
 
         # create positive examples

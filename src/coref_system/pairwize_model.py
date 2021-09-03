@@ -1,8 +1,5 @@
 import math
-from abc import ABC
-
 import torch
-
 from torch import nn
 
 
@@ -42,8 +39,7 @@ class PairWiseModelKenton(nn.Module):
         # (batch_size, embed_utils.get_embed_size())
         hiddens2, first2_tok, last2_tok, ment2_size = zip(*self.embed_utils.get_mentions_rep(mentions2))
 
-        # max_ment_span = max([max(ment1_size), max(ment2_size)])
-        max_ment_span = 15
+        max_ment_span = max([max(ment1_size), max(ment2_size)])
         hiddens1_pad = [torch.nn.functional.pad(hid, [0, 0, 0, max_ment_span - hid.shape[0]]) for hid in hiddens1]
         hiddens2_pad = [torch.nn.functional.pad(hid, [0, 0, 0, max_ment_span - hid.shape[0]]) for hid in hiddens2]
 

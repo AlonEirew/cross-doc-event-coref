@@ -3,7 +3,7 @@ import pickle
 from typing import List
 
 import torch
-from transformers import RobertaTokenizer, RobertaModel
+from transformers import RobertaTokenizer, RobertaModel, BertModel, BertTokenizer
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,9 @@ class EmbedTransformersGenerics(object):
                  finetune=False, use_cuda=True):
 
         self.model = RobertaModel.from_pretrained("roberta-large")
+        # self.model = BertModel.from_pretrained("bert-large-cased")
         self.tokenizer = RobertaTokenizer.from_pretrained("roberta-large")
+        # self.tokenizer = BertTokenizer.from_pretrained("bert-large-cased")
         self.max_surrounding_contx = max_surrounding_contx
         self.use_cuda = use_cuda
         self.finetune = finetune
@@ -23,16 +25,16 @@ class EmbedTransformersGenerics(object):
             self.model.cuda()
 
     def get_mention_full_rep(self, mention):
-        ment1_ids, ment1_inx_start, ment1_inx_end = self.mention_feat_to_vec(mention)
+        sent_ids, ment1_inx_start, ment1_inx_end = self.mention_feat_to_vec(mention)
 
         if self.use_cuda:
-            ment1_ids = ment1_ids.cuda()
+            sent_ids = sent_ids.cuda()
 
         if not self.finetune:
             with torch.no_grad():
-                last_hidden_span = self.model(ment1_ids).last_hidden_state
+                last_hidden_span = self.model(sent_ids).last_hidden_state
         else:
-            last_hidden_span = self.model(ment1_ids).last_hidden_state
+            last_hidden_span = self.model(sent_ids).last_hidden_state
 
         mention_hidden_span = last_hidden_span.view(last_hidden_span.shape[1], -1)[ment1_inx_start:ment1_inx_end]
         return mention_hidden_span, mention_hidden_span[0], mention_hidden_span[-1], mention_hidden_span.shape[0]
@@ -50,7 +52,7 @@ class EmbedTransformersGenerics(object):
         ret_context_after = context[end_mention_index:]
 
         assert ret_mention == mention.tokens_str.split(" ")
-        assert len(ret_context_before + ret_mention + ret_context_after) == len(mention.mention_context)
+        assert ret_context_before + ret_mention + ret_context_after == mention.mention_context
 
         return ret_context_before, ret_mention, ret_context_after
 
