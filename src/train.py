@@ -144,8 +144,6 @@ def init_basic_training_resources():
     if _use_cuda:
         torch.cuda.manual_seed(1234)
         pairwize_model.cuda()
-        if torch.cuda.device_count() > 0:
-            torch.cuda.manual_seed_all(1234)
 
     return train_feat, validation_feat, pairwize_model
 
