@@ -12,3 +12,7 @@ reports
 venv
 logging
 output
+datasets/ecb_mal.zip
+datasets/wec_mal.zip
+datasets/ecb
+datasets/wec

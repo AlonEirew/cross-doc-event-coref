@@ -10,6 +10,7 @@ Options:
 
 import logging
 import ntpath
+import os
 
 import torch
 from docopt import docopt
@@ -33,7 +34,7 @@ if __name__ == '__main__':
 
     _dataset = EcbDataSet()
 
-    log_param_str = "inference_" + ntpath.basename(_model_in) + ".log"
+    log_param_str = os.path.dirname(_model_in) + "/inference_" + ntpath.basename(_model_in)
     create_logger_with_fh(log_param_str)
 
     logger.info("Loading the model from-" + _model_in)

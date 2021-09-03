@@ -15,7 +15,7 @@ class TestEmbeddings(unittest.TestCase):
         context_all1 = (context_before * 5) + mention_str + (context_after * 5)
         sanity_ment = MentionData("-1", "-1", "-1", -1, list(range(5, 9)), " ".join(mention_str), context_all1, "None", "None", "None")
         ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics.\
-            extract_mention_surrounding_context(sanity_ment, 5)
+            extract_mention_surrounding_context(sanity_ment)
 
         self.assertEqual((context_before * 5), ret_context_before)
         self.assertEqual((context_after * 5), ret_context_after)
@@ -24,7 +24,7 @@ class TestEmbeddings(unittest.TestCase):
         context_all2 = (context_before * 5) + mention_str + (context_after * 5)
         sanity_ment = MentionData("-1", "-1", "-1", -1, list(range(5, 9)), " ".join(mention_str), context_all2, "None", "None", "None")
         ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics. \
-            extract_mention_surrounding_context(sanity_ment, 6)
+            extract_mention_surrounding_context(sanity_ment)
 
         self.assertEqual((context_before * 5), ret_context_before)
         self.assertEqual((context_after * 5), ret_context_after)
@@ -33,7 +33,7 @@ class TestEmbeddings(unittest.TestCase):
         context_all3 = (context_before * 5) + mention_str + (context_after * 10)
         sanity_ment = MentionData("-1", "-1", "-1", -1, list(range(5, 9)), " ".join(mention_str), context_all3, "None", "None", "None")
         ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics. \
-            extract_mention_surrounding_context(sanity_ment, 6)
+            extract_mention_surrounding_context(sanity_ment)
 
         self.assertEqual((context_before * 5), ret_context_before)
         self.assertEqual((context_after * 6), ret_context_after)
@@ -42,7 +42,7 @@ class TestEmbeddings(unittest.TestCase):
         context_all4 = (context_before * 10) + mention_str + (context_after * 5)
         sanity_ment = MentionData("-1", "-1", "-1", -1, list(range(10, 14)), " ".join(mention_str), context_all4, "None", "None", "None")
         ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics. \
-            extract_mention_surrounding_context(sanity_ment, 6)
+            extract_mention_surrounding_context(sanity_ment)
 
         self.assertEqual((context_before * 6), ret_context_before)
         self.assertEqual((context_after * 5), ret_context_after)
@@ -52,7 +52,7 @@ class TestEmbeddings(unittest.TestCase):
         sanity_ment = MentionData("-1", "-1", "-1", -1, list(range(0, 4)), " ".join(mention_str), context_all5, "None",
                                   "None", "None")
         ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics. \
-            extract_mention_surrounding_context(sanity_ment, 5)
+            extract_mention_surrounding_context(sanity_ment)
 
         self.assertEqual([], ret_context_before)
         self.assertEqual((context_after * 5), ret_context_after)
@@ -62,7 +62,7 @@ class TestEmbeddings(unittest.TestCase):
         sanity_ment = MentionData("-1", "-1", "-1", -1, list(range(5, 9)), " ".join(mention_str), context_all6, "None",
                                   "None", "None")
         ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics. \
-            extract_mention_surrounding_context(sanity_ment, 5)
+            extract_mention_surrounding_context(sanity_ment)
 
         self.assertEqual((context_before * 5), ret_context_before)
         self.assertEqual([], ret_context_after)
@@ -71,7 +71,7 @@ class TestEmbeddings(unittest.TestCase):
         mentions = list()
         mentions.extend(MentionData.read_mentions_json_to_mentions_data_list('tests/test_res/Event_gold_mentions.json'))
         for mention in mentions:
-            ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics.extract_mention_surrounding_context(mention, 250)
+            ret_context_before, ret_mention, ret_context_after = EmbedTransformersGenerics.extract_mention_surrounding_context(mention)
 
             self.fixCat(["'s", ",", "'"], ret_mention)
 

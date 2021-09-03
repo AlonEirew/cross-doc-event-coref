@@ -1,8 +1,6 @@
 docopt==0.6.2
 nltk==3.5
-numpy==1.19.5
 scikit-learn==0.24.1
 spacy==3.0.5
 torch==1.6.0
-transformers==4.3.3
-tqdm==4.59.0
+transformers==4.10.0

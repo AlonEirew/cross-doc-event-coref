@@ -18,7 +18,7 @@ Options:
     --dataset=<d>   wec/ecb - which dataset to generate for [default: wec]
 
 """
-
+from datetime import datetime
 import logging
 
 import numpy as np
@@ -128,9 +128,9 @@ def run_inference(pairwize_model, features, round_pred=True, batch_size=10000):
 
 
 def init_basic_training_resources():
-    torch.manual_seed(1)
-    random.seed(1)
-    np.random.seed(1)
+    torch.manual_seed(1234)
+    random.seed(1234)
+    np.random.seed(1234)
 
     embed_files = [_train_embed, _dev_embed]
     embed_utils = EmbedFromFile(embed_files)
@@ -142,7 +142,7 @@ def init_basic_training_resources():
     validation_feat = dev_dataset.load_pos_neg_pickle(_dev_pos_file, _dev_neg_file)
 
     if _use_cuda:
-        torch.cuda.manual_seed(0)
+        torch.cuda.manual_seed(1234)
         pairwize_model.cuda()
 
     return train_feat, validation_feat, pairwize_model
@@ -150,8 +150,10 @@ def init_basic_training_resources():
 
 if __name__ == '__main__':
     _arguments = docopt(__doc__, argv=None, help=True, version=None, options_first=False)
+    start_time = datetime.now()
+    dt_string = start_time.strftime("%d%m%Y_%H%M%S")
     print(_arguments)
-    _output_folder = create_and_get_path("output")
+    _output_folder = create_and_get_path("checkpoints/" + dt_string)
     _batch_size = int(_arguments.get("--bs"))
     _learning_rate = float(_arguments.get("--lr"))
     _ratio = int(_arguments.get("--ratio"))
@@ -172,7 +174,7 @@ if __name__ == '__main__':
 
     log_params_str = "ds_" + _dataset_arg + "_lr_" + str(_learning_rate) + "_bs_" + str(_batch_size) + "_r" + \
                      str(_ratio) + "_itr" + str(_iterations)
-    create_logger_with_fh(log_params_str)
+    create_logger_with_fh(_output_folder + "/train_" + log_params_str)
 
     logger.info("train_set=" + _dataset_arg + ", lr=" + str(_learning_rate) + ", bs=" + str(_batch_size) +
                 ", ratio=1:" + str(_ratio) + ", itr=" + str(_iterations) +
