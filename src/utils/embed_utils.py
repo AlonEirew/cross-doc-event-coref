@@ -3,7 +3,9 @@ import pickle
 from typing import List
 
 import torch
-from transformers import RobertaTokenizer, RobertaModel, BertModel, BertTokenizer
+from transformers import RobertaTokenizer, RobertaModel
+
+from src.dataobjs.mention_data import MentionData
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +106,30 @@ class EmbedFromFile(object):
             for file_ in files_to_load:
                 bert_dict.update(pickle.load(open(file_, "rb")))
                 logger.info("Bert representation loaded-" + file_)
+
+        self.embeddings = list(bert_dict.values())
+        self.embed_key = {k: i for i, k in enumerate(bert_dict.keys())}
+
+    def get_mention_full_rep(self, mention):
+        return self.embeddings[self.embed_key[mention.mention_id]]
+
+    def get_mentions_rep(self, mentions_list):
+        embed_list = [self.embeddings[self.embed_key[mention.mention_id]] for mention in mentions_list]
+        return embed_list
+
+    def get_embed_size(self):
+        return self.embed_size
+
+
+class EmbedInMemory(object):
+    def __init__(self, mentions: List[MentionData], max_surrounding_contx, use_cuda):
+        self.embed_size = 1024
+        bert_dict = dict()
+        embed_model = EmbedTransformersGenerics(max_surrounding_contx=max_surrounding_contx, use_cuda=use_cuda)
+
+        for ment in mentions:
+            hidden, first_tok, last_tok, ment_size = embed_model.get_mention_full_rep(ment)
+            bert_dict[ment.mention_id] = (hidden.cpu(), first_tok.cpu(), last_tok.cpu(), ment_size)
 
         self.embeddings = list(bert_dict.values())
         self.embed_key = {k: i for i, k in enumerate(bert_dict.keys())}
