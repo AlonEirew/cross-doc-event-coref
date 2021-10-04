@@ -4,6 +4,11 @@ This project model code was used in the paper <a href="https://www.aclweb.org/an
 ## WEC-Eng Pre-trained Model
 Can be downloaded from <a href="https://drive.google.com/file/d/16qlIzBULaVDxtFEtt0TDjl50g52OV_W1/view?usp=sharing">here</a>
 
+## WEC-Eng Dataset
+WEC-Eng is part of huggingface hub and available at this location: [https://huggingface.co/datasets/Intel/WEC-Eng](https://huggingface.co/datasets/Intel/WEC-Eng)
+
+See the **Dataset card**, for instructions on how to read and use WEC-Eng 
+
 ## Prerequisites
 - Python 3.6 or above<br/>
 - `#>pip install -r requirements.txt`
