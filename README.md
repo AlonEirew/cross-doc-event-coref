@@ -2,10 +2,10 @@
 This project model code was used in the paper <a href="https://www.aclweb.org/anthology/2021.naacl-main.198/">״WEC: Deriving a Large-scale Cross-document Event Coreference dataset from Wikipedia״</a> for the cross document event coreference baseline model for WEC-Eng. 
  
 ## WEC-Eng Pre-trained Model
-Can be downloaded from <a href="https://drive.google.com/file/d/16qlIzBULaVDxtFEtt0TDjl50g52OV_W1/view?usp=sharing">here</a>
+Can be downloaded from huggingface hub<a href="https://huggingface.co/Alon/wec">https://huggingface.co/Alon/wec</a>
 
 ## WEC-Eng Dataset
-WEC-Eng is part of huggingface hub and available at this location: [https://huggingface.co/datasets/Intel/WEC-Eng](https://huggingface.co/datasets/Intel/WEC-Eng)
+WEC-Eng can be download from huggingface hub: [https://huggingface.co/datasets/biu-nlp/WEC-Eng](https://huggingface.co/datasets/biu-nlp/WEC-Eng)
 
 See the **Dataset card**, for instructions on how to read and use WEC-Eng 
 
