@@ -2,7 +2,7 @@
 This project model code was used in the paper <a href="https://www.aclweb.org/anthology/2021.naacl-main.198/">״WEC: Deriving a Large-scale Cross-document Event Coreference dataset from Wikipedia״</a> for the cross document event coreference baseline model for WEC-Eng. 
  
 ## WEC-Eng Pre-trained Model
-Can be downloaded from huggingface hub<a href="https://huggingface.co/Alon/wec">https://huggingface.co/Alon/wec</a>
+Can be downloaded from huggingface hub: <a href="https://huggingface.co/Alon/wec">https://huggingface.co/Alon/wec</a>
 
 ## WEC-Eng Dataset
 WEC-Eng can be download from huggingface hub: [https://huggingface.co/datasets/biu-nlp/WEC-Eng](https://huggingface.co/datasets/biu-nlp/WEC-Eng)
@@ -16,11 +16,11 @@ See the **Dataset card**, for instructions on how to read and use WEC-Eng
 
 ## Preprocessing
 The main train process require the mentions pairs and embeddings from each set.<br/>
-Project contains both datasets/ecb.zip & datasets/wec.zip files already in the needed input format.  
 
 ### Generate Mentions Pairs
 #### ECB+
-ECB+ pairs generation for ECB+ test/dev/train sets is straight forward, for example to generate dev set, just run:<br/>
+Project contains datasets/ecb.zip already in the needed input format running the scripts.
+ECB+ pairs generation for ECB+ test/dev/train sets is straight forward, for example to generate just run:<br/>
 ```
 #>python src/preprocess_gen_pairs.py resources/ecb/dev/Event_gold_mentions.json --dataset=ecb --topic=subtopic
 #>python src/preprocess_gen_pairs.py resources/ecb/test/Event_gold_mentions.json --dataset=ecb --topic=subtopic
@@ -32,8 +32,8 @@ Since WEC-Eng train set contains many mentions, generating all negative pairs is
  To that end, we added a control for the negative:positive ratio.<br/> 
  For the Dev and Test sets, as they are much smaller in size,pairs generation is similar to ECB+ (all).
  ```
-#>python src/preprocess_gen_pairs.py resources/wec/dev/Event_gold_mentions.json --dataset=wec --split=dev
-#>python src/preprocess_gen_pairs.py resources/wec/test/Event_gold_mentions.json --dataset=wec --split=test
+#>python src/preprocess_gen_pairs.py resources/wec/dev/Event_gold_mentions_validated.json --dataset=wec --split=dev
+#>python src/preprocess_gen_pairs.py resources/wec/test/Event_gold_mentions_validated.json --dataset=wec --split=test
 #>python src/preprocess_gen_pairs.py resources/wec/train/Event_gold_mentions.json --dataset=wec --split=train --ratio=10
 ```
 
