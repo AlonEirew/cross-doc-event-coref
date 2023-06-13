@@ -1,5 +1,5 @@
 docopt==0.6.2
-nltk==3.5
+nltk==3.6.6
 scikit-learn==0.24.1
 spacy==3.0.5
 torch==1.6.0
